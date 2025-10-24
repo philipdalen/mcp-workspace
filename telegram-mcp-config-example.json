@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "telegram-mcp": {
+      "command": "/Users/philip.dalen/.local/bin/uv",
+      "args": [
+        "--directory",
+        "/Users/philip.dalen/repos/mcp/telegram-mcp",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+}

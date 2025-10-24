@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "teamwork": {
+      "serverUrl": "https://mcp.ai.teamwork.com",
+      "headers": {
+        "Authorization": "Bearer <YOUR_TEAMWORK_BEARER_TOKEN>"
+      }
+    }
+  }
+}
