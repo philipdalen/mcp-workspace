@@ -1,0 +1,42 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.md text
+*.txt text
+*.json text
+*.yaml text
+*.yml text
+*.toml text
+*.ini text
+
+# Scripts
+*.sh text eol=lf
+*.bash text eol=lf
+Makefile text eol=lf
+
+# Source code
+*.go text
+*.ts text
+*.js text
+*.py text
+*.c text
+*.cpp text
+*.h text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+

@@ -1,28 +1,125 @@
-# Teamwork MCP Server Setup
+# MCP Servers Repository
 
-This directory contains configuration and documentation for setting up the **official Teamwork.com MCP server** in Windsurf IDE.
+This repository contains configuration, documentation, and server implementations for various MCP (Model Context Protocol) servers.
 
-## 🎉 Good News!
+## 📦 MCP Servers
 
-The official Teamwork MCP server **already includes full notebook support**! No custom development needed.
+### Teamwork MCP (Node.js) ⭐ Active
 
-## 📁 Files in This Directory
+- **Path**: `servers/teamwork/community/vizioz-teamwork-mcp`
+- **Language**: TypeScript/Node.js
+- **Status**: Working implementation used in production
+- **Features**: Teamwork integration with calendar, projects, tasks, time tracking, and more
+- **Documentation**: `docs/TEAMWORK_MCP_SETUP.md`
 
-- **`TEAMWORK_MCP_SETUP.md`** - Complete setup guide for Windsurf
-- **`NOTEBOOK_OPERATIONS.md`** - Quick reference for notebook operations
-- **`teamwork-mcp-config.json`** - Example MCP configuration file
-- **`teamwork-mcp/`** - Cloned official Teamwork MCP repository (for reference)
+### Telegram MCP (Python) ⭐ Active
+
+- **Path**: `servers/telegram/telegram-mcp`
+- **Language**: Python
+- **Status**: Working implementation used in production
+- **Features**: Telegram messaging and chat management
+- **Documentation**: `docs/TELEGRAM_MCP_SETUP.md`
+
+### Official Teamwork MCP (Go) 📚 Reference Only
+
+- **Path**: `servers/teamwork/official/teamwork-mcp`
+- **Language**: Go
+- **Status**: Reference implementation - not installed or run
+- **Purpose**: Used to study implementation details when adding features to vizioz-teamwork-mcp
+- **Documentation**: Check the submodule README
+
+> **Architecture Note**: When we need new functionality in the Teamwork MCP, we reference the official Go implementation to understand how it works, then implement the logic in our vizioz-teamwork-mcp Node.js server.
 
 ## 🚀 Quick Start
 
-### 1. Get Your Bearer Token
+### 1. Clone the Repository with Submodules
+
+```bash
+git clone --recurse-submodules https://github.com/philipdalen/mcp.git
+cd mcp
+```
+
+If you already cloned without submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
+### 2. Install All Servers
+
+```bash
+make install
+```
+
+This will:
+
+- Initialize and update all git submodules (including the reference official MCP)
+- Install Node.js dependencies for Teamwork MCP (vizioz-teamwork-mcp)
+- Install Python dependencies for Telegram MCP
+
+### 3. Install Individual Servers (Optional)
+
+```bash
+make install-teamwork         # Install only Teamwork MCP (Node.js)
+make install-telegram         # Install only Telegram MCP (Python)
+```
+
+### 4. View All Available Commands
+
+```bash
+make help
+```
+
+> 📘 **Need detailed installation instructions?** See [SETUP.md](SETUP.md) for comprehensive installation guide, troubleshooting, and manual installation steps.
+
+## 📁 Repository Structure
+
+```
+mcp/
+├── Makefile                    # Installation and setup automation
+├── README.md                   # This file
+├── SETUP.md                    # Detailed installation guide
+├── configs/                    # Example configuration files
+│   ├── teamwork-mcp-config-bearer.json
+│   └── telegram-mcp-config-example.json
+├── docs/                       # Documentation
+│   ├── AUTH_GUIDE.md
+│   ├── NOTEBOOK_OPERATIONS.md
+│   ├── TEAMWORK_MCP_SETUP.md
+│   └── TELEGRAM_MCP_SETUP.md
+├── examples/                   # Usage examples
+├── logs/                       # Log files
+└── servers/                    # MCP server implementations
+    ├── teamwork/
+    │   ├── official/          # Official Teamwork MCP (Go)
+    │   └── community/         # Community Teamwork MCP (Node.js)
+    └── telegram/              # Telegram MCP (Python)
+```
+
+## 🔧 Prerequisites
+
+Depending on which servers you want to use, you'll need:
+
+- **Node.js** (18+) - For Teamwork MCP
+  - Install: https://nodejs.org/
+- **Python** (3.9+) - For Telegram MCP
+  - Install: https://www.python.org/downloads/
+
+> **Note**: Go is **not required**. The official Teamwork MCP (Go) is included only as a reference implementation for studying how features are built.
+
+## 📖 Setup Guides
+
+### Teamwork MCP Quick Setup
+
+#### 1. Get Your Bearer Token
+
 ```bash
 npx @teamwork/get-bearer-token
 ```
 
-### 2. Configure Windsurf
+#### 2. Configure Your IDE
 
-Add this to your Windsurf MCP configuration:
+Add this to your Windsurf/Cursor/Claude Desktop MCP configuration:
 
 ```json
 {
@@ -37,56 +134,60 @@ Add this to your Windsurf MCP configuration:
 }
 ```
 
-### 3. Verify
+For detailed setup instructions, see `docs/TEAMWORK_MCP_SETUP.md`.
 
-- Open Windsurf Cascade panel
-- Click the hammer icon 🔨
-- Look for "Teamwork" with a green dot
+### Telegram MCP Quick Setup
+
+See `docs/TELEGRAM_MCP_SETUP.md` for complete setup instructions.
 
 ## 📚 What's Included
 
-### Notebook Tools (5)
-- ✅ Create notebooks (Markdown or HTML)
-- ✅ Update notebooks
-- ✅ Delete notebooks
-- ✅ Get notebook by ID
-- ✅ List notebooks with filtering
+### Teamwork MCP Features
 
-### Additional Tools (30+)
-- Projects, Tasks, Task Lists
-- Users, Teams, Companies
-- Milestones, Tags, Comments
-- Time Logs, Timers, Activities
-- Workload management
+- ✅ Notebooks (Create, Update, Delete, List)
+- ✅ Projects & Task Management
+- ✅ Users, Teams & Companies
+- ✅ Milestones, Tags & Comments
+- ✅ Time Logs & Timers
+- ✅ Workload Management
+- ✅ 30+ tools available
 
-## 🔐 Authentication
+### Telegram MCP Features
 
-The hosted MCP server uses **Bearer token authentication**, which represents you as the end user. This means:
-- ✅ All actions are performed as you
-- ✅ You have the same permissions as your Teamwork account
-- ✅ Audit logs show your user ID
-- ✅ No separate service account needed
+- ✅ Send & receive messages
+- ✅ Chat management
+- ✅ Contact management
+- ✅ Group & channel operations
+- ✅ Media handling
+- ✅ 50+ tools available
+
+## 🛠️ Makefile Commands
+
+```bash
+make help                      # Show all available commands
+make install                   # Install all MCP servers
+make update-submodules         # Update git submodules
+make install-teamwork          # Install Teamwork MCP only (Node.js)
+make install-telegram          # Install Telegram MCP only (Python)
+make clean                     # Remove all installed dependencies
+```
 
 ## 📖 Documentation
 
-- **Setup Guide**: See `TEAMWORK_MCP_SETUP.md` for detailed installation instructions
-- **Notebook Reference**: See `NOTEBOOK_OPERATIONS.md` for notebook operation examples
-- **Official Repo**: https://github.com/Teamwork/mcp
-- **API Docs**: https://apidocs.teamwork.com/
-
-## 🎯 Next Steps
-
-1. ✅ Follow the setup guide in `TEAMWORK_MCP_SETUP.md`
-2. ✅ Get your bearer token
-3. ✅ Configure Windsurf
-4. ✅ Start using notebooks with Cascade!
+- **Installation Guide**: `SETUP.md` - Comprehensive installation, troubleshooting, and manual setup
+- **Teamwork Setup**: `docs/TEAMWORK_MCP_SETUP.md`
+- **Teamwork Notebook Operations**: `docs/NOTEBOOK_OPERATIONS.md`
+- **Telegram Setup**: `docs/TELEGRAM_MCP_SETUP.md`
+- **Authentication Guide**: `docs/AUTH_GUIDE.md`
+- **Teamwork API Docs**: https://apidocs.teamwork.com/
+- **Official Teamwork MCP Repo**: https://github.com/Teamwork/mcp
 
 ## 💡 Example Usage
 
-Once configured, you can ask Cascade:
+### Teamwork Examples
 
 ```
-Create a markdown notebook in project 12345 called "Sprint Planning" 
+Create a markdown notebook in project 12345 called "Sprint Planning"
 with our Q1 goals
 ```
 
@@ -95,15 +196,42 @@ List all notebooks in project 12345 tagged with "documentation"
 ```
 
 ```
-Update notebook 789 to add the new deployment process
+Show me all overdue tasks assigned to me
+```
+
+### Telegram Examples
+
+```
+Send a message to chat ID 12345
+```
+
+```
+List my recent conversations
+```
+
+```
+Search for messages containing "meeting notes" in chat 67890
 ```
 
 ## 🆘 Need Help?
 
-- Check the troubleshooting section in `TEAMWORK_MCP_SETUP.md`
+- Check the setup guides in the `docs/` directory
 - Visit [Teamwork Support](https://support.teamwork.com/)
-- Check [GitHub Issues](https://github.com/Teamwork/mcp/issues)
+- Check [Teamwork MCP GitHub Issues](https://github.com/Teamwork/mcp/issues)
+- Check [Telegram MCP GitHub Issues](https://github.com/philipdalen/telegram-mcp/issues)
+
+## 🤝 Contributing
+
+Contributions are welcome! Each server has its own repository:
+
+- Official Teamwork MCP: https://github.com/Teamwork/mcp
+- Community Teamwork MCP: https://github.com/philipdalen/Teamwork-MCP
+- Telegram MCP: https://github.com/philipdalen/telegram-mcp
+
+## 📝 License
+
+Each MCP server has its own license. Please check the individual server directories for license information.
 
 ---
 
-**Status**: ✅ Ready to use - Official Teamwork MCP server with full notebook support
+**Status**: ✅ Ready to use - Multiple MCP servers with comprehensive features
