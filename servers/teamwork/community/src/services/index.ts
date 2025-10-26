@@ -17,6 +17,10 @@ import createSubTask from './tasks/createSubTask.js';
 import updateTask from './tasks/updateTask.js';
 import deleteTask from './tasks/deleteTask.js';
 import getTaskComments from './tasks/getTaskComments.js';
+import createTaskList from './tasks/createTaskList.js';
+import updateTaskList from './tasks/updateTaskList.js';
+import deleteTaskList from './tasks/deleteTaskList.js';
+import getTaskList from './tasks/getTaskList.js';
 
 // Comment-related exports
 import createComment from './comments/createComment.js';
@@ -31,6 +35,7 @@ import updatePerson from './people/updatePerson.js';
 import getPeopleMetricsPerformance from './people/getPeopleMetricsPerformance.js';
 import getPeopleUtilization from './people/getPeopleUtilization.js';
 import getProjectPerson from './people/getProjectPerson.js';
+import getMe from './people/getMe.js';
 
 // Company-related exports
 import createCompany from './companies/createCompany.js';
@@ -56,9 +61,9 @@ import deleteCalendarEvent from './calendar/deleteCalendarEvent.js';
 
 // Re-export all functions
 export { getProjects, getCurrentProject, createProject, CreateProjectData };
-export { getTasks, getTasksByProjectId, getTaskListsByProjectId, getTaskById, createTask, createSubTask, updateTask, deleteTask };
+export { getTasks, getTasksByProjectId, getTaskListsByProjectId, getTaskById, createTask, createSubTask, updateTask, deleteTask, createTaskList, updateTaskList, deleteTaskList, getTaskList };
 export { createComment };
-export { getPeople, PeopleQueryParams, getPersonById, getProjectPeople, addPeopleToProject, AddPeopleToProjectPayload, deletePerson, updatePerson, getPeopleMetricsPerformance, getPeopleUtilization, getProjectPerson };
+export { getPeople, PeopleQueryParams, getPersonById, getProjectPeople, addPeopleToProject, AddPeopleToProjectPayload, deletePerson, updatePerson, getPeopleMetricsPerformance, getPeopleUtilization, getProjectPerson, getMe };
 export { createCompany, updateCompany, deleteCompany, getCompanies, getCompanyById };
 export { getTime, GetTimeParams };
 export { getUserTaskCompletion, getUtilizationCsv };
@@ -82,6 +87,10 @@ export default {
   updateTask,
   deleteTask,
   getTaskComments,
+  createTaskList,
+  updateTaskList,
+  deleteTaskList,
+  getTaskList,
   
   // Comments
   createComment,
@@ -96,6 +105,7 @@ export default {
   getPeopleMetricsPerformance,
   getPeopleUtilization,
   getProjectPerson,
+  getMe,
   
   // Companies
   createCompany,

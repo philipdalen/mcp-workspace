@@ -22,6 +22,10 @@ import { getTasksMetricsCompleteDefinition as getTasksMetricsComplete, handleGet
 import { getTasksMetricsLateDefinition as getTasksMetricsLate, handleGetTasksMetricsLate } from './tasks/getTasksMetricsLate.js';
 import { getTaskSubtasksDefinition as getTaskSubtasks, handleGetTaskSubtasks } from './tasks/getTaskSubtasks.js';
 import { getTaskCommentsDefinition as getTaskComments, handleGetTaskComments } from './tasks/getTaskComments.js';
+import { createTaskListDefinition as createTaskList, handleCreateTaskList } from './tasks/createTaskList.js';
+import { updateTaskListDefinition as updateTaskList, handleUpdateTaskList } from './tasks/updateTaskList.js';
+import { deleteTaskListDefinition as deleteTaskList, handleDeleteTaskList } from './tasks/deleteTaskList.js';
+import { getTaskListDefinition as getTaskList, handleGetTaskList } from './tasks/getTaskList.js';
 
 // Comments
 import { createCommentDefinition as createComment, handleCreateComment } from './comments/createComment.js';
@@ -33,6 +37,7 @@ import { getProjectPeopleDefinition as getProjectPeople, handleGetProjectPeople 
 import { addPeopleToProjectDefinition as addPeopleToProject, handleAddPeopleToProject } from './people/addPeopleToProject.js';
 import { deletePersonDefinition as deletePerson, handleDeletePerson } from './people/deletePerson.js';
 import { updatePersonDefinition as updatePerson, handleUpdatePerson } from './people/updatePerson.js';
+import { getMeDefinition as getMe, handleGetMe } from './people/getMe.js';
 
 // Companies
 import { createCompanyDefinition as createCompany, handleCreateCompany } from './companies/createCompany.js';
@@ -86,6 +91,10 @@ const toolPairs: ToolPair[] = [
   { definition: getTasksMetricsLate, handler: handleGetTasksMetricsLate },
   { definition: getTaskSubtasks, handler: handleGetTaskSubtasks },
   { definition: getTaskComments, handler: handleGetTaskComments },
+  { definition: createTaskList, handler: handleCreateTaskList },
+  { definition: updateTaskList, handler: handleUpdateTaskList },
+  { definition: deleteTaskList, handler: handleDeleteTaskList },
+  { definition: getTaskList, handler: handleGetTaskList },
   { definition: createComment, handler: handleCreateComment },
   { definition: getPeople, handler: handleGetPeople },
   { definition: getPersonById, handler: handleGetPersonById },
@@ -93,6 +102,7 @@ const toolPairs: ToolPair[] = [
   { definition: addPeopleToProject, handler: handleAddPeopleToProject },
   { definition: deletePerson, handler: handleDeletePerson },
   { definition: updatePerson, handler: handleUpdatePerson },
+  { definition: getMe, handler: handleGetMe },
   { definition: createCompany, handler: handleCreateCompany },
   { definition: updateCompany, handler: handleUpdateCompany },
   { definition: deleteCompany, handler: handleDeleteCompany },
@@ -139,6 +149,10 @@ export { handleGetTasksMetricsComplete } from './tasks/getTasksMetricsComplete.j
 export { handleGetTasksMetricsLate } from './tasks/getTasksMetricsLate.js';
 export { handleGetTaskSubtasks } from './tasks/getTaskSubtasks.js';
 export { handleGetTaskComments } from './tasks/getTaskComments.js';
+export { handleCreateTaskList } from './tasks/createTaskList.js';
+export { handleUpdateTaskList } from './tasks/updateTaskList.js';
+export { handleDeleteTaskList } from './tasks/deleteTaskList.js';
+export { handleGetTaskList } from './tasks/getTaskList.js';
 export { handleCreateComment } from './comments/createComment.js';
 export { handleGetPeople } from './people/getPeople.js';
 export { handleGetPersonById } from './people/getPersonById.js';
@@ -146,6 +160,7 @@ export { handleGetProjectPeople } from './people/getProjectPeople.js';
 export { handleAddPeopleToProject } from './people/addPeopleToProject.js';
 export { handleDeletePerson } from './people/deletePerson.js';
 export { handleUpdatePerson } from './people/updatePerson.js';
+export { handleGetMe } from './people/getMe.js';
 export { handleCreateCompany } from './companies/createCompany.js';
 export { handleUpdateCompany } from './companies/updateCompany.js';
 export { handleDeleteCompany } from './companies/deleteCompany.js';

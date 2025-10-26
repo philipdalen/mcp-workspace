@@ -191,6 +191,7 @@
 - ✅ GET /projects/api/v3/people/{personId}.json
 - ✅ GET /projects/api/v3/projects/{projectId}/people/{personId}.json
 - ✅ GET /projects/api/v3/reporting/precanned/usertaskcompletion/{userId}.json
+- ✅ GET /projects/api/v3/me.json
 
 ## Categories
 
@@ -244,11 +245,10 @@
 - 🟨 GET /projects/api/v3/projects/{projectId}/tasklists.pdf
 - 🟨 GET /projects/api/v3/projects/{projectId}/tasklists.xlsx
 - 🟨 GET /projects/api/v3/tasklists
-- 🟨 GET /projects/api/v3/tasklists/{tasklistId}
-
-## Tasklists
-
-- 🟨 DELETE /projects/api/v3/tasklists/{tasklistId}.json
+- ✅ GET /projects/api/v3/tasklists/{tasklistId}
+- ✅ POST /projects/api/v3/projects/{projectId}/tasklists.json
+- ✅ PUT /projects/api/v3/tasklists/{tasklistId}.json
+- ✅ DELETE /projects/api/v3/tasklists/{tasklistId}.json
 
 ## Tasks
 
@@ -305,11 +305,13 @@
 ### 04/13/2025
 
 - ✅ Implemented Timezone endpoint
+
   - Added GET /timezones.json for retrieving all available timezones
   - Useful for updating user timezones and seeing available options
   - Added proper error handling and logging
 
 - ✅ Implemented Person Update endpoint
+
   - Added PUT /people/{personId}.json for updating user information
   - Added support for updating timezone, name, email, and other user properties
   - Added proper error handling and validation
@@ -347,6 +349,24 @@
   - Created npm-publish.yml workflow that triggers on release creation
   - Configured workflow to build and publish package to npmjs.com
   - Setup authentication using NPM_TOKEN secret
+
+### 10/26/2025
+
+- ✅ Implemented getMe endpoint
+  - Added getMe service and tool (GET /me.json)
+  - Retrieves information about the currently logged-in user
+  - Provides user profile, permissions, and access details
+  - No parameters required - uses the API token to identify the user
+  - Following the same patterns as the official Teamwork MCP server implementation
+- ✅ Implemented Task List Management endpoints
+  - Added createTaskList service and tool (POST /projects/{projectId}/tasklists.json)
+  - Added updateTaskList service and tool (PUT /tasklists/{tasklistId}.json)
+  - Added deleteTaskList service and tool (DELETE /tasklists/{tasklistId}.json)
+  - Added getTaskList service and tool (GET /tasklists/{tasklistId}.json)
+  - Updated service and tool indexes to include the new functionality
+  - Task lists allow teams to organize tasks within projects into meaningful sections
+  - Task lists can be associated with milestones and support privacy settings
+  - Following the same patterns as the official Teamwork MCP server implementation
 
 ### 03/14/2025
 
