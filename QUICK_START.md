@@ -2,30 +2,16 @@
 
 Get up and running with MCP servers in 2 minutes!
 
-> **Architecture Note**: We use vizioz-teamwork-mcp (Node.js) as our working Teamwork MCP server. The official Teamwork MCP (Go) is included only as a reference to study implementations when adding new features.
+> **Architecture Note**: We use vizioz-teamwork-mcp (Node.js) as our working Teamwork MCP server. The official Teamwork MCP (Go) is included only as a reference to study implementations when adding new features. All code is included in the repository - no git submodules!
 
 ## 🚀 Installation
 
-### Option 1: Fresh Clone (Recommended)
+### One Command Setup
 
 ```bash
-# Clone with submodules
-git clone --recurse-submodules https://github.com/philipdalen/mcp.git
+# Clone and install
+git clone https://github.com/philipdalen/mcp.git
 cd mcp
-
-# Install everything
-make install
-```
-
-### Option 2: Already Cloned?
-
-```bash
-cd mcp
-
-# Initialize submodules
-make update-submodules
-
-# Install everything
 make install
 ```
 
@@ -34,7 +20,6 @@ make install
 ```bash
 make help                       # Show all commands
 make install                    # Install all servers
-make update-submodules          # Update submodules
 make install-teamwork           # Install Teamwork MCP (Node.js)
 make install-telegram           # Install Telegram MCP (Python)
 make clean                      # Clean all installations
@@ -82,10 +67,12 @@ make clean                      # Clean all installations
 
 ## ❓ Common Issues
 
-### Submodules are empty
+### Server directories are empty
+
+Re-clone the repository - all code is included (no submodules):
 
 ```bash
-make update-submodules
+git clone https://github.com/philipdalen/mcp.git
 ```
 
 ### Installation failed for a specific server

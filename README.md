@@ -32,17 +32,11 @@ This repository contains configuration, documentation, and server implementation
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository with Submodules
+### 1. Clone the Repository
 
 ```bash
-git clone --recurse-submodules https://github.com/philipdalen/mcp.git
+git clone https://github.com/philipdalen/mcp.git
 cd mcp
-```
-
-If you already cloned without submodules:
-
-```bash
-git submodule update --init --recursive
 ```
 
 ### 2. Install All Servers
@@ -53,7 +47,6 @@ make install
 
 This will:
 
-- Initialize and update all git submodules (including the reference official MCP)
 - Install Node.js dependencies for Teamwork MCP (vizioz-teamwork-mcp)
 - Install Python dependencies for Telegram MCP
 
@@ -64,7 +57,7 @@ make install-teamwork         # Install only Teamwork MCP (Node.js)
 make install-telegram         # Install only Telegram MCP (Python)
 ```
 
-### 4. View All Available Commands
+### 3. View All Available Commands
 
 ```bash
 make help
@@ -166,7 +159,6 @@ See `docs/TELEGRAM_MCP_SETUP.md` for complete setup instructions.
 ```bash
 make help                      # Show all available commands
 make install                   # Install all MCP servers
-make update-submodules         # Update git submodules
 make install-teamwork          # Install Teamwork MCP only (Node.js)
 make install-telegram          # Install Telegram MCP only (Python)
 make clean                     # Remove all installed dependencies

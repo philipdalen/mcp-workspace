@@ -1,4 +1,4 @@
-.PHONY: help install update-submodules install-teamwork install-telegram clean
+.PHONY: help install install-teamwork install-telegram clean
 
 # Default target
 help:
@@ -6,18 +6,18 @@ help:
 	@echo "================="
 	@echo ""
 	@echo "Available targets:"
-	@echo "  make install                  - Initialize all submodules and install dependencies"
-	@echo "  make update-submodules        - Update all submodules to latest commits"
+	@echo "  make install                  - Install dependencies for all active servers"
 	@echo "  make install-teamwork         - Install Node.js dependencies for Teamwork MCP"
 	@echo "  make install-telegram         - Install Python dependencies for Telegram MCP"
 	@echo "  make clean                    - Remove all installed dependencies"
 	@echo ""
 	@echo "Note: The official Teamwork MCP (Go) is kept as a reference only."
 	@echo "      We use vizioz-teamwork-mcp (Node.js) as the working implementation."
+	@echo "      All code is included in the repository - no submodules."
 	@echo ""
 
 # Initialize and install everything
-install: update-submodules install-teamwork install-telegram
+install: install-teamwork install-telegram
 	@echo ""
 	@echo "✅ All MCP servers have been installed successfully!"
 	@echo ""
@@ -26,22 +26,13 @@ install: update-submodules install-teamwork install-telegram
 	@echo "  2. Review docs/TELEGRAM_MCP_SETUP.md for Telegram setup"
 	@echo ""
 
-# Initialize and update git submodules
-update-submodules:
-	@echo "📥 Initializing and updating git submodules..."
-	git submodule update --init --recursive
-	@echo "✅ Submodules updated"
-	@echo ""
-	@echo "ℹ️  Note: The official Teamwork MCP (Go) is included as a reference implementation."
-	@echo "   We use vizioz-teamwork-mcp (Node.js) as our working MCP server."
-
 # Install Teamwork MCP (Node.js/TypeScript)
 # This is the working implementation we use
 install-teamwork:
 	@echo ""
 	@echo "🔧 Installing Teamwork MCP (vizioz-teamwork-mcp - Node.js)..."
 	@if [ ! -d "servers/teamwork/community/vizioz-teamwork-mcp" ]; then \
-		echo "❌ Submodule not found. Run 'make update-submodules' first."; \
+		echo "❌ Directory not found. Please ensure you have cloned the repository correctly."; \
 		exit 1; \
 	fi
 	@if command -v npm > /dev/null 2>&1; then \
@@ -59,7 +50,7 @@ install-telegram:
 	@echo ""
 	@echo "🔧 Installing Telegram MCP (Python)..."
 	@if [ ! -d "servers/telegram/telegram-mcp" ]; then \
-		echo "❌ Submodule not found. Run 'make update-submodules' first."; \
+		echo "❌ Directory not found. Please ensure you have cloned the repository correctly."; \
 		exit 1; \
 	fi
 	@if command -v python3 > /dev/null 2>&1; then \

@@ -1,9 +1,0 @@
-[submodule "teamwork-mcp"]
-	path = servers/teamwork/official/teamwork-mcp
-	url = https://github.com/philipdalen/mcp.git
-[submodule "telegram-mcp"]
-	path = servers/telegram/telegram-mcp
-	url = https://github.com/philipdalen/telegram-mcp.git
-[submodule "vizioz-teamwork-mcp"]
-	path = servers/teamwork/community/vizioz-teamwork-mcp
-	url = https://github.com/philipdalen/Teamwork-MCP.git

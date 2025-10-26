@@ -12,6 +12,8 @@ This repository contains two active MCP servers and one reference implementation
 
 > **Key Concept**: The official Teamwork MCP (Go) is kept as a reference implementation. When we need new functionality in our Teamwork MCP, we study the official implementation to understand how features work, then implement the logic in our vizioz-teamwork-mcp (Node.js) server.
 
+> **Note**: All code is included directly in the repository - no git submodules are used. This makes setup simpler and keeps everything in one place.
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
@@ -39,8 +41,8 @@ Before you begin, ensure you have the following installed:
 This is the easiest way to get started. It will install both active MCP servers.
 
 ```bash
-# Clone the repository with submodules
-git clone --recurse-submodules https://github.com/philipdalen/mcp.git
+# Clone the repository
+git clone https://github.com/philipdalen/mcp.git
 cd mcp
 
 # Install all servers
@@ -49,23 +51,19 @@ make install
 
 This will:
 
-1. Initialize and update all git submodules (including the reference official MCP)
-2. Install Node.js dependencies and build Teamwork MCP (vizioz-teamwork-mcp)
-3. Create Python virtual environment and install Telegram MCP dependencies
+1. Install Node.js dependencies and build Teamwork MCP (vizioz-teamwork-mcp)
+2. Create Python virtual environment and install Telegram MCP dependencies
 
 ### Method 2: Install Individual Servers
 
 If you only want specific servers, you can install them individually:
 
 ```bash
-# Clone the repository with submodules
-git clone --recurse-submodules https://github.com/philipdalen/mcp.git
+# Clone the repository
+git clone https://github.com/philipdalen/mcp.git
 cd mcp
 
-# Update submodules first
-make update-submodules
-
-# Then install only what you need
+# Install only what you need
 make install-teamwork         # Teamwork MCP (Node.js/vizioz-teamwork-mcp)
 make install-telegram         # Telegram MCP (Python)
 ```
@@ -95,21 +93,14 @@ pip install -r requirements.txt
 
 ## Updating Servers
 
-To update all servers to their latest commits:
+To update all servers to their latest versions:
 
 ```bash
-make update-submodules
+git pull origin main
 make install
 ```
 
-Or update individually:
-
-```bash
-cd servers/teamwork/community/vizioz-teamwork-mcp
-git pull origin main
-cd -
-make install-teamwork
-```
+The server code is part of the main repository, so a simple `git pull` will update everything.
 
 ## Cleaning Up
 
@@ -145,13 +136,15 @@ python main.py
 
 ## Troubleshooting
 
-### Submodules Not Initialized
+### Server Directories Are Empty
 
-If you cloned the repository without `--recurse-submodules`, the server directories will be empty. Fix this with:
+If the server directories are empty after cloning, you may need to re-clone the repository:
 
 ```bash
-git submodule update --init --recursive
+git clone https://github.com/philipdalen/mcp.git
 ```
+
+All code is included in the main repository (no submodules), so a fresh clone should contain everything.
 
 ### Permission Denied on Makefile
 
@@ -180,15 +173,6 @@ chmod +x Makefile
   pip install -r requirements.txt
   ```
 
-### Submodule Conflicts
-
-If you see submodule conflicts after updates:
-
-```bash
-git submodule sync
-git submodule update --init --recursive --force
-```
-
 ## Next Steps
 
 After installation, configure each server you want to use:
@@ -209,7 +193,6 @@ After installation, configure each server you want to use:
 ```bash
 make help                      # Show all available commands
 make install                   # Install all MCP servers
-make update-submodules         # Update git submodules
 make install-teamwork          # Install Teamwork MCP only (Node.js)
 make install-telegram          # Install Telegram MCP only (Python)
 make clean                     # Remove all installed dependencies
