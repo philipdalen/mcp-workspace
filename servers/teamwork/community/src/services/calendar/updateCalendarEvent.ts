@@ -10,20 +10,31 @@ import { getApiClientForVersion } from '../core/apiClient.js';
 export const updateCalendarEvent = async (eventId: string | number, eventData: {
   event: {
     title?: string;
+    start?: string;
+    end?: string;
+    'all-day'?: boolean;
     description?: string;
-    startDate?: string;
-    startTime?: string;
-    endDate?: string;
-    endTime?: string;
-    isAllDay?: boolean;
-    location?: string;
-    remindBefore?: number;
-    repeatType?: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
-    repeatEndDate?: string;
-    attendees?: {
-      userIds?: number[];
-      companyIds?: number[];
+    where?: string;
+    repeat?: {
+      frequency: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
     };
+    privacy?: {
+      type: string;
+    };
+    'show-as-busy'?: boolean;
+    type?: {
+      id?: number;
+      color?: string;
+      name?: string;
+    };
+    notify?: boolean;
+    'attendees-can-edit'?: boolean;
+    'project-users-can-edit'?: boolean;
+    'notify-current-user'?: boolean;
+    reminders?: any[];
+    'attending-user-ids'?: string;
+    'notify-user-ids'?: string;
+    'email-user-ids'?: string;
     projectId?: number;
   };
 }) => {

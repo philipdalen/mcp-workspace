@@ -8,7 +8,7 @@ import teamworkService from "../../services/index.js";
 
 export const getCalendarEventByIdDefinition = {
   name: "getCalendarEventById",
-  description: "Get a specific calendar event by ID from Teamwork.",
+  description: "Get a specific calendar event by ID from Teamwork. Returns an event with fields like 'start', 'end', 'all-day', 'where', 'attending-user-ids', 'notify-user-ids', etc.",
   inputSchema: {
     type: "object",
     properties: {

@@ -8,7 +8,7 @@ import teamworkService from "../../services/index.js";
 
 export const getCalendarEventsDefinition = {
   name: "getCalendarEvents",
-  description: "Get calendar events from Teamwork. Retrieve calendar events within a specified date range.",
+  description: "Get calendar events from Teamwork. Retrieve calendar events within a specified date range. Returns events with fields like 'start', 'end', 'all-day', 'where', 'attending-user-ids', 'notify-user-ids', etc.",
   inputSchema: {
     type: "object",
     properties: {

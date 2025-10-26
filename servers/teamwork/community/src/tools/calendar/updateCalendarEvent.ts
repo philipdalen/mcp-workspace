@@ -8,7 +8,7 @@ import teamworkService from "../../services/index.js";
 
 export const updateCalendarEventDefinition = {
   name: "updateCalendarEvent",
-  description: "Update an existing calendar event in Teamwork.",
+  description: "Update an existing calendar event in Teamwork. Use ISO 8601 datetime format (YYYY-MM-DDTHH:MM) for start and end times. All fields are optional except eventId.",
   inputSchema: {
     type: "object",
     properties: {
@@ -23,66 +23,103 @@ export const updateCalendarEventDefinition = {
             type: "string",
             description: "Title of the calendar event"
           },
+          start: {
+            type: "string",
+            description: "Start datetime in ISO 8601 format (e.g., 2026-01-15T09:00)"
+          },
+          end: {
+            type: "string",
+            description: "End datetime in ISO 8601 format (e.g., 2026-01-15T10:00)"
+          },
+          "all-day": {
+            type: "boolean",
+            description: "Whether this is an all-day event"
+          },
           description: {
             type: "string",
             description: "Description of the calendar event"
           },
-          startDate: {
-            type: "string",
-            description: "Start date in YYYYMMDD format (e.g., 20250122)"
-          },
-          startTime: {
-            type: "string",
-            description: "Start time in HH:MM format (e.g., 09:00)"
-          },
-          endDate: {
-            type: "string",
-            description: "End date in YYYYMMDD format (e.g., 20250122)"
-          },
-          endTime: {
-            type: "string",
-            description: "End time in HH:MM format (e.g., 10:00)"
-          },
-          isAllDay: {
-            type: "boolean",
-            description: "Whether this is an all-day event"
-          },
-          location: {
+          where: {
             type: "string",
             description: "Location of the calendar event"
           },
-          remindBefore: {
-            type: "integer",
-            description: "Number of minutes before the event to send a reminder"
-          },
-          repeatType: {
-            type: "string",
-            enum: ["none", "daily", "weekly", "monthly", "yearly"],
-            description: "Repeat type for recurring events"
-          },
-          repeatEndDate: {
-            type: "string",
-            description: "End date for recurring events in YYYYMMDD format"
-          },
-          attendees: {
+          repeat: {
             type: "object",
             properties: {
-              userIds: {
-                type: "array",
-                items: {
-                  type: "integer"
-                },
-                description: "List of user IDs attending this event"
-              },
-              companyIds: {
-                type: "array",
-                items: {
-                  type: "integer"
-                },
-                description: "List of company IDs attending this event"
+              frequency: {
+                type: "string",
+                enum: ["none", "daily", "weekly", "monthly", "yearly"],
+                description: "Repeat frequency for recurring events"
               }
             },
-            description: "Attendees for the calendar event"
+            description: "Repeat settings for recurring events"
+          },
+          privacy: {
+            type: "object",
+            properties: {
+              type: {
+                type: "string",
+                description: "Privacy type (e.g., 'company')"
+              }
+            },
+            description: "Privacy settings for the event"
+          },
+          "show-as-busy": {
+            type: "boolean",
+            description: "Whether to show as busy during this event"
+          },
+          type: {
+            type: "object",
+            properties: {
+              id: {
+                type: "integer",
+                description: "Event type ID"
+              },
+              color: {
+                type: "string",
+                description: "Event type color (hex format without #, e.g., 'FF7641')"
+              },
+              name: {
+                type: "string",
+                description: "Event type name"
+              }
+            },
+            description: "Event type information"
+          },
+          notify: {
+            type: "boolean",
+            description: "Whether to send notifications"
+          },
+          "attendees-can-edit": {
+            type: "boolean",
+            description: "Whether attendees can edit the event"
+          },
+          "project-users-can-edit": {
+            type: "boolean",
+            description: "Whether project users can edit the event"
+          },
+          "notify-current-user": {
+            type: "boolean",
+            description: "Whether to notify the current user"
+          },
+          reminders: {
+            type: "array",
+            description: "Array of reminder settings",
+            items: {
+              type: "object"
+            }
+          },
+          "attending-user-ids": {
+            type: "string",
+            description: "Comma-separated list of user IDs attending the event (e.g., '85696,407292')"
+          },
+          "notify-user-ids": {
+            type: "string",
+            description: "Comma-separated list of user IDs to notify (e.g., '85696')"
+          },
+          "email-user-ids": {
+            type: "string",
+            description: "Comma-separated list of user IDs to email"
           },
           projectId: {
             type: "integer",
