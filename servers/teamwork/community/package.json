@@ -1,0 +1,53 @@
+{
+  "name": "@vizioz/teamwork-mcp",
+  "version": "0.1.16-alpha",
+  "description": "MCP server to connect to the Teamwork.com API",
+  "type": "module",
+  "bin": {
+    "teamwork-mcp": "./build/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc && node prepend-shebang.cjs && node -e \"const fs = require('fs'); if (fs.existsSync('.env.example')) { fs.copyFileSync('.env.example', 'build/.env'); } fs.chmodSync('build/index.js', '755')\"",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "inspector": "tsc && node -e \"const fs = require('fs'); if (fs.existsSync('.env.example')) { fs.copyFileSync('.env.example', 'build/.env'); } fs.chmodSync('build/index.js', '755')\" && npx @modelcontextprotocol/inspector build/index.js",
+    "test-connection": "node -e \"const axios = require('axios'); const fs = require('fs'); require('dotenv').config(); const domain = process.env.TEAMWORK_DOMAIN; const username = process.env.TEAMWORK_USERNAME; const password = process.env.TEAMWORK_PASSWORD; if (!domain || !username || !password) { console.error('Missing required environment variables'); process.exit(1); } const url = `https://${domain}.teamwork.com/projects/api/v3/projects.json`; console.log(`Testing connection to ${url}`); const auth = Buffer.from(`${username}:${password}`).toString('base64'); axios.get(url, { headers: { Authorization: `Basic ${auth}` } }).then(res => { console.log('Connection successful!'); console.log(`Status: ${res.status}`); console.log(`Data: ${JSON.stringify(res.data).substring(0, 200)}...`); }).catch(err => { console.error('Connection failed!'); console.error(`Error: ${err.message}`); if (err.response) { console.error(`Status: ${err.response.status}`); console.error(`Data: ${JSON.stringify(err.response.data)}`); } process.exit(1); });\""
+  },
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vizioz/teamwork-mcp.git"
+  },
+  "keywords": [
+    "teamwork",
+    "api",
+    "mcp",
+    "server"
+  ],
+  "author": "Chris Houston",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vizioz/teamwork-mcp/issues"
+  },
+  "homepage": "https://github.com/vizioz/teamwork-mcp#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "@types/minimist": "^1.2.5",
+    "axios": "^1.8.2",
+    "dotenv": "^16.4.5",
+    "minimist": "^1.2.8",
+    "winston": "^3.12.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
