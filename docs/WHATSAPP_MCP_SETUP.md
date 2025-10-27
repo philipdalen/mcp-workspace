@@ -281,3 +281,4 @@ cd ../whatsapp-mcp-server
 **Bridge**: `/Users/philip.dalen/repos/mcp/servers/whatsapp/community/whatsapp-mcp/whatsapp-bridge/whatsapp-bridge`
 
 
+
