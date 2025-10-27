@@ -9,13 +9,11 @@ import { ensureApiClient } from '../core/apiClient.js';
 export const getTasks = async (params: Record<string, any> = {}) => {
   try {
     const api = ensureApiClient();
+    const endpoint = 'tasks.json';
     
-    // The tool handler is now responsible for ensuring correct parameter names.
-    // No filtering is needed here; pass the params directly.
+    logger.debug(`Making GET request to ${endpoint} with params: ${JSON.stringify(params)}`);
     
-    logger.debug(`Making GET request to /tasks.json with params: ${JSON.stringify(params)}`);
-    
-    const response = await api.get('/tasks.json', { params: params });
+    const response = await api.get(endpoint, { params });
     return response.data;
   } catch (error: any) {
     if (error.response) {

@@ -468,8 +468,11 @@ export const getTasksDefinition = {
       description: "customize the report by selecting columns to be displayed for planned vs actual."
     },
     responsiblePartyIds: {
-      type: "array",
-      description: "filter by responsible party ids"
+      oneOf: [
+        { type: "integer" },
+        { type: "array", items: { type: "integer" } }
+      ],
+      description: "filter by responsible party ids (single ID or array of IDs)"
     },
     projectTagIds: {
       type: "array",
@@ -1010,6 +1013,32 @@ export async function handleGetTasks(input: any) {
     if (apiInput[camelCaseKey] !== undefined) {
       apiInput[apiKey] = apiInput[camelCaseKey];
       delete apiInput[camelCaseKey];
+    }
+  }
+  
+  // Convert array parameters to comma-separated strings as required by Teamwork API
+  // The Teamwork API expects arrays to be formatted as comma-separated values
+  const arrayParameters = [
+    'tasksSelectedColumns', 'tasklistIds', 'taskgroupIds', 'taskIncludedSet',
+    'tags', 'tagIds', 'status', 'skipCRMDealIds', 'selectedColumns',
+    'responsiblePartyIds', 'projectTagIds', 'projectStatuses', 'projectOwnerIds',
+    'projectIds', 'projectHealths', 'projectFeaturesEnabled', 'projectCompanyIds',
+    'projectCategoryIds', 'includeCustomFieldIds', 'include', 'ids',
+    'followedByUserIds', 'filterBoardColumnIds', 'expandedIds', 'excludeTagIds',
+    'crmDealIds', 'createdByUserIds', 'assigneeTeamIds', 'assigneeCompanyIds',
+    'CustomFields'
+  ];
+  
+  for (const param of arrayParameters) {
+    if (Array.isArray(apiInput[param])) {
+      apiInput[param] = apiInput[param].join(',');
+    }
+  }
+  
+  // Also convert the fields[...] parameters if they are arrays
+  for (const apiKey of Object.values(fieldMappings)) {
+    if (Array.isArray(apiInput[apiKey])) {
+      apiInput[apiKey] = apiInput[apiKey].join(',');
     }
   }
   

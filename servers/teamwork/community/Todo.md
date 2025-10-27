@@ -302,6 +302,18 @@
 
 ## MCP Implementation Issues
 
+### 10/27/2025
+
+- ✅ Fixed array parameter handling across multiple tools
+  - The Teamwork API requires array parameters to be formatted as comma-separated values
+  - Previously, axios was sending arrays in its default format (repeated parameters or bracket notation)
+  - Added conversion logic to transform all array parameters to comma-separated strings in:
+    - **getTasks**: tasklistIds, projectIds, tagIds, status arrays, and all fields[...] parameters
+    - **getPeople**: teamIds, projectIds, companyIds
+    - **getCompanies**: tagIds
+  - Fixes issues where filtering by arrays (e.g., multiple project IDs, task lists, or teams) was not working correctly
+  - This was a systematic bug affecting all GET endpoints that accept array parameters
+
 ### 04/13/2025
 
 - ✅ Implemented Timezone endpoint

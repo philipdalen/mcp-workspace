@@ -93,8 +93,18 @@ export async function handleGetPeople(input: any) {
   logger.info(`Query parameters: ${JSON.stringify(input || {})}`);
   
   try {
+    // Convert array parameters to comma-separated strings as required by Teamwork API
+    const apiInput = { ...input };
+    const arrayParameters = ['teamIds', 'projectIds', 'companyIds'];
+    
+    for (const param of arrayParameters) {
+      if (Array.isArray(apiInput[param])) {
+        apiInput[param] = apiInput[param].join(',');
+      }
+    }
+    
     logger.info('Calling teamworkService.getPeople()');
-    const people = await teamworkService.getPeople(input);
+    const people = await teamworkService.getPeople(apiInput);
     
     // Debug the response
     logger.info(`People response type: ${typeof people}`);

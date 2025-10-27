@@ -68,8 +68,17 @@ export async function handleGetCompanies(input: any) {
   logger.info('Calling teamworkService.getCompanies()');
   
   try {
-    // Prepare query parameters
+    // Prepare query parameters and convert array parameters to comma-separated strings
     const params = { ...input };
+    
+    // Convert array parameters to comma-separated strings as required by Teamwork API
+    const arrayParameters = ['tagIds'];
+    for (const param of arrayParameters) {
+      if (Array.isArray(params[param])) {
+        params[param] = params[param].join(',');
+      }
+    }
+    
     logger.info(`Query parameters: ${JSON.stringify(params)}`);
     
     const result = await teamworkService.getCompanies(params);

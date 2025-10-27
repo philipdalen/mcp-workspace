@@ -21,7 +21,7 @@ let teamworkApiV1: AxiosInstance | null = null;
 
 /**
  * Constructs the Teamwork API URL for a specific version
- * @param version API version (v1, v3, etc.)
+ * @param version API version (v1 or v3, defaults to v3)
  * @returns The API URL for the specified version
  */
 export const getApiUrlForVersion = (version: string = 'v3'): string => {
@@ -44,13 +44,13 @@ export const getApiUrlForVersion = (version: string = 'v3'): string => {
     return `https://${trimmedDomain}.teamwork.com/`;
   }
   
-  // For v3 and other versions
-  return `https://${trimmedDomain}.teamwork.com/projects/api/${version}/`;
+  // For v3 (default)
+  return `https://${trimmedDomain}.teamwork.com/projects/api/v3/`;
 };
 
 /**
- * Creates an API client for a specific Teamwork API version
- * @param version API version (v1, v3, etc.)
+ * Creates the Teamwork API client for a specific version
+ * @param version API version (v1 or v3, defaults to v3)
  * @returns Configured Axios instance for the specified API version
  */
 export const createApiClientForVersion = (version: string = 'v3'): AxiosInstance | null => {
@@ -61,13 +61,27 @@ export const createApiClientForVersion = (version: string = 'v3'): AxiosInstance
       throw new Error(`Invalid or empty Teamwork API URL for version ${version}`);
     }
     
-    logger.info(`Creating API client for version ${version} with baseURL: ${apiUrl}`);
+    logger.info(`Creating API client for ${version} with baseURL: ${apiUrl}`);
     
     const api = axios.create({
       baseURL: apiUrl,
       headers: {
         'Authorization': `Basic ${base64Auth}`,
         'Content-Type': 'application/json'
+      },
+      paramsSerializer: {
+        serialize: (params) => {
+          // Custom serializer to avoid array bracket notation (param[] instead of param)
+          const parts: string[] = [];
+          Object.keys(params).forEach(key => {
+            const value = params[key];
+            if (value !== undefined && value !== null) {
+              // Convert value to string and encode
+              parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
+            }
+          });
+          return parts.join('&');
+        }
       }
     });
     
@@ -173,7 +187,7 @@ export const createApiClientForVersion = (version: string = 'v3'): AxiosInstance
   }
 };
 
-// Helper function to create and configure the default API client (v3)
+// Helper function to create and configure the API client (v3)
 export const createApiClient = (): AxiosInstance | null => {
   return createApiClientForVersion('v3');
 };
@@ -196,7 +210,7 @@ export const ensureApiClient = (): AxiosInstance => {
 
 /**
  * Gets or creates an API client for a specific version
- * @param version API version (v1, v3, etc.)
+ * @param version API version (v1 or v3, defaults to v3)
  * @returns Axios instance for the specified API version
  */
 export const getApiClientForVersion = (version: string = 'v3'): AxiosInstance => {
@@ -218,14 +232,10 @@ export const getApiClientForVersion = (version: string = 'v3'): AxiosInstance =>
     return teamworkApiV1;
   }
   
-  // For any other version, create a new client each time
-  const apiClient = createApiClientForVersion(version);
-  if (!apiClient) {
-    const errorMsg = `Teamwork API client (${version}) could not be initialized. Please check your configuration.`;
-    logger.error(errorMsg);
-    throw new Error(errorMsg);
-  }
-  return apiClient;
+  // For any other version, throw an error
+  const errorMsg = `Unsupported API version: ${version}. Only v1 and v3 are supported.`;
+  logger.error(errorMsg);
+  throw new Error(errorMsg);
 };
 
 export default {
