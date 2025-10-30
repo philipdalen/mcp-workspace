@@ -6,18 +6,18 @@ An MCP server that connects to the Teamwork API, providing a simplified interfac
 
 ## Features
 
-- Connect to Teamwork API
-- Retrieve projects and tasks
-- Create, update, and delete tasks
-- RESTful API endpoints
-- Error handling and logging
-- MCP server for integration with Cursor and other applications
+-   Connect to Teamwork API
+-   Retrieve projects and tasks
+-   Create, update, and delete tasks
+-   RESTful API endpoints
+-   Error handling and logging
+-   MCP server for integration with Cursor and other applications
 
 ## Prerequisites
 
-- Node.js (v14.17 or higher, recommend 18+ or even better latest LTS version)
-- npm or yarn
-- Teamwork account with API access
+-   Node.js (v14.17 or higher, recommend 18+ or even better latest LTS version)
+-   npm or yarn
+-   Teamwork account with API access
 
 ## Available Teamwork MCP Tools
 
@@ -25,68 +25,68 @@ The following tools are available through the MCP server:
 
 ### Project Tools
 
-- `getProjects` - Get all projects from Teamwork
-- `getCurrentProject` - Gets details about the current project
-- `createProject` - Create a new project in Teamwork
+-   `getProjects` - Get all projects from Teamwork
+-   `getCurrentProject` - Gets details about the current project
+-   `createProject` - Create a new project in Teamwork
 
 ### Task Tools
 
-- `getTasks` - Get all tasks from Teamwork
-- `getTasksByProjectId` - Get all tasks from a specific project in Teamwork
-- `getTaskListsByProjectId` - Get all task lists from a specific project in Teamwork
-- `getTasksByTaskListId` - Gets all tasks from a specific task list ID from Teamwork
-- `getTaskById` - Get a specific task by ID from Teamwork
-- `createTask` - Create a new task in Teamwork
-- `createSubTask` - Create a new subtask under a parent task in Teamwork
-- `updateTask` - Update an existing task in Teamwork
-- `deleteTask` - Delete a task from Teamwork
-- `getTasksMetricsComplete` - Get the total count of completed tasks in Teamwork
-- `getTasksMetricsLate` - Get the total count of late tasks in Teamwork
-- `getTaskSubtasks` - Get all subtasks for a specific task in Teamwork
-- `getTaskComments` - Get comments for a specific task from Teamwork
+-   `getTasks` - Get all tasks from Teamwork
+-   `getTasksByProjectId` - Get all tasks from a specific project in Teamwork
+-   `getTaskListsByProjectId` - Get all task lists from a specific project in Teamwork
+-   `getTasksByTaskListId` - Gets all tasks from a specific task list ID from Teamwork
+-   `getTaskById` - Get a specific task by ID from Teamwork
+-   `createTask` - Create a new task in Teamwork
+-   `createSubTask` - Create a new subtask under a parent task in Teamwork
+-   `updateTask` - Update an existing task in Teamwork
+-   `deleteTask` - Delete a task from Teamwork
+-   `getTasksMetricsComplete` - Get the total count of completed tasks in Teamwork
+-   `getTasksMetricsLate` - Get the total count of late tasks in Teamwork
+-   `getTaskSubtasks` - Get all subtasks for a specific task in Teamwork
+-   `getTaskComments` - Get comments for a specific task from Teamwork
 
 ### Comment Tools
 
-- `createComment` - Create a comment related to a task/message/notebook
+-   `createComment` - Create a comment related to a task/message/notebook
 
 ### Company Tools
 
-- `getCompanies` - Get all companies from Teamwork with optional filtering
-- `getCompanyById` - Get a specific company by ID
-- `createCompany` - Create a new company in Teamwork
-- `updateCompany` - Update an existing company's information
-- `deleteCompany` - Delete a company from Teamwork
+-   `getCompanies` - Get all companies from Teamwork with optional filtering
+-   `getCompanyById` - Get a specific company by ID
+-   `createCompany` - Create a new company in Teamwork
+-   `updateCompany` - Update an existing company's information
+-   `deleteCompany` - Delete a company from Teamwork
 
 ### People Tools
 
-- `getPeople` - Get all people from Teamwork
-- `getPersonById` - Get a specific person by ID from Teamwork
-- `getProjectPeople` - Get all people assigned to a specific project from Teamwork
-- `addPeopleToProject` - Add people to a specific project in Teamwork
-- `deletePerson` - Delete a person from Teamwork
-- `updatePerson` - Update a person's information (timezone, name, email, etc.)
-- `getProjectsPeopleMetricsPerformance` - Get people metrics performance
-- `getProjectsPeopleUtilization` - Get people utilization
-- `getProjectPerson` - Get a specific person on a project
+-   `getPeople` - Get all people from Teamwork
+-   `getPersonById` - Get a specific person by ID from Teamwork
+-   `getProjectPeople` - Get all people assigned to a specific project from Teamwork
+-   `addPeopleToProject` - Add people to a specific project in Teamwork
+-   `deletePerson` - Delete a person from Teamwork
+-   `updatePerson` - Update a person's information (timezone, name, email, etc.)
+-   `getProjectsPeopleMetricsPerformance` - Get people metrics performance
+-   `getProjectsPeopleUtilization` - Get people utilization
+-   `getProjectPerson` - Get a specific person on a project
 
 ### Reporting Tools
 
-- `getProjectsReportingUserTaskCompletion` - Get user task completion report
-- `getProjectsReportingUtilization` - Get utilization report in various formats CSV & HTML
+-   `getProjectsReportingUserTaskCompletion` - Get user task completion report
+-   `getProjectsReportingUtilization` - Get utilization report in various formats CSV & HTML
 
 ### Time Tools
 
-- `getTime` - Get all time entries
-- `getProjectsAllocationsTime` - Get project allocations time
-- `getTimezones` - Get all available timezones in Teamwork (useful when updating user timezones)
+-   `getTime` - Get all time entries
+-   `getProjectsAllocationsTime` - Get project allocations time
+-   `getTimezones` - Get all available timezones in Teamwork (useful when updating user timezones)
 
 ### Calendar Tools
 
-- `getCalendarEvents` - Get calendar events from Teamwork within a specified date range
-- `getCalendarEventById` - Get a specific calendar event by ID
-- `createCalendarEvent` - Create a new calendar event (meeting, appointment, etc.)
-- `updateCalendarEvent` - Update an existing calendar event
-- `deleteCalendarEvent` - Delete a calendar event from Teamwork
+-   `getCalendarEvents` - Get calendar events from Teamwork within a specified date range
+-   `getCalendarEventById` - Get a specific calendar event by ID
+-   `createCalendarEvent` - Create a new calendar event (meeting, appointment, etc.)
+-   `updateCalendarEvent` - Update an existing calendar event
+-   `deleteCalendarEvent` - Delete a calendar event from Teamwork
 
 ## Installation
 
@@ -104,6 +104,33 @@ You can also pass configuration options directly:
 npx @vizioz/teamwork-mcp --domain=your-company --user=your-email@example.com --pass=your-password
 ```
 
+### Using Docker
+
+You can also run Teamwork MCP in a Docker container. This is useful for:
+
+-   Consistent environments across different systems
+-   Easy deployment to cloud platforms
+-   Integration with Claude Desktop without installing Node.js
+
+```bash
+# Navigate to the community directory
+cd servers/teamwork/community
+
+# Build the Docker image
+./docker-build.sh
+# or manually: docker build -f Dockerfile.standalone -t teamwork-mcp:local .
+
+# Run with your credentials
+docker run -i --rm \
+  -e TEAMWORK_DOMAIN=your-company \
+  -e TEAMWORK_USERNAME=your-email@example.com \
+  -e TEAMWORK_PASSWORD=your-password \
+  -e DISABLE_LOGGING=true \
+  teamwork-mcp:local
+```
+
+For detailed Docker setup instructions, including integration with Claude Desktop and Cursor, see [DOCKER_SETUP.md](DOCKER_SETUP.md).
+
 ## Configuration
 
 ### Setting Credentials
@@ -114,23 +141,23 @@ You can provide your Teamwork credentials in three ways:
 
 2. **.env File**: Create a `.env` file with the required variables:
 
-   ```
-   TEAMWORK_DOMAIN=your-company
-   TEAMWORK_USERNAME=your-email@example.com
-   TEAMWORK_PASSWORD=your-password
-   ```
+    ```
+    TEAMWORK_DOMAIN=your-company
+    TEAMWORK_USERNAME=your-email@example.com
+    TEAMWORK_PASSWORD=your-password
+    ```
 
 3. **Command Line Arguments**: Pass credentials when running the application:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --teamwork-domain=your-company --teamwork-username=your-email@example.com --teamwork-password=your-password
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --teamwork-domain=your-company --teamwork-username=your-email@example.com --teamwork-password=your-password
+    ```
 
-   Or using short form:
+    Or using short form:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --domain=your-company --user=your-email@example.com --pass=your-password
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --domain=your-company --user=your-email@example.com --pass=your-password
+    ```
 
 ### Logging Configuration
 
@@ -138,26 +165,26 @@ By default, the Teamwork MCP server creates log files in a `logs` directory to h
 
 1. **Command Line Arguments**:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --disable-logging
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --disable-logging
+    ```
 
-   Or using the alternative form:
+    Or using the alternative form:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --no-logging
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --no-logging
+    ```
 
 2. **Environment Variable**:
 
-   ```bash
-   DISABLE_LOGGING=true npx @vizioz/teamwork-mcp
-   ```
+    ```bash
+    DISABLE_LOGGING=true npx @vizioz/teamwork-mcp
+    ```
 
 When logging is enabled, the server creates two log files in the `logs` directory:
 
-- `error.log` - Contains only error-level messages
-- `combined.log` - Contains all log messages (info, warnings, errors)
+-   `error.log` - Contains only error-level messages
+-   `combined.log` - Contains all log messages (info, warnings, errors)
 
 Each log file includes a header with instructions on how to disable logging if needed.
 
@@ -167,38 +194,38 @@ You can control which tools are available to the MCP server using the following 
 
 1. **Allow List**: Only expose specific tools:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --allow-tools=getProjects,getTasks,getTaskById
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --allow-tools=getProjects,getTasks,getTaskById
+    ```
 
-   Or using short form:
+    Or using short form:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --allow=getProjects,getTasks,getTaskById
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --allow=getProjects,getTasks,getTaskById
+    ```
 
 2. **Deny List**: Expose all tools except those specified:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --deny-tools=deleteTask,updateTask
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --deny-tools=deleteTask,updateTask
+    ```
 
-   Or using short form:
+    Or using short form:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --deny=deleteTask,updateTask
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --deny=deleteTask,updateTask
+    ```
 
 ### Tool Filtering with Groups
 
 You can now specify groups of tools for filtering, allowing for more flexible control over which tools are available to the MCP server. The available groups are:
 
-- **Projects**: Includes all project-related tools.
-- **Tasks**: Includes all task-related tools.
-- **People**: Includes all people-related tools.
-- **Reporting**: Includes all reporting-related tools.
-- **Time**: Includes all time-related tools.
-- **Comments**: Includes specific comment tools.
+-   **Projects**: Includes all project-related tools.
+-   **Tasks**: Includes all task-related tools.
+-   **People**: Includes all people-related tools.
+-   **Reporting**: Includes all reporting-related tools.
+-   **Time**: Includes all time-related tools.
+-   **Comments**: Includes specific comment tools.
 
 ### Using Groups in Tool Filtering
 
@@ -206,27 +233,27 @@ You can specify these groups in the allow or deny lists to include or exclude al
 
 1. **Allow List with Groups**: Only expose specific groups of tools:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --allow-tools=Tasks,People
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --allow-tools=Tasks,People
+    ```
 
-   Or using short form:
+    Or using short form:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --allow=Tasks,People
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --allow=Tasks,People
+    ```
 
 2. **Deny List with Groups**: Expose all tools except those in specified groups:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --deny-tools=Reporting,Time
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --deny-tools=Reporting,Time
+    ```
 
-   Or using short form:
+    Or using short form:
 
-   ```bash
-   npx @vizioz/teamwork-mcp --deny=Reporting,Time
-   ```
+    ```bash
+    npx @vizioz/teamwork-mcp --deny=Reporting,Time
+    ```
 
 By default, all tools are exposed if neither allow nor deny list is provided. If both are provided, the allow list takes precedence.
 
@@ -264,7 +291,7 @@ To add this MCP server to Cursor:
 3. Enter a name for the server (e.g., "Teamwork API")
 4. Select "stdio" as the transport type
 5. Enter the command to run the server: `npx @vizioz/teamwork-mcp` and add the credentials and domain command line arguments as mentioned above.
-   - You can include tool filtering options: `--allow=getProjects,getTasks` or `--deny=deleteTask`
+    - You can include tool filtering options: `--allow=getProjects,getTasks` or `--deny=deleteTask`
 6. Click "Add"
 
 #### Versions after 0.47 (editing the config manually)
@@ -339,21 +366,21 @@ Add the following configuration:
 
 ```json
 {
-  "mcpServers": {
-    "teamwork": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@vizioz/teamwork-mcp",
-        "--domain",
-        "yourdomain",
-        "--user",
-        "youruser@yourdomain.com",
-        "--pass",
-        "yourPassword"
-      ]
+    "mcpServers": {
+        "teamwork": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@vizioz/teamwork-mcp",
+                "--domain",
+                "yourdomain",
+                "--user",
+                "youruser@yourdomain.com",
+                "--pass",
+                "yourPassword"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -369,33 +396,33 @@ _Note: You only need to follow these instructions if you plan to contribute to t
 
 1. Clone the repository:
 
-   ```bash
-   git clone https://github.com/readingdancer/teamwork-mcp.git
-   cd teamwork-mcp
-   ```
+    ```bash
+    git clone https://github.com/readingdancer/teamwork-mcp.git
+    cd teamwork-mcp
+    ```
 
 2. Install dependencies:
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
 3. Create a `.env` file based on the `.env.example` file:
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 4. Update the `.env` file with your Teamwork credentials:
 
-   ```
-   PORT=3000
-   NODE_ENV=development
-   LOG_LEVEL=info
-   TEAMWORK_DOMAIN=your-company
-   TEAMWORK_USERNAME=your-email@example.com
-   TEAMWORK_PASSWORD=your-password
-   ```
+    ```
+    PORT=3000
+    NODE_ENV=development
+    LOG_LEVEL=info
+    TEAMWORK_DOMAIN=your-company
+    TEAMWORK_USERNAME=your-email@example.com
+    TEAMWORK_PASSWORD=your-password
+    ```
 
 ### Building the Application
 
