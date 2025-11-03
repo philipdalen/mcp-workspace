@@ -11,6 +11,7 @@ export interface TrelloCard {
   due: string | null;
   idList: string;
   idLabels: string[];
+  idMembers: string[];
   closed: boolean;
   url: string;
   dateLastActivity: string;
@@ -62,6 +63,24 @@ export interface TrelloMember {
   fullName: string;
   username: string;
   avatarUrl: string | null;
+}
+
+export interface TrelloChecklist {
+  id: string;
+  name: string;
+  idCard: string;
+  idBoard: string;
+  pos: number;
+  checkItems: TrelloCheckItem[];
+}
+
+export interface TrelloCheckItem {
+  id: string;
+  name: string;
+  state: 'complete' | 'incomplete';
+  idChecklist: string;
+  pos: number;
+  due?: string | null;
 }
 
 export interface RateLimiter {

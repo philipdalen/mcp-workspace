@@ -18,9 +18,9 @@ Tokens are user-specific and grant delegated access. To acquire one:
 
 1. Direct the user to the authorization endpoint with a URL like this:
    ```
-   https://trello.com/1/authorize?expiration=1day&scope=read&response_type=token&key={YourAPIKey}
+   https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&key={YourAPIKey}
    ```
-   - Customize parameters such as `expiration` (options: `1hour`, `1day`, `30days`, or `never`), `scope` (`read`, `write`, `account`), and optionally `name` for your app's name.
+   - Customize parameters such as `expiration` (options: `1hour`, `1day`, `30days`, or `never`), `scope` (`read`, `write`, `account` - comma-separated for multiple scopes), and optionally `name` for your app's name.
 2. The user will be prompted to log in (if needed) and click "Allow" to grant access.
 3. Upon approval, the user is redirected to a success page displaying the token (or handled via callback methods like `postMessage` or `fragment` for web apps, with a `return_url` parameter).
 

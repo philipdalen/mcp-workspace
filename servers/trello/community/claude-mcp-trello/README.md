@@ -8,7 +8,8 @@ A Model Context Protocol (MCP) server that provides tools for interacting with T
 
 ## Features
 
-- **Full Trello Board Integration**: Interact with cards, lists, and board activities  
+- **Full Trello Board Integration**: Interact with cards, lists, checklists, and board activities  
+- **Checklist Management**: Create and manage checklists (task lists) and checklist items on cards
 - **Built-in Rate Limiting**: Respects Trello's API limits (300 requests/10s per API key, 100 requests/10s per token)  
 - **Type-Safe Implementation**: Written in TypeScript with comprehensive type definitions  
 - **Input Validation**: Robust validation for all API inputs  
@@ -140,6 +141,106 @@ Performs a cross-board search across all boards in the workspace (organization),
   }
 }
 ```
+
+## Checklist Tools
+
+### `trello_get_checklists_on_card`
+Retrieves all checklists on a specific card.
+
+```typescript
+{
+  name: "trello_get_checklists_on_card",
+  arguments: {
+    cardId: string; // The ID of the card
+  }
+}
+```
+
+### `trello_create_checklist`
+Creates a new checklist on a card.
+
+```typescript
+{
+  name: "trello_create_checklist",
+  arguments: {
+    cardId: string;           // The ID of the card to add the checklist to
+    name: string;             // The name of the checklist
+    pos?: number | string;    // Optional: position ("top", "bottom", or number)
+  }
+}
+```
+
+### `trello_update_checklist`
+Updates a checklist (name or position).
+
+```typescript
+{
+  name: "trello_update_checklist",
+  arguments: {
+    checklistId: string;      // The ID of the checklist to update
+    name?: string;            // Optional: new name for the checklist
+    pos?: number | string;    // Optional: new position
+  }
+}
+```
+
+### `trello_delete_checklist`
+Deletes a checklist from a card.
+
+```typescript
+{
+  name: "trello_delete_checklist",
+  arguments: {
+    checklistId: string; // The ID of the checklist to delete
+  }
+}
+```
+
+### `trello_create_check_item`
+Creates a new item in a checklist.
+
+```typescript
+{
+  name: "trello_create_check_item",
+  arguments: {
+    checklistId: string;      // The ID of the checklist to add the item to
+    name: string;             // The name of the check item
+    pos?: number | string;    // Optional: position
+    checked?: boolean;        // Optional: whether the item is checked (default: false)
+  }
+}
+```
+
+### `trello_update_check_item`
+Updates a check item (name, state, or position).
+
+```typescript
+{
+  name: "trello_update_check_item",
+  arguments: {
+    cardId: string;           // The ID of the card containing the check item
+    checkItemId: string;      // The ID of the check item to update
+    name?: string;            // Optional: new name for the check item
+    state?: "complete" | "incomplete";  // Optional: new state
+    pos?: number | string;    // Optional: new position
+  }
+}
+```
+
+### `trello_delete_check_item`
+Deletes a check item from a checklist.
+
+```typescript
+{
+  name: "trello_delete_check_item",
+  arguments: {
+    checklistId: string;      // The ID of the checklist containing the item
+    checkItemId: string;      // The ID of the check item to delete
+  }
+}
+```
+
+For detailed information about checklist features and usage examples, see [CHECKLIST_FEATURES.md](CHECKLIST_FEATURES.md).
 
 ## Rate Limiting
 
