@@ -1,16 +1,36 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 // Check if logging is disabled via environment variable or command line
 const isLoggingDisabled = process.env.DISABLE_LOGGING === 'true' || 
                          process.argv.includes('--disable-logging') || 
                          process.argv.includes('--no-logging');
 
+// Get the directory where this file is located (more reliable than process.cwd())
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Determine logs directory: use project root (parent of src/utils) or fallback to current working directory
+// If process.cwd() is root (/), use the project directory instead
+const projectRoot = path.resolve(__dirname, '../..');
+const cwd = process.cwd();
+const logsDir = (cwd === '/' || cwd === '') 
+  ? path.join(projectRoot, 'logs')
+  : path.join(cwd, 'logs');
+
 // Ensure logs directory exists only if logging is enabled
-const logsDir = path.join(process.cwd(), 'logs');
-if (!isLoggingDisabled && !fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+if (!isLoggingDisabled) {
+  try {
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+  } catch (error) {
+    // If we can't create logs directory, disable file logging but continue
+    console.error(`Warning: Could not create logs directory at ${logsDir}:`, error);
+  }
 }
 
 // Define file log format
