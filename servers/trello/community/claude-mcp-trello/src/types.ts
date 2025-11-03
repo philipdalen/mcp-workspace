@@ -83,6 +83,30 @@ export interface TrelloCheckItem {
   due?: string | null;
 }
 
+export interface TrelloComment {
+  id: string;
+  type: 'commentCard';
+  date: string;
+  data: {
+    text: string;
+    card: {
+      id: string;
+      name: string;
+    };
+    board: {
+      id: string;
+      name: string;
+    };
+  };
+  idMemberCreator: string;
+  memberCreator: {
+    id: string;
+    fullName: string;
+    username: string;
+    avatarUrl?: string;
+  };
+}
+
 export interface RateLimiter {
   canMakeRequest(): boolean;
   waitForAvailableToken(): Promise<void>;

@@ -500,6 +500,103 @@ const trelloGetCurrentUserTool: Tool = {
   },
 };
 
+// Comment management tools
+interface GetCommentsOnCardArgs {
+  cardId: string;
+}
+
+const trelloGetCommentsOnCardTool: Tool = {
+  name: 'trello_get_comments_on_card',
+  description: 'Retrieves all comments on a specific card.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cardId: {
+        type: 'string',
+        description: 'The ID of the card',
+      },
+    },
+    required: ['cardId'],
+  },
+};
+
+interface AddCommentToCardArgs {
+  cardId: string;
+  text: string;
+}
+
+const trelloAddCommentToCardTool: Tool = {
+  name: 'trello_add_comment_to_card',
+  description: 'Adds a comment to a card.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cardId: {
+        type: 'string',
+        description: 'The ID of the card',
+      },
+      text: {
+        type: 'string',
+        description: 'The text content of the comment',
+      },
+    },
+    required: ['cardId', 'text'],
+  },
+};
+
+interface UpdateCommentArgs {
+  cardId: string;
+  commentId: string;
+  text: string;
+}
+
+const trelloUpdateCommentTool: Tool = {
+  name: 'trello_update_comment',
+  description: 'Updates an existing comment on a card.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cardId: {
+        type: 'string',
+        description: 'The ID of the card',
+      },
+      commentId: {
+        type: 'string',
+        description: 'The ID of the comment to update',
+      },
+      text: {
+        type: 'string',
+        description: 'The new text content of the comment',
+      },
+    },
+    required: ['cardId', 'commentId', 'text'],
+  },
+};
+
+interface DeleteCommentArgs {
+  cardId: string;
+  commentId: string;
+}
+
+const trelloDeleteCommentTool: Tool = {
+  name: 'trello_delete_comment',
+  description: 'Deletes a comment from a card.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cardId: {
+        type: 'string',
+        description: 'The ID of the card',
+      },
+      commentId: {
+        type: 'string',
+        description: 'The ID of the comment to delete',
+      },
+    },
+    required: ['cardId', 'commentId'],
+  },
+};
+
 // --------------------------------------------------
 // Main server implementation
 // --------------------------------------------------
@@ -854,6 +951,62 @@ async function main() {
           };
         }
 
+        // --------------------------------------------------
+        // Get comments on a card
+        // --------------------------------------------------
+        case 'trello_get_comments_on_card': {
+          const args = request.params.arguments as unknown as GetCommentsOnCardArgs;
+          if (!args.cardId) {
+            throw new Error('Missing required argument: cardId');
+          }
+          const response = await trelloClient.getCommentsOnCard(args.cardId);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(response) }],
+          };
+        }
+
+        // --------------------------------------------------
+        // Add comment to card
+        // --------------------------------------------------
+        case 'trello_add_comment_to_card': {
+          const args = request.params.arguments as unknown as AddCommentToCardArgs;
+          if (!args.cardId || !args.text) {
+            throw new Error('Missing required arguments: cardId, text');
+          }
+          const response = await trelloClient.addCommentToCard(args.cardId, args.text);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(response) }],
+          };
+        }
+
+        // --------------------------------------------------
+        // Update comment
+        // --------------------------------------------------
+        case 'trello_update_comment': {
+          const args = request.params.arguments as unknown as UpdateCommentArgs;
+          if (!args.cardId || !args.commentId || !args.text) {
+            throw new Error('Missing required arguments: cardId, commentId, text');
+          }
+          const response = await trelloClient.updateComment(args.cardId, args.commentId, args.text);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(response) }],
+          };
+        }
+
+        // --------------------------------------------------
+        // Delete comment
+        // --------------------------------------------------
+        case 'trello_delete_comment': {
+          const args = request.params.arguments as unknown as DeleteCommentArgs;
+          if (!args.cardId || !args.commentId) {
+            throw new Error('Missing required arguments: cardId, commentId');
+          }
+          await trelloClient.deleteComment(args.cardId, args.commentId);
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: true }) }],
+          };
+        }
+
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
       }
@@ -900,6 +1053,10 @@ async function main() {
         trelloRemoveMemberFromCardTool,
         trelloGetBoardMembersTool,
         trelloGetCurrentUserTool,
+        trelloGetCommentsOnCardTool,
+        trelloAddCommentToCardTool,
+        trelloUpdateCommentTool,
+        trelloDeleteCommentTool,
       ],
     };
   });

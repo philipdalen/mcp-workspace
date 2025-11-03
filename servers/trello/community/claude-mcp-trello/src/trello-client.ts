@@ -7,6 +7,7 @@ import {
   TrelloChecklist,
   TrelloCheckItem,
   TrelloMember,
+  TrelloComment,
 } from './types.js';
 import { createTrelloRateLimiters } from './rate-limiter.js';
 
@@ -282,6 +283,45 @@ export class TrelloClient {
     return this.handleRequest(async () => {
       const response = await this.axiosInstance.get('/members/me');
       return response.data;
+    });
+  }
+
+  // Comment operations
+  async getCommentsOnCard(cardId: string): Promise<TrelloComment[]> {
+    return this.handleRequest(async () => {
+      const response = await this.axiosInstance.get(`/cards/${cardId}/actions`, {
+        params: {
+          filter: 'commentCard',
+        },
+      });
+      return response.data;
+    });
+  }
+
+  async addCommentToCard(cardId: string, text: string): Promise<TrelloComment> {
+    return this.handleRequest(async () => {
+      const response = await this.axiosInstance.post(`/cards/${cardId}/actions/comments`, {
+        text,
+      });
+      return response.data;
+    });
+  }
+
+  async updateComment(cardId: string, commentId: string, text: string): Promise<TrelloComment> {
+    return this.handleRequest(async () => {
+      const response = await this.axiosInstance.put(
+        `/cards/${cardId}/actions/${commentId}/comments`,
+        {
+          text,
+        }
+      );
+      return response.data;
+    });
+  }
+
+  async deleteComment(cardId: string, commentId: string): Promise<void> {
+    return this.handleRequest(async () => {
+      await this.axiosInstance.delete(`/cards/${cardId}/actions/${commentId}/comments`);
     });
   }
 }

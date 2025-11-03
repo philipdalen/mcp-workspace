@@ -10,6 +10,7 @@ A Model Context Protocol (MCP) server that provides tools for interacting with T
 
 - **Full Trello Board Integration**: Interact with cards, lists, checklists, and board activities  
 - **Checklist Management**: Create and manage checklists (task lists) and checklist items on cards
+- **Comment Management**: Add, update, delete, and retrieve comments on cards
 - **Built-in Rate Limiting**: Respects Trello's API limits (300 requests/10s per API key, 100 requests/10s per token)  
 - **Type-Safe Implementation**: Written in TypeScript with comprehensive type definitions  
 - **Input Validation**: Robust validation for all API inputs  
@@ -241,6 +242,108 @@ Deletes a check item from a checklist.
 ```
 
 For detailed information about checklist features and usage examples, see [CHECKLIST_FEATURES.md](CHECKLIST_FEATURES.md).
+
+## Comment Tools
+
+### `trello_get_comments_on_card`
+Retrieves all comments on a specific card.
+
+```typescript
+{
+  name: "trello_get_comments_on_card",
+  arguments: {
+    cardId: string; // The ID of the card
+  }
+}
+```
+
+### `trello_add_comment_to_card`
+Adds a comment to a card.
+
+```typescript
+{
+  name: "trello_add_comment_to_card",
+  arguments: {
+    cardId: string;  // The ID of the card
+    text: string;    // The text content of the comment
+  }
+}
+```
+
+### `trello_update_comment`
+Updates an existing comment on a card.
+
+```typescript
+{
+  name: "trello_update_comment",
+  arguments: {
+    cardId: string;     // The ID of the card
+    commentId: string;  // The ID of the comment to update
+    text: string;       // The new text content of the comment
+  }
+}
+```
+
+### `trello_delete_comment`
+Deletes a comment from a card.
+
+```typescript
+{
+  name: "trello_delete_comment",
+  arguments: {
+    cardId: string;     // The ID of the card
+    commentId: string;  // The ID of the comment to delete
+  }
+}
+```
+
+## Member Management Tools
+
+### `trello_add_member_to_card`
+Adds a member to a card.
+
+```typescript
+{
+  name: "trello_add_member_to_card",
+  arguments: {
+    cardId: string;   // The ID of the card
+    memberId: string; // The ID of the member to add
+  }
+}
+```
+
+### `trello_remove_member_from_card`
+Removes a member from a card.
+
+```typescript
+{
+  name: "trello_remove_member_from_card",
+  arguments: {
+    cardId: string;   // The ID of the card
+    memberId: string; // The ID of the member to remove
+  }
+}
+```
+
+### `trello_get_board_members`
+Retrieves all members of the board.
+
+```typescript
+{
+  name: "trello_get_board_members",
+  arguments: {}
+}
+```
+
+### `trello_get_current_user`
+Retrieves information about the current authenticated user.
+
+```typescript
+{
+  name: "trello_get_current_user",
+  arguments: {}
+}
+```
 
 ## Rate Limiting
 
