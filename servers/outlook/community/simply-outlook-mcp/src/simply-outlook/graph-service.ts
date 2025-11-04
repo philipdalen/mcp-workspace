@@ -358,6 +358,38 @@ export class GraphService {
     await this.graphClient.api(`/me/messages/${replyMessageId}/reply`).post({ message: msgRequest });
   }
 
+  public async archiveOutlookMessage(messageId: string): Promise<void> {
+    // Get the Archive folder ID
+    const archiveFolderId = await this.getArchiveFolderId();
+
+    // Move the message to the Archive folder
+    await this.graphClient.api(`/me/messages/${messageId}/move`).post({
+      destinationId: archiveFolderId,
+    });
+  }
+
+  private async getArchiveFolderId(): Promise<string> {
+    // Try to get the Archive folder (well-known name: 'archive')
+    try {
+      const archiveFolder = await this.graphClient.api("/me/mailFolders/archive").select(MAIL_FOLDER_PROPS).get();
+      if (this.isMailFolderData(archiveFolder)) {
+        return archiveFolder.id;
+      }
+    } catch (error) {
+      this.logger.error(`Archive folder not found, searching all folders: ${(error as Error).message}`);
+    }
+
+    // If Archive folder doesn't exist or can't be accessed by well-known name, search for it
+    const folders = await this.getMailFolders();
+    const archiveFolder = folders.find((folder) => folder.wellKnownName === "archive" || folder.displayName.toLowerCase() === "archive");
+
+    if (!archiveFolder) {
+      throw new Error("Archive folder not found. Please ensure you have an Archive folder in your Outlook mailbox.");
+    }
+
+    return archiveFolder.id;
+  }
+
   private async getMailFolders(limit?: number): Promise<MailFolderData[]> {
     const collection: PageCollection = await this.graphClient
       .api("/me/mailFolders")
