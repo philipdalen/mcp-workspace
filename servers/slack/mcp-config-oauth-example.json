@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "slack-oauth": {
+      "command": "/path/to/repos/mcp/servers/slack/community/slack-mcp-server/build/slack-mcp-server",
+      "args": [
+        "-transport",
+        "stdio"
+      ],
+      "env": {
+        "SLACK_MCP_XOXP_TOKEN": "xoxp-your-oauth-token-here",
+        "SLACK_MCP_LOG_LEVEL": "info",
+        "SLACK_MCP_USERS_CACHE": ".users_cache.json",
+        "SLACK_MCP_CHANNELS_CACHE": ".channels_cache_v2.json",
+        "SLACK_MCP_ADD_MESSAGE_TOOL": "false"
+      }
+    }
+  }
+}
+
+
