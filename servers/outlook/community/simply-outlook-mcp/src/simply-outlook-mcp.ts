@@ -16,7 +16,8 @@ import { registerSearchOutlookMessagesTool, SEARCH_OUTLOOK_MESSAGES_TOOL_NAME } 
 import { registerGetOutlookMessageContentTool, GET_OUTLOOK_MESSAGE_CONTENT_TOOL_NAME } from "./tools/get-outlook-message-content.js";
 import { registerSendOutlookMessageTool, SEND_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/send-outlook-message.js";
 import { registerReplyOutlookMessageTool, REPLY_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/reply-outlook-message.js";
-import { registerArchiveOutlookMessageTool, ARCHIVE_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/archive-outlook-message.js";
+import { registerListOutlookFoldersTool, LIST_OUTLOOK_FOLDERS_TOOL_NAME } from "./tools/list-outlook-folders.js";
+import { registerMoveOutlookMessageTool, MOVE_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/move-outlook-message.js";
 
 export const SIMPLY_OUTLOOK_MCP_SCOPES = ["Calendars.ReadWrite", "Mail.ReadWrite", "User.Read"];
 
@@ -32,7 +33,8 @@ const TOOL_DEFS: { name: string; tool: ToolRegistration }[] = [
   { name: GET_OUTLOOK_MESSAGE_CONTENT_TOOL_NAME, tool: registerGetOutlookMessageContentTool },
   { name: SEND_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerSendOutlookMessageTool },
   { name: REPLY_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerReplyOutlookMessageTool },
-  { name: ARCHIVE_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerArchiveOutlookMessageTool },
+  { name: LIST_OUTLOOK_FOLDERS_TOOL_NAME, tool: registerListOutlookFoldersTool },
+  { name: MOVE_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerMoveOutlookMessageTool },
 ];
 
 export const createMcpServer = async (credential: TokenCredential): Promise<McpServer> => {

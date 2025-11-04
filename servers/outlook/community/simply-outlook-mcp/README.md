@@ -18,7 +18,8 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 - **Search Messages** - Search emails by keywords (sender, subject, content)
 - **Send Messages** - Send new emails to specified recipients
 - **Reply to Messages** - Reply to existing email messages
-- **Archive Messages** - Move emails to the Archive folder
+- **List Folders** - Retrieve all mail folders (system and custom)
+- **Move Messages** - Move emails between any folders (including Archive, custom folders, etc.)
 - **Pagination Support** - Handle large result sets with skip/limit parameters
 
 ### ⚙️ Configuration
@@ -170,7 +171,8 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
 - `search-outlook-messages` - Search emails by keywords
 - `send-outlook-message` - Send new emails
 - `reply-outlook-message` - Reply to existing emails
-- `archive-outlook-message` - Archive emails to Archive folder
+- `list-outlook-folders` - List all mail folders
+- `move-outlook-message` - Move emails to any folder
 
 ### Example Configuration
 
