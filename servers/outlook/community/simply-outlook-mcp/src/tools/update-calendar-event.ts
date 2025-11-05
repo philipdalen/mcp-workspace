@@ -38,13 +38,28 @@ export const registerUpdateCalendarEventTool = async (server: McpServer, graphSe
         .string()
         .optional()
         .describe("Optional new description or body content for the event. Must be in markdown or plain text format."),
+      categories: z
+        .string()
+        .array()
+        .optional()
+        .describe(
+          "Optional array of category display names to assign to the event (e.g., ['Important', 'Work']). This replaces existing categories. Use empty array [] to remove all categories. The categories must already exist as master categories."
+        ),
     },
-    async ({ id, subject, content, startDateTime, endDateTime, location }) => {
+    async ({ id, subject, content, startDateTime, endDateTime, location, categories }) => {
       try {
         const startDateTimeUtc = startDateTime ? new Date(startDateTime).toISOString() : undefined;
         const endDateTimeUtc = endDateTime ? new Date(endDateTime).toISOString() : undefined;
 
-        const eventData = await graphService.updateCalendarEvent(id, content, subject, startDateTimeUtc, endDateTimeUtc, location);
+        const eventData = await graphService.updateCalendarEvent(
+          id,
+          content,
+          subject,
+          startDateTimeUtc,
+          endDateTimeUtc,
+          location,
+          categories
+        );
 
         return textToolResult([
           `Do not show the event ID to the user.`,

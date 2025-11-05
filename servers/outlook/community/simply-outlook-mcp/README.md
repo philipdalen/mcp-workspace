@@ -10,6 +10,7 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 - **Create Calendar Events** - Create personal calendar events
 - **Create Events with Invites** - Create calendar events and send invitations to attendees
 - **Update Calendar Events** - Modify existing calendar events (subject, time, location, etc.)
+- **Delete Calendar Events** - Delete (cancel) existing calendar events with automatic attendee notifications
 
 ### 📧 Email Operations
 
@@ -21,6 +22,14 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 - **List Folders** - Retrieve all mail folders (system and custom)
 - **Move Messages** - Move emails between any folders (including Archive, custom folders, etc.)
 - **Pagination Support** - Handle large result sets with skip/limit parameters
+
+### 🏷️ Category Management
+
+- **List Categories** - Retrieve all master categories defined in Outlook
+- **Create Category** - Create new categories with custom names and colors
+- **Delete Category** - Remove categories from Outlook (removes from all items)
+- **Assign Categories to Messages** - Tag messages with categories for organization
+- **Assign Categories to Events** - Tag calendar events with categories (via create/update operations)
 
 ### ⚙️ Configuration
 
@@ -163,6 +172,7 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
 - `create-calendar-event` - Create personal calendar events
 - `create-calendar-event-with-invite` - Create events with invitations
 - `update-calendar-event` - Modify existing calendar events
+- `delete-calendar-event` - Delete (cancel) existing calendar events
 
 **Email Tools:**
 
@@ -174,6 +184,13 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
 - `list-outlook-folders` - List all mail folders
 - `move-outlook-message` - Move emails to any folder
 
+**Category Tools:**
+
+- `list-outlook-categories` - List all master categories
+- `create-outlook-category` - Create a new category with name and color
+- `delete-outlook-category` - Delete a category
+- `assign-categories-to-message` - Assign/update categories for messages
+
 ### Example Configuration
 
 ```json
@@ -184,14 +201,14 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
       "args": ["-y", "simply-outlook-mcp"],
       "env": {
         "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "12345678-1234-1234-1234-123456789012",
-        "SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS": "create-calendar-event-with-invite,update-calendar-event,send-outlook-message,reply-outlook-message"
+        "SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS": "create-calendar-event-with-invite,update-calendar-event,send-outlook-message,reply-outlook-message,delete-outlook-category"
       }
     }
   }
 }
 ```
 
-> [!TIP] > **Disabling Tools**: You can disable tools you don't need for security or functionality reasons. For example, disable email sending tools (`send-outlook-message,reply-outlook-message`) if you only want read-only email access.
+> [!TIP] > **Disabling Tools**: You can disable tools you don't need for security or functionality reasons. For example, disable email sending tools (`send-outlook-message,reply-outlook-message`) if you only want read-only email access, or disable category deletion (`delete-outlook-category`) to prevent accidental removal of categories.
 
 ## License
 

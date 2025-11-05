@@ -32,8 +32,15 @@ export const registerCreateCalendarEventTool = async (server: McpServer, graphSe
         .string()
         .optional()
         .describe("Optional description or body content for the event. Must be in markdown or plain text format."),
+      categories: z
+        .string()
+        .array()
+        .optional()
+        .describe(
+          "Optional array of category display names to assign to the event (e.g., ['Important', 'Work']). The categories must already exist as master categories."
+        ),
     },
-    async ({ subject, content, startDateTime, endDateTime, location }) => {
+    async ({ subject, content, startDateTime, endDateTime, location, categories }) => {
       try {
         const startDateTimeUtc = new Date(startDateTime).toISOString();
 
@@ -51,7 +58,9 @@ export const registerCreateCalendarEventTool = async (server: McpServer, graphSe
           startDateTimeUtc,
           endDateTimeUtc,
           undefined,
-          location
+          location,
+          undefined,
+          categories
         );
         return textToolResult([
           `Do not show the event ID to the user.`,

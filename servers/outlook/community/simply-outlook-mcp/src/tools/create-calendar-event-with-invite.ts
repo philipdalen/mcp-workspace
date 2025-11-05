@@ -44,8 +44,15 @@ export const registerCreateCalendarEventWithInviteTool = async (server: McpServe
         .describe(
           "Optional flag to mark this event as a meeting. When true, this enables meeting-specific features like online meeting links."
         ),
+      categories: z
+        .string()
+        .array()
+        .optional()
+        .describe(
+          "Optional array of category display names to assign to the event (e.g., ['Important', 'Work']). The categories must already exist as master categories."
+        ),
     },
-    async ({ subject, content, startDateTime, endDateTime, location, userEmails, isMeeting }) => {
+    async ({ subject, content, startDateTime, endDateTime, location, userEmails, isMeeting, categories }) => {
       try {
         const startDateTimeUtc = new Date(startDateTime).toISOString();
 
@@ -64,7 +71,8 @@ export const registerCreateCalendarEventWithInviteTool = async (server: McpServe
           endDateTimeUtc,
           userEmails,
           location,
-          isMeeting
+          isMeeting,
+          categories
         );
         return textToolResult([
           `Do not show the event ID to the user.`,

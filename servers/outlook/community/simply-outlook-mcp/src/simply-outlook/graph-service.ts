@@ -1,6 +1,6 @@
 import { TokenCredential } from "@azure/identity";
 import { Client, PageCollection } from "@microsoft/microsoft-graph-client";
-import { Event, Message } from "@microsoft/microsoft-graph-types";
+import { Event, Message, OutlookCategory } from "@microsoft/microsoft-graph-types";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
 import { JSDOM } from "jsdom";
 import DOMPurify, { WindowLike } from "dompurify";
@@ -134,7 +134,8 @@ export class GraphService {
     utcEndDate: string,
     userEmails?: string[],
     location?: string,
-    isMeeting?: boolean
+    isMeeting?: boolean,
+    categories?: string[]
   ): Promise<CalendarEventData> {
     const attendees = userEmails ? userEmails.map((email) => ({ emailAddress: { address: email }, type: "required" })) : undefined;
     const eventRequest = {
@@ -154,6 +155,7 @@ export class GraphService {
         timeZone: "UTC",
       },
       attendees,
+      categories: categories || undefined,
     };
 
     const event: Event = await this.graphClient.api(`/me/events`).post(eventRequest);
@@ -177,14 +179,16 @@ export class GraphService {
     subject?: string,
     utcStartDate?: string,
     utcEndDate?: string,
-    location?: string
+    location?: string,
+    categories?: string[]
   ): Promise<CalendarEventData> {
     if (
       content === undefined &&
       subject === undefined &&
       utcStartDate === undefined &&
       utcEndDate === undefined &&
-      location === undefined
+      location === undefined &&
+      categories === undefined
     ) {
       throw new Error("At least one property must be provided to update the calendar event.");
     }
@@ -220,6 +224,10 @@ export class GraphService {
       updateRequest.location = location ? { displayName: location } : null;
     }
 
+    if (categories !== undefined) {
+      updateRequest.categories = categories;
+    }
+
     const event: Event = await this.graphClient.api(`/me/events/${id}`).patch(updateRequest);
     if (!this.isCalendarEventData(event)) {
       throw new Error("Update event failed.");
@@ -233,6 +241,41 @@ export class GraphService {
     }
 
     return event;
+  }
+
+  public async deleteCalendarEvent(id: string): Promise<void> {
+    await this.graphClient.api(`/me/events/${id}`).delete();
+  }
+
+  public async listOutlookCategories(): Promise<OutlookCategory[]> {
+    const collection: PageCollection = await this.graphClient.api("/me/outlook/masterCategories").get();
+
+    if (!collection.value) {
+      throw new Error("Failed to get Outlook categories.");
+    }
+
+    return collection.value;
+  }
+
+  public async createOutlookCategory(displayName: string, color?: string): Promise<OutlookCategory> {
+    const categoryRequest = {
+      displayName,
+      color: color || "none",
+    };
+
+    const category: OutlookCategory = await this.graphClient.api("/me/outlook/masterCategories").post(categoryRequest);
+
+    return category;
+  }
+
+  public async deleteOutlookCategory(id: string): Promise<void> {
+    await this.graphClient.api(`/me/outlook/masterCategories/${id}`).delete();
+  }
+
+  public async assignCategoriesToMessage(messageId: string, categories: string[]): Promise<void> {
+    await this.graphClient.api(`/me/messages/${messageId}`).patch({
+      categories,
+    });
   }
 
   public async getOutlookMessages(
