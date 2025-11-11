@@ -68,6 +68,11 @@ import deleteNotebook from "./notebooks/deleteNotebook.js";
 import getNotebook from "./notebooks/getNotebook.js";
 import listNotebooks from "./notebooks/listNotebooks.js";
 
+// Notification-related exports
+import getUnreadCount from "./notifications/getUnreadCount.js";
+import getNotifications, { GetNotificationsParams } from "./notifications/getNotifications.js";
+import markNotificationAsRead from "./notifications/markNotificationAsRead.js";
+
 // Re-export all functions
 export { getProjects, getCurrentProject, createProject, CreateProjectData };
 export {
@@ -122,6 +127,12 @@ export {
     deleteNotebook,
     getNotebook,
     listNotebooks,
+};
+export {
+    getUnreadCount,
+    getNotifications,
+    GetNotificationsParams,
+    markNotificationAsRead,
 };
 
 // Default export with all services
@@ -191,4 +202,9 @@ export default {
     deleteNotebook,
     getNotebook,
     listNotebooks,
+
+    // Notifications
+    getUnreadCount,
+    getNotifications,
+    markNotificationAsRead,
 };

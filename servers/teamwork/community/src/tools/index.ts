@@ -221,6 +221,20 @@ import {
     handleListNotebooks,
 } from "./notebooks/listNotebooks.js";
 
+// Notifications
+import {
+    getUnreadCountDefinition as getUnreadCount,
+    handleGetUnreadCount,
+} from "./notifications/getUnreadCount.js";
+import {
+    getNotificationsDefinition as getNotifications,
+    handleGetNotifications,
+} from "./notifications/getNotifications.js";
+import {
+    markNotificationAsReadDefinition as markNotificationAsRead,
+    handleMarkNotificationAsRead,
+} from "./notifications/markNotificationAsRead.js";
+
 // Define a structure that pairs tool definitions with their handlers
 interface ToolPair {
     definition: any;
@@ -301,6 +315,9 @@ const toolPairs: ToolPair[] = [
     { definition: deleteNotebook, handler: handleDeleteNotebook },
     { definition: getNotebook, handler: handleGetNotebook },
     { definition: listNotebooks, handler: handleListNotebooks },
+    { definition: getUnreadCount, handler: handleGetUnreadCount },
+    { definition: getNotifications, handler: handleGetNotifications },
+    { definition: markNotificationAsRead, handler: handleMarkNotificationAsRead },
 ];
 
 // Extract just the definitions for the toolDefinitions array
@@ -367,3 +384,6 @@ export { handleUpdateNotebook } from "./notebooks/updateNotebook.js";
 export { handleDeleteNotebook } from "./notebooks/deleteNotebook.js";
 export { handleGetNotebook } from "./notebooks/getNotebook.js";
 export { handleListNotebooks } from "./notebooks/listNotebooks.js";
+export { handleGetUnreadCount } from "./notifications/getUnreadCount.js";
+export { handleGetNotifications } from "./notifications/getNotifications.js";
+export { handleMarkNotificationAsRead } from "./notifications/markNotificationAsRead.js";

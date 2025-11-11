@@ -11,4 +11,5 @@ export * from './PayloadNullableDate.js';
 export * from './PayloadNullableTaskPriority.js';
 export * from './TaskReminder.js';
 export * from './TaskRepeatOptions.js';
-export * from './TaskCustomFields.js'; 
+export * from './TaskCustomFields.js';
+export * from './Notification.js'; 
