@@ -302,6 +302,21 @@
 
 ## MCP Implementation Issues
 
+### 11/11/2025
+
+-   ✅ Implemented Notification operations for the community TypeScript/Node.js server
+    -   Created Notification model interfaces (Notification, NotificationsResponse, UnreadCountResponse)
+    -   Created service implementations for getUnreadCount, getNotifications, and markNotificationAsRead
+    -   Created MCP tool definitions for all notification operations
+    -   Updated services/index.ts and tools/index.ts to register the new functionality
+    -   Endpoints implemented:
+        -   GET /projects/api/v3/notifications/unreadcount.json - Get unread notification count
+        -   GET /projects/api/v3/notifications.json - Get notifications with optional filtering (unreadOnly, readOnly, limit, pageOffset)
+        -   PATCH /projects/api/v3/notifications/{notificationId}.json - Update notification read status (mark as read or unread)
+    -   Payload format uses `{ "notification": { "read": true/false } }` as per API specification
+    -   markNotificationAsRead tool accepts optional `read` parameter (defaults to true) to support both marking as read and unread
+    -   Successfully built with no TypeScript compilation errors
+
 ### 10/28/2025
 
 -   ✅ Implemented Notebook operations for the community TypeScript/Node.js server
