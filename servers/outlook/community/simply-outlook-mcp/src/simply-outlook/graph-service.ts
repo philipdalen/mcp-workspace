@@ -45,6 +45,7 @@ const MAIL_MESSAGE_PROPS = [
   "isRead",
   "isDraft",
   "categories",
+  "flag",
 ];
 
 const MAIL_PREVIEW_MESSAGE_PROPS = MAIL_MESSAGE_PROPS.concat(["bodyPreview"]);
@@ -275,6 +276,43 @@ export class GraphService {
   public async assignCategoriesToMessage(messageId: string, categories: string[]): Promise<void> {
     await this.graphClient.api(`/me/messages/${messageId}`).patch({
       categories,
+    });
+  }
+
+  public async flagOutlookMessage(messageId: string, flagStatus: string, startDate?: string, dueDate?: string): Promise<void> {
+    interface FlagData {
+      flagStatus: string;
+      startDateTime?: {
+        dateTime: string;
+        timeZone: string;
+      };
+      dueDateTime?: {
+        dateTime: string;
+        timeZone: string;
+      };
+    }
+
+    const flagData: FlagData = {
+      flagStatus: flagStatus,
+    };
+
+    if (flagStatus === "flagged") {
+      if (startDate) {
+        flagData.startDateTime = {
+          dateTime: startDate,
+          timeZone: "UTC",
+        };
+      }
+      if (dueDate) {
+        flagData.dueDateTime = {
+          dateTime: dueDate,
+          timeZone: "UTC",
+        };
+      }
+    }
+
+    await this.graphClient.api(`/me/messages/${messageId}`).patch({
+      flag: flagData,
     });
   }
 

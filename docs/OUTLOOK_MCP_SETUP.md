@@ -6,18 +6,18 @@ This guide will help you set up the Simply Outlook MCP Server to integrate Micro
 
 The Simply Outlook MCP Server enables AI assistants to:
 
-- 📅 Manage calendar events (create, read, update)
-- 📧 Read and send emails
-- 🔍 Search messages
-- 📬 Reply to emails
+-   📅 Manage calendar events (create, read, update)
+-   📧 Read and send emails
+-   🔍 Search messages
+-   📬 Reply to emails
 
 **Note:** This server does NOT support Outlook task management. For task management, you would need a separate Microsoft To Do MCP integration.
 
 ## Prerequisites
 
-- Node.js 20.19.0 or higher
-- A Microsoft account (personal or work/school)
-- Azure AD Application registration (we'll create this)
+-   Node.js 20.19.0 or higher
+-   A Microsoft account (personal or work/school)
+-   Azure AD Application registration (we'll create this)
 
 ## Step 1: Azure AD Application Registration
 
@@ -34,9 +34,9 @@ You need to register an application in Azure AD to get a client ID. This allows 
 
 Fill in the registration form:
 
-- **Name**: Enter a descriptive name (e.g., "Simply Outlook MCP Server" or "My AI Outlook Integration")
-- **Supported account types**: Select `Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)`
-- **Redirect URI**: Leave blank (we don't need this)
+-   **Name**: Enter a descriptive name (e.g., "Simply Outlook MCP Server" or "My AI Outlook Integration")
+-   **Supported account types**: Select `Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)`
+-   **Redirect URI**: Leave blank (we don't need this)
 
 Click **Register**.
 
@@ -60,10 +60,10 @@ After registration:
 
 The application automatically requests these permissions during authentication:
 
-- `Calendars.ReadWrite` - Read and write calendar events
-- `Mail.Read` - Read email messages
-- `Mail.Send` - Send email messages
-- `User.Read` - Read user profile information
+-   `Calendars.ReadWrite` - Read and write calendar events
+-   `Mail.Read` - Read email messages
+-   `Mail.Send` - Send email messages
+-   `User.Read` - Read user profile information
 
 You don't need to manually configure these in Azure - they'll be requested when you authenticate.
 
@@ -93,17 +93,17 @@ Update your MCP configuration file at `~/.cursor/mcp.json`:
 
 ```json
 {
-  "mcpServers": {
-    "outlook": {
-      "command": "node",
-      "args": [
-        "/Users/philip.dalen/repos/mcp/servers/outlook/community/simply-outlook-mcp/dist/index.js"
-      ],
-      "env": {
-        "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
-      }
+    "mcpServers": {
+        "outlook": {
+            "command": "node",
+            "args": [
+                "/Users/philip.dalen/repos/mcp/servers/outlook/community/simply-outlook-mcp/dist/index.js"
+            ],
+            "env": {
+                "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
+            }
+        }
     }
-  }
 }
 ```
 
@@ -113,42 +113,42 @@ You can disable specific tools by adding them to `SIMPLY_OUTLOOK_MCP_DISABLED_TO
 
 ```json
 {
-  "mcpServers": {
-    "outlook": {
-      "command": "node",
-      "args": [
-        "/Users/philip.dalen/repos/mcp/servers/outlook/community/simply-outlook-mcp/dist/index.js"
-      ],
-      "env": {
-        "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID",
-        "SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS": "send-outlook-message,reply-outlook-message"
-      }
+    "mcpServers": {
+        "outlook": {
+            "command": "node",
+            "args": [
+                "/Users/philip.dalen/repos/mcp/servers/outlook/community/simply-outlook-mcp/dist/index.js"
+            ],
+            "env": {
+                "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID",
+                "SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS": "send-outlook-message,reply-outlook-message"
+            }
+        }
     }
-  }
 }
 ```
 
 **Available Tool Names:**
 
-- **Calendar Tools:**
-  - `get-calendar-events`
-  - `create-calendar-event`
-  - `create-calendar-event-with-invite`
-  - `update-calendar-event`
-- **Email Tools:**
-  - `get-outlook-messages`
-  - `get-outlook-message-content`
-  - `search-outlook-messages`
-  - `send-outlook-message`
-  - `reply-outlook-message`
+-   **Calendar Tools:**
+    -   `get-calendar-events`
+    -   `create-calendar-event`
+    -   `create-calendar-event-with-invite`
+    -   `update-calendar-event`
+-   **Email Tools:**
+    -   `get-outlook-messages`
+    -   `get-outlook-message-content`
+    -   `search-outlook-messages`
+    -   `send-outlook-message`
+    -   `reply-outlook-message`
 
 ## Step 5: Test the Integration
 
 1. Restart Cursor to load the new MCP server configuration
 2. Try asking your AI assistant:
-   - "Show me my calendar events for today"
-   - "What are my recent emails?"
-   - "Send an email to [recipient] with subject [subject]"
+    - "Show me my calendar events for today"
+    - "What are my recent emails?"
+    - "Send an email to [recipient] with subject [subject]"
 
 ## Security Best Practices
 
@@ -156,19 +156,19 @@ You can disable specific tools by adding them to `SIMPLY_OUTLOOK_MCP_DISABLED_TO
 
 **We strongly recommend creating your own Azure AD application** rather than using a client ID from a third party. Here's why:
 
-- **Control**: You own the app registration and control all settings
-- **Security**: No one else can modify the app's permissions or branding
-- **Trust**: You know exactly what permissions are being requested
-- **Privacy**: Your tokens are only associated with your own app registration
+-   **Control**: You own the app registration and control all settings
+-   **Security**: No one else can modify the app's permissions or branding
+-   **Trust**: You know exactly what permissions are being requested
+-   **Privacy**: Your tokens are only associated with your own app registration
 
 ### What Could Go Wrong with a Third-Party Client ID?
 
 If you use someone else's client ID, they could later:
 
-- Change the display name/branding in consent prompts
-- Request additional permissions
-- Enable authentication flows that could phish your tokens
-- Verify/unverify the publisher domain
+-   Change the display name/branding in consent prompts
+-   Request additional permissions
+-   Enable authentication flows that could phish your tokens
+-   Verify/unverify the publisher domain
 
 **Remember**: The client ID only identifies _which_ app registration to use. Your access tokens stay on your local machine, but using a third-party client ID means accepting risks tied to their app registration.
 
@@ -180,9 +180,9 @@ If you use someone else's client ID, they could later:
 2. Ensure device code flow is enabled in Azure AD
 3. Check that you're signing in with the correct Microsoft account
 4. Try re-authenticating:
-   ```bash
-   npx simply-outlook-mcp --auth --client_id YOUR_CLIENT_ID
-   ```
+    ```bash
+    npx simply-outlook-mcp --auth --client_id YOUR_CLIENT_ID
+    ```
 
 ### MCP Server Not Responding
 
@@ -234,9 +234,9 @@ If you get permission errors:
 
 Authentication tokens are stored locally on your machine using Azure Identity's secure token cache. The tokens are encrypted and stored in:
 
-- **macOS**: Keychain
-- **Windows**: Windows Credential Manager
-- **Linux**: Encrypted file in `~/.msal-cache`
+-   **macOS**: Keychain
+-   **Windows**: Windows Credential Manager
+-   **Linux**: Encrypted file in `~/.msal-cache`
 
 ## Available MCP Tools
 
@@ -265,15 +265,15 @@ Instead of cloning the repository, you can use npx directly in your `mcp.json`:
 
 ```json
 {
-  "mcpServers": {
-    "outlook": {
-      "command": "npx",
-      "args": ["-y", "simply-outlook-mcp"],
-      "env": {
-        "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
-      }
+    "mcpServers": {
+        "outlook": {
+            "command": "npx",
+            "args": ["-y", "simply-outlook-mcp"],
+            "env": {
+                "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
+            }
+        }
     }
-  }
 }
 ```
 
@@ -281,25 +281,25 @@ This will automatically download and run the latest published version from npm.
 
 ## Limitations
 
-- **No Task Management**: This MCP server does not support Microsoft To Do or Outlook Tasks
-- **No Contacts**: Contact management is not currently supported
-- **No Attachments**: Email attachment handling is limited
-- **No Rules/Folders**: Cannot create email rules or manage folder structure
+-   **No Task Management**: This MCP server does not support Microsoft To Do or Outlook Tasks
+-   **No Contacts**: Contact management is not currently supported
+-   **No Attachments**: Email attachment handling is limited
+-   **No Rules/Folders**: Cannot create email rules or manage folder structure
 
 For task management, you would need to integrate a separate Microsoft To Do MCP server (if available) or extend this server yourself.
 
 ## Repository Information
 
-- **GitHub**: [hmmroger/simply-outlook-mcp](https://github.com/hmmroger/simply-outlook-mcp)
-- **npm**: [simply-outlook-mcp](https://www.npmjs.com/package/simply-outlook-mcp)
-- **License**: MIT
-- **Issues**: [Report bugs or request features](https://github.com/hmmroger/simply-outlook-mcp/issues)
+-   **GitHub**: [hmmroger/simply-outlook-mcp](https://github.com/hmmroger/simply-outlook-mcp)
+-   **npm**: [simply-outlook-mcp](https://www.npmjs.com/package/simply-outlook-mcp)
+-   **License**: MIT
+-   **Issues**: [Report bugs or request features](https://github.com/hmmroger/simply-outlook-mcp/issues)
 
 ## Additional Resources
 
-- [Microsoft Graph API Documentation](https://learn.microsoft.com/en-us/graph/overview)
-- [Azure AD App Registration Guide](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+-   [Microsoft Graph API Documentation](https://learn.microsoft.com/en-us/graph/overview)
+-   [Azure AD App Registration Guide](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
+-   [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 
 ## Support
 

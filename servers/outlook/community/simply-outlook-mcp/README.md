@@ -21,6 +21,7 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 - **Reply to Messages** - Reply to existing email messages
 - **List Folders** - Retrieve all mail folders (system and custom)
 - **Move Messages** - Move emails between any folders (including Archive, custom folders, etc.)
+- **Flag Messages** - Flag emails for follow-up, mark as complete, or clear flags with optional due dates
 - **Pagination Support** - Handle large result sets with skip/limit parameters
 
 ### 🏷️ Category Management
@@ -183,6 +184,7 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
 - `reply-outlook-message` - Reply to existing emails
 - `list-outlook-folders` - List all mail folders
 - `move-outlook-message` - Move emails to any folder
+- `flag-outlook-message` - Flag messages for follow-up
 
 **Category Tools:**
 

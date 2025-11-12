@@ -52,6 +52,7 @@ export type MailMessageData = Required<Pick<Message, "id">> &
     | "isRead"
     | "isDraft"
     | "categories"
+    | "flag"
   > & {
     receivedDateTime: string;
     body?: ItemBody;

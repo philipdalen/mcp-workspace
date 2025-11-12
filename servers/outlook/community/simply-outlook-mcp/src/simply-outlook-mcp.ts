@@ -23,6 +23,7 @@ import { registerListOutlookCategoriesTool, LIST_OUTLOOK_CATEGORIES_TOOL_NAME } 
 import { registerCreateOutlookCategoryTool, CREATE_OUTLOOK_CATEGORY_TOOL_NAME } from "./tools/create-outlook-category.js";
 import { registerDeleteOutlookCategoryTool, DELETE_OUTLOOK_CATEGORY_TOOL_NAME } from "./tools/delete-outlook-category.js";
 import { registerAssignCategoriesToMessageTool, ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME } from "./tools/assign-categories-to-message.js";
+import { registerFlagOutlookMessageTool, FLAG_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/flag-outlook-message.js";
 
 export const SIMPLY_OUTLOOK_MCP_SCOPES = ["Calendars.ReadWrite", "Mail.ReadWrite", "User.Read"];
 
@@ -45,6 +46,7 @@ const TOOL_DEFS: { name: string; tool: ToolRegistration }[] = [
   { name: CREATE_OUTLOOK_CATEGORY_TOOL_NAME, tool: registerCreateOutlookCategoryTool },
   { name: DELETE_OUTLOOK_CATEGORY_TOOL_NAME, tool: registerDeleteOutlookCategoryTool },
   { name: ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME, tool: registerAssignCategoriesToMessageTool },
+  { name: FLAG_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerFlagOutlookMessageTool },
 ];
 
 export const createMcpServer = async (credential: TokenCredential): Promise<McpServer> => {
