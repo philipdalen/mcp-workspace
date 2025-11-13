@@ -25,11 +25,11 @@ export const updateCalendarEventDefinition = {
           },
           start: {
             type: "string",
-            description: "Start datetime in ISO 8601 format (e.g., 2026-01-15T09:00)"
+            description: "Start datetime in ISO 8601 format. IMPORTANT: Use format YYYY-MM-DDTHH:MM (e.g., '2025-11-15T09:00' for November 15, 2025 at 9:00 AM). No timezone suffix needed."
           },
           end: {
             type: "string",
-            description: "End datetime in ISO 8601 format (e.g., 2026-01-15T10:00)"
+            description: "End datetime in ISO 8601 format. IMPORTANT: Use format YYYY-MM-DDTHH:MM (e.g., '2025-11-15T10:00' for November 15, 2025 at 10:00 AM). No timezone suffix needed."
           },
           "all-day": {
             type: "boolean",

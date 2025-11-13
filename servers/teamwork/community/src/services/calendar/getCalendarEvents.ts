@@ -24,7 +24,7 @@ export const getCalendarEvents = async (params?: {
     
     // Build query parameters
     const queryParams: any = {};
-    if (params?.startDate) queryParams.startdate = params.startDate;
+    if (params?.startDate) queryParams.startDate = params.startDate;
     if (params?.endDate) queryParams.endDate = params.endDate;
     if (params?.showDeleted !== undefined) queryParams.showDeleted = params.showDeleted;
     if (params?.updatedAfterDate) queryParams.updatedAfterDate = params.updatedAfterDate;

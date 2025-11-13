@@ -14,11 +14,11 @@ export const getCalendarEventsDefinition = {
     properties: {
       startDate: {
         type: "string",
-        description: "Start date for calendar events in YYYYMMDD format (e.g., 20250101)"
+        description: "Start date for calendar events in YYYYMMDD format. IMPORTANT: Must be exactly 8 digits with no separators (e.g., '20251113' for November 13, 2025)"
       },
       endDate: {
         type: "string",
-        description: "End date for calendar events in YYYYMMDD format (e.g., 20251231)"
+        description: "End date for calendar events in YYYYMMDD format. IMPORTANT: Must be exactly 8 digits with no separators (e.g., '20251231' for December 31, 2025)"
       },
       showDeleted: {
         type: "boolean",
@@ -26,7 +26,7 @@ export const getCalendarEventsDefinition = {
       },
       updatedAfterDate: {
         type: "string",
-        description: "Filter events updated after this date (YYYYMMDD format)"
+        description: "Filter events updated after this date. IMPORTANT: Must be in YYYYMMDD format with exactly 8 digits (e.g., '20251101' for November 1, 2025)"
       },
       eventTypeId: {
         type: "integer",

@@ -302,6 +302,28 @@
 
 ## MCP Implementation Issues
 
+### 11/13/2025
+
+-   ✅ Fixed calendar event date format issues and improved MCP tool descriptions
+    -   Issue: Calendar events were experiencing 422 errors and unclear date format requirements
+    -   Root cause: Typo in `getCalendarEvents.ts` using `startdate` instead of `startDate`, and insufficient clarity in tool descriptions
+    -   Fixes applied:
+        -   Fixed typo in `src/services/calendar/getCalendarEvents.ts` line 27: `startdate` → `startDate`
+        -   Enhanced `getCalendarEvents` tool descriptions to explicitly state YYYYMMDD format requirement (e.g., '20251113')
+        -   Enhanced `createCalendarEvent` tool descriptions to explicitly state ISO 8601 format (e.g., '2025-11-15T09:00')
+        -   Enhanced `updateCalendarEvent` tool descriptions with same clarity improvements
+        -   Added "IMPORTANT" labels to emphasize format requirements
+        -   Added concrete examples with actual dates for clarity
+    -   Verification: Rebuilt project successfully with `npm run build`
+    -   Status: Calendar event operations now have clear format requirements in MCP tool definitions
+
+-   ✅ Fixed updateNotebook HTTP method - Changed from PUT to PATCH to match Teamwork API v3 specification
+    -   Issue: updateNotebook was returning 405 Method Not Allowed error
+    -   Root cause: Service was using `api.put()` instead of `api.patch()`
+    -   Fix: Updated `src/services/notebooks/updateNotebook.ts` line 66 from `api.put()` to `api.patch()`
+    -   Verification: Rebuilt project successfully with `npm run build`
+    -   Status: Notebook updates now work correctly
+
 ### 11/11/2025
 
 -   ✅ Implemented Notification operations for the community TypeScript/Node.js server

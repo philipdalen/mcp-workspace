@@ -58,12 +58,12 @@ export const updateNotebook = async (notebookData: {
         }
 
         logger.debug(
-            `Making PUT request to ${endpoint} with payload: ${JSON.stringify(
+            `Making PATCH request to ${endpoint} with payload: ${JSON.stringify(
                 payload
             )}`
         );
 
-        const response = await api.put(endpoint, payload);
+        const response = await api.patch(endpoint, payload);
 
         logger.info(`Notebook update successful, status: ${response.status}`);
 
