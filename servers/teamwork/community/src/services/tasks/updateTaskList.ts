@@ -1,5 +1,5 @@
 import logger from '../../utils/logger.js';
-import { ensureApiClient } from '../core/apiClient.js';
+import { getApiClientForVersion } from '../core/apiClient.js';
 
 /**
  * Interface for task list update parameters
@@ -44,8 +44,9 @@ export const updateTaskList = async (taskListId: number, taskListData: UpdateTas
     
     logger.info(`Task list update data: ${JSON.stringify(payload)}`);
     
-    const api = ensureApiClient();
-    const response = await api.put(`/tasklists/${taskListId}.json`, payload);
+    // Use v1 API for updating task lists (v3 doesn't support PATCH for task lists)
+    const api = getApiClientForVersion('v1');
+    const response = await api.put(`tasklists/${taskListId}.json`, payload);
     
     logger.info(`Task list update successful, status: ${response.status}`);
     

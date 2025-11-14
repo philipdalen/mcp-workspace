@@ -17,9 +17,7 @@ export const registerFlagOutlookMessageTool = async (server: McpServer, graphSer
         ),
       flagStatus: z
         .enum(["flagged", "complete", "notFlagged"])
-        .describe(
-          "The flag status to set: 'flagged' (flag for follow-up), 'complete' (mark as done), or 'notFlagged' (clear flag)"
-        ),
+        .describe("The flag status to set: 'flagged' (flag for follow-up), 'complete' (mark as done), or 'notFlagged' (clear flag)"),
       startDate: z
         .string()
         .optional()
@@ -60,9 +58,3 @@ export const registerFlagOutlookMessageTool = async (server: McpServer, graphSer
     }
   );
 };
-
-
-
-
-
-

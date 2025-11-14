@@ -1,5 +1,5 @@
 import logger from '../../utils/logger.js';
-import { ensureApiClient } from '../core/apiClient.js';
+import { getApiClientForVersion } from '../core/apiClient.js';
 
 /**
  * Deletes a task list from Teamwork
@@ -10,8 +10,9 @@ export const deleteTaskList = async (taskListId: number) => {
   try {
     logger.info(`Deleting task list ${taskListId}`);
     
-    const api = ensureApiClient();
-    const response = await api.delete(`/tasklists/${taskListId}.json`);
+    // Use v1 API for deleting task lists (v3 doesn't support DELETE for task lists)
+    const api = getApiClientForVersion('v1');
+    const response = await api.delete(`tasklists/${taskListId}.json`);
     
     logger.info(`Task list deletion successful, status: ${response.status}`);
     

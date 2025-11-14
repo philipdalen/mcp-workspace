@@ -1,5 +1,5 @@
 import logger from '../../utils/logger.js';
-import { ensureApiClient } from '../core/apiClient.js';
+import { getApiClientForVersion } from '../core/apiClient.js';
 
 /**
  * Interface for task list creation parameters
@@ -25,7 +25,7 @@ export const createTaskList = async (projectId: number, taskListData: CreateTask
       throw new Error('Invalid task list data: missing name');
     }
     
-    // Prepare the payload according to Teamwork API format
+    // Prepare the payload according to Teamwork API v1 format
     const payload = {
       'todo-list': {
         name: taskListData.name,
@@ -36,8 +36,9 @@ export const createTaskList = async (projectId: number, taskListData: CreateTask
     
     logger.info(`Task list data: ${JSON.stringify(payload)}`);
     
-    const api = ensureApiClient();
-    const response = await api.post(`/projects/${projectId}/tasklists.json`, payload);
+    // Use v1 API for creating task lists (v3 doesn't support POST for task lists)
+    const api = getApiClientForVersion('v1');
+    const response = await api.post(`projects/${projectId}/tasklists.json`, payload);
     
     logger.info(`Task list creation successful, status: ${response.status}`);
     
