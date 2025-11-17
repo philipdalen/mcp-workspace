@@ -73,6 +73,9 @@ import getUnreadCount from "./notifications/getUnreadCount.js";
 import getNotifications, { GetNotificationsParams } from "./notifications/getNotifications.js";
 import markNotificationAsRead from "./notifications/markNotificationAsRead.js";
 
+// File-related exports
+import uploadFile from "./files/uploadFile.js";
+
 // Re-export all functions
 export { getProjects, getCurrentProject, createProject, CreateProjectData };
 export {
@@ -134,6 +137,7 @@ export {
     GetNotificationsParams,
     markNotificationAsRead,
 };
+export { uploadFile };
 
 // Default export with all services
 export default {
@@ -207,4 +211,7 @@ export default {
     getUnreadCount,
     getNotifications,
     markNotificationAsRead,
+
+    // Files
+    uploadFile,
 };

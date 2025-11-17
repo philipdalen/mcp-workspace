@@ -235,6 +235,12 @@ import {
     handleMarkNotificationAsRead,
 } from "./notifications/markNotificationAsRead.js";
 
+// Files
+import {
+    uploadFileDefinition as uploadFile,
+    handleUploadFile,
+} from "./files/uploadFile.js";
+
 // Define a structure that pairs tool definitions with their handlers
 interface ToolPair {
     definition: any;
@@ -318,6 +324,7 @@ const toolPairs: ToolPair[] = [
     { definition: getUnreadCount, handler: handleGetUnreadCount },
     { definition: getNotifications, handler: handleGetNotifications },
     { definition: markNotificationAsRead, handler: handleMarkNotificationAsRead },
+    { definition: uploadFile, handler: handleUploadFile },
 ];
 
 // Extract just the definitions for the toolDefinitions array
@@ -387,3 +394,4 @@ export { handleListNotebooks } from "./notebooks/listNotebooks.js";
 export { handleGetUnreadCount } from "./notifications/getUnreadCount.js";
 export { handleGetNotifications } from "./notifications/getNotifications.js";
 export { handleMarkNotificationAsRead } from "./notifications/markNotificationAsRead.js";
+export { handleUploadFile } from "./files/uploadFile.js";
