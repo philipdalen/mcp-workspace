@@ -76,6 +76,13 @@ import markNotificationAsRead from "./notifications/markNotificationAsRead.js";
 // File-related exports
 import uploadFile from "./files/uploadFile.js";
 
+// Tag-related exports
+import listTags from "./tags/listTags.js";
+import getTag from "./tags/getTag.js";
+import createTag from "./tags/createTag.js";
+import updateTag from "./tags/updateTag.js";
+import deleteTag from "./tags/deleteTag.js";
+
 // Re-export all functions
 export { getProjects, getCurrentProject, createProject, CreateProjectData };
 export {
@@ -138,6 +145,13 @@ export {
     markNotificationAsRead,
 };
 export { uploadFile };
+export {
+    listTags,
+    getTag,
+    createTag,
+    updateTag,
+    deleteTag,
+};
 
 // Default export with all services
 export default {
@@ -214,4 +228,11 @@ export default {
 
     // Files
     uploadFile,
+
+    // Tags
+    listTags,
+    getTag,
+    createTag,
+    updateTag,
+    deleteTag,
 };

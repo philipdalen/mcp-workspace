@@ -124,6 +124,13 @@ export const updateCalendarEventDefinition = {
           projectId: {
             type: "integer",
             description: "Associate the event with a specific project"
+          },
+          tagIds: {
+            type: "array",
+            items: {
+              type: "integer"
+            },
+            description: "Array of tag IDs to associate with the calendar event"
           }
         },
         required: []

@@ -36,6 +36,7 @@ export const updateCalendarEvent = async (eventId: string | number, eventData: {
     'notify-user-ids'?: string;
     'email-user-ids'?: string;
     projectId?: number;
+    tagIds?: number[] | string;
   };
 }) => {
   try {
@@ -48,9 +49,17 @@ export const updateCalendarEvent = async (eventId: string | number, eventData: {
     
     logger.info(`Event data: ${JSON.stringify(eventData).substring(0, 200)}...`);
     
+    // Handle tagIds if provided - convert array to comma-separated string if needed
+    const payload = { ...eventData };
+    if (payload.event.tagIds) {
+      if (Array.isArray(payload.event.tagIds)) {
+        payload.event.tagIds = payload.event.tagIds.join(',');
+      }
+    }
+    
     // Calendar events use the v1 API
     const api = getApiClientForVersion('v1');
-    const response = await api.put(`calendarevents/${eventId}.json`, eventData);
+    const response = await api.put(`calendarevents/${eventId}.json`, payload);
     
     logger.info(`Calendar event update successful, status: ${response.status}`);
     

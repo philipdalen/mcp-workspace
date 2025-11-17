@@ -241,6 +241,28 @@ import {
     handleUploadFile,
 } from "./files/uploadFile.js";
 
+// Tags
+import {
+    listTagsDefinition as listTags,
+    handleListTags,
+} from "./tags/listTags.js";
+import {
+    getTagDefinition as getTag,
+    handleGetTag,
+} from "./tags/getTag.js";
+import {
+    createTagDefinition as createTag,
+    handleCreateTag,
+} from "./tags/createTag.js";
+import {
+    updateTagDefinition as updateTag,
+    handleUpdateTag,
+} from "./tags/updateTag.js";
+import {
+    deleteTagDefinition as deleteTag,
+    handleDeleteTag,
+} from "./tags/deleteTag.js";
+
 // Define a structure that pairs tool definitions with their handlers
 interface ToolPair {
     definition: any;
@@ -325,6 +347,11 @@ const toolPairs: ToolPair[] = [
     { definition: getNotifications, handler: handleGetNotifications },
     { definition: markNotificationAsRead, handler: handleMarkNotificationAsRead },
     { definition: uploadFile, handler: handleUploadFile },
+    { definition: listTags, handler: handleListTags },
+    { definition: getTag, handler: handleGetTag },
+    { definition: createTag, handler: handleCreateTag },
+    { definition: updateTag, handler: handleUpdateTag },
+    { definition: deleteTag, handler: handleDeleteTag },
 ];
 
 // Extract just the definitions for the toolDefinitions array
@@ -395,3 +422,8 @@ export { handleGetUnreadCount } from "./notifications/getUnreadCount.js";
 export { handleGetNotifications } from "./notifications/getNotifications.js";
 export { handleMarkNotificationAsRead } from "./notifications/markNotificationAsRead.js";
 export { handleUploadFile } from "./files/uploadFile.js";
+export { handleListTags } from "./tags/listTags.js";
+export { handleGetTag } from "./tags/getTag.js";
+export { handleCreateTag } from "./tags/createTag.js";
+export { handleUpdateTag } from "./tags/updateTag.js";
+export { handleDeleteTag } from "./tags/deleteTag.js";
