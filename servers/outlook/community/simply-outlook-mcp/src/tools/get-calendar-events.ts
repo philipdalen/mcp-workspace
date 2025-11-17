@@ -9,9 +9,9 @@ const DEFAULT_CALENDAR_EVENTS_LIMIT = 25;
 const MAX_CALENDAR_EVENTS_LIMIT = 50;
 const DEFAULT_CALENDAR_RANGE_DAYS = 7;
 
-export const registerGetCalendarEventsTool = async (server: McpServer, graphService: GraphService) => {
+export const registerGetCalendarEventsTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    GET_CALENDAR_EVENTS_TOOL_NAME,
+    `${toolNamePrefix}${GET_CALENDAR_EVENTS_TOOL_NAME}`,
     "Retrieve a list of calendar events from Outlook within a specified date range. Returns both personal events and meetings with attendees.",
     {
       startDateTime: z

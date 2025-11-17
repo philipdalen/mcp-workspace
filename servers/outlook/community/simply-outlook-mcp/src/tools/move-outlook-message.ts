@@ -5,9 +5,9 @@ import { GraphService } from "../simply-outlook/graph-service.js";
 
 export const MOVE_OUTLOOK_MESSAGE_TOOL_NAME = "move-outlook-message";
 
-export const registerMoveOutlookMessageTool = async (server: McpServer, graphService: GraphService) => {
+export const registerMoveOutlookMessageTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    MOVE_OUTLOOK_MESSAGE_TOOL_NAME,
+    `${toolNamePrefix}${MOVE_OUTLOOK_MESSAGE_TOOL_NAME}`,
     "Move an Outlook email message to a specific folder by folder ID. Use list-outlook-folders tool to get available folder IDs.",
     {
       messageId: z

@@ -7,9 +7,9 @@ export const CREATE_CALENDAR_EVENT_TOOL_NAME = "create-calendar-event";
 
 const DEFAULT_EVENT_DURATION_MINUTES = 30;
 
-export const registerCreateCalendarEventTool = async (server: McpServer, graphService: GraphService) => {
+export const registerCreateCalendarEventTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    CREATE_CALENDAR_EVENT_TOOL_NAME,
+    `${toolNamePrefix}${CREATE_CALENDAR_EVENT_TOOL_NAME}`,
     "Create a personal calendar event in Outlook without sending invitations to other attendees. This creates a private event only on the user's calendar.",
     {
       subject: z.string().describe("The title/subject of the calendar event"),

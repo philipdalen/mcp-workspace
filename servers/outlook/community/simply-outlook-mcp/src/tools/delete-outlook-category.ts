@@ -5,9 +5,9 @@ import { getErrorToolResult, textToolResult } from "./tool-utils.js";
 
 export const DELETE_OUTLOOK_CATEGORY_TOOL_NAME = "delete-outlook-category";
 
-export const registerDeleteOutlookCategoryTool = async (server: McpServer, graphService: GraphService) => {
+export const registerDeleteOutlookCategoryTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    DELETE_OUTLOOK_CATEGORY_TOOL_NAME,
+    `${toolNamePrefix}${DELETE_OUTLOOK_CATEGORY_TOOL_NAME}`,
     "Delete a master category from Outlook. Note: Deleting a category will remove it from all items (events and messages) that use it.",
     {
       id: z

@@ -7,9 +7,9 @@ export const CREATE_CALENDAR_EVENT_WITH_INVITE_TOOL_NAME = "create-calendar-even
 
 const DEFAULT_EVENT_DURATION_MINUTES = 30;
 
-export const registerCreateCalendarEventWithInviteTool = async (server: McpServer, graphService: GraphService) => {
+export const registerCreateCalendarEventWithInviteTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    CREATE_CALENDAR_EVENT_WITH_INVITE_TOOL_NAME,
+    `${toolNamePrefix}${CREATE_CALENDAR_EVENT_WITH_INVITE_TOOL_NAME}`,
     "Create a calendar event in Outlook and send invitations to specified attendees. Use this tool when you need to invite other people to the event.",
     {
       userEmails: z

@@ -5,9 +5,9 @@ import { getErrorToolResult, textToolResult } from "./tool-utils.js";
 
 export const ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME = "assign-categories-to-message";
 
-export const registerAssignCategoriesToMessageTool = async (server: McpServer, graphService: GraphService) => {
+export const registerAssignCategoriesToMessageTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME,
+    `${toolNamePrefix}${ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME}`,
     "Assign or update categories for an Outlook message. This replaces any existing categories with the new list provided. Use an empty array to remove all categories from the message.",
     {
       messageId: z

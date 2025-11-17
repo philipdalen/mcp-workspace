@@ -5,9 +5,9 @@ import { GraphService } from "../simply-outlook/graph-service.js";
 
 export const GET_OUTLOOK_MESSAGE_CONTENT_TOOL_NAME = "get-outlook-message-content";
 
-export const registerGetOutlookMessageContentTool = async (server: McpServer, graphService: GraphService) => {
+export const registerGetOutlookMessageContentTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    GET_OUTLOOK_MESSAGE_CONTENT_TOOL_NAME,
+    `${toolNamePrefix}${GET_OUTLOOK_MESSAGE_CONTENT_TOOL_NAME}`,
     "Retrieve the full content of a specific Outlook mail message by its ID.",
     {
       id: z

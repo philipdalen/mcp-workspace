@@ -162,6 +162,7 @@ The following environment variables can be used to configure the MCP server:
 | ----------------------------------- | -------------------------------------------------------------------------- | -------- | ------------------------------------------ |
 | `SIMPLY_OUTLOOK_MCP_TENANT_ID`      | Ignore this, for advance usage if you create single tenant or MSA only app | `common` |                                            |
 | `SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS` | Comma-separated list of tools to disable                                   | None     | `get-calendar-events,send-outlook-message` |
+| `TOOL_NAME_PREFIX`                  | Prefix to add to all tool names (e.g., "outlook-")                        | Empty    | `outlook-`                                 |
 
 ### Tool Names for Disabling
 
@@ -193,6 +194,17 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
 - `delete-outlook-category` - Delete a category
 - `assign-categories-to-message` - Assign/update categories for messages
 
+### Tool Name Prefix
+
+The `TOOL_NAME_PREFIX` environment variable allows you to add a prefix to all tool names. This is useful when you have multiple MCP servers and want to avoid naming conflicts or organize tools by namespace.
+
+**Examples:**
+- If `TOOL_NAME_PREFIX="outlook-"`, the tool `get-calendar-events` becomes `outlook-get-calendar-events`
+- If `TOOL_NAME_PREFIX="ms-"`, the tool `send-outlook-message` becomes `ms-send-outlook-message`
+- If not set or empty, tool names remain unchanged (default behavior)
+
+**Note:** When disabling tools via `SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS`, always use the original tool names (without prefix), regardless of the prefix setting.
+
 ### Example Configuration
 
 ```json
@@ -203,7 +215,8 @@ You can disable specific tools by adding their names to the `SIMPLY_OUTLOOK_MCP_
       "args": ["-y", "simply-outlook-mcp"],
       "env": {
         "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "12345678-1234-1234-1234-123456789012",
-        "SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS": "create-calendar-event-with-invite,update-calendar-event,send-outlook-message,reply-outlook-message,delete-outlook-category"
+        "SIMPLY_OUTLOOK_MCP_DISABLED_TOOLS": "create-calendar-event-with-invite,update-calendar-event,send-outlook-message,reply-outlook-message,delete-outlook-category",
+        "TOOL_NAME_PREFIX": "outlook-"
       }
     }
   }

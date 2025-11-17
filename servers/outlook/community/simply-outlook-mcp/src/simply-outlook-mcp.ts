@@ -27,7 +27,7 @@ import { registerFlagOutlookMessageTool, FLAG_OUTLOOK_MESSAGE_TOOL_NAME } from "
 
 export const SIMPLY_OUTLOOK_MCP_SCOPES = ["Calendars.ReadWrite", "Mail.ReadWrite", "User.Read"];
 
-type ToolRegistration = (mcpServer: McpServer, graphService: GraphService) => Promise<void>;
+type ToolRegistration = (mcpServer: McpServer, graphService: GraphService, toolNamePrefix: string) => Promise<void>;
 
 const TOOL_DEFS: { name: string; tool: ToolRegistration }[] = [
   { name: GET_CALENDAR_EVENTS_TOOL_NAME, tool: registerGetCalendarEventsTool },
@@ -60,6 +60,8 @@ export const createMcpServer = async (credential: TokenCredential): Promise<McpS
       : []
   );
 
+  const toolNamePrefix = process.env[SimplyOutlookMcpEnvs.TOOL_NAME_PREFIX] || "";
+
   const graphService = new GraphService(new ConsoleLogger("GraphService", true), credential, SIMPLY_OUTLOOK_MCP_SCOPES);
   if (!(await graphService.isAuthenticated())) {
     throw new Error("Please run 'npx simply-outlook-mcp --auth --client_id <CLIENT ID>' before using for the first time.");
@@ -72,7 +74,7 @@ export const createMcpServer = async (credential: TokenCredential): Promise<McpS
 
   for (const toolDef of TOOL_DEFS) {
     if (!disabledTools.has(toolDef.name)) {
-      await toolDef.tool(mcpServer, graphService);
+      await toolDef.tool(mcpServer, graphService, toolNamePrefix);
     }
   }
 

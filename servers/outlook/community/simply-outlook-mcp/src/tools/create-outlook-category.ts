@@ -5,9 +5,9 @@ import { getErrorToolResult, textToolResult } from "./tool-utils.js";
 
 export const CREATE_OUTLOOK_CATEGORY_TOOL_NAME = "create-outlook-category";
 
-export const registerCreateOutlookCategoryTool = async (server: McpServer, graphService: GraphService) => {
+export const registerCreateOutlookCategoryTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    CREATE_OUTLOOK_CATEGORY_TOOL_NAME,
+    `${toolNamePrefix}${CREATE_OUTLOOK_CATEGORY_TOOL_NAME}`,
     "Create a new master category in Outlook with a specified name and color. Master categories can then be assigned to calendar events and messages.",
     {
       displayName: z.string().describe("The display name for the category (e.g., 'Important', 'Work', 'Personal')"),

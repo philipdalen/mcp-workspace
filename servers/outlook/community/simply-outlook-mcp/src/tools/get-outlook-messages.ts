@@ -8,9 +8,9 @@ export const GET_OUTLOOK_MESSAGES_TOOL_NAME = "get-outlook-messages";
 const DEFAULT_OUTLOOK_MESSAGES_LIMIT = 25;
 const MAX_OUTLOOK_MESSAGES_LIMIT = 50;
 
-export const registerGetOutlookMessagesTool = async (server: McpServer, graphService: GraphService) => {
+export const registerGetOutlookMessagesTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    GET_OUTLOOK_MESSAGES_TOOL_NAME,
+    `${toolNamePrefix}${GET_OUTLOOK_MESSAGES_TOOL_NAME}`,
     "Retrieve a list of mail messages from Outlook received since a specified date and time.",
     {
       receivedDateTime: z

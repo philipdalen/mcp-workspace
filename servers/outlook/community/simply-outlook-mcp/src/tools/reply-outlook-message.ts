@@ -5,9 +5,9 @@ import { GraphService } from "../simply-outlook/graph-service.js";
 
 export const REPLY_OUTLOOK_MESSAGE_TOOL_NAME = "reply-outlook-message";
 
-export const registerReplyOutlookMessageTool = async (server: McpServer, graphService: GraphService) => {
+export const registerReplyOutlookMessageTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    REPLY_OUTLOOK_MESSAGE_TOOL_NAME,
+    `${toolNamePrefix}${REPLY_OUTLOOK_MESSAGE_TOOL_NAME}`,
     "Reply to an existing Outlook mail message with new content.",
     {
       messageId: z

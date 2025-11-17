@@ -8,9 +8,9 @@ export const LIST_OUTLOOK_FOLDERS_TOOL_NAME = "list-outlook-folders";
 const DEFAULT_FOLDERS_LIMIT = 50;
 const MAX_FOLDERS_LIMIT = 100;
 
-export const registerListOutlookFoldersTool = async (server: McpServer, graphService: GraphService) => {
+export const registerListOutlookFoldersTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    LIST_OUTLOOK_FOLDERS_TOOL_NAME,
+    `${toolNamePrefix}${LIST_OUTLOOK_FOLDERS_TOOL_NAME}`,
     "Retrieve a list of mail folders from Outlook. This includes both system folders (Inbox, Sent Items, etc.) and custom folders.",
     {
       limit: z

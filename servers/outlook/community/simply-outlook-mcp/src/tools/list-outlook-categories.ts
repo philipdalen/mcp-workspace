@@ -4,9 +4,9 @@ import { getErrorToolResult, textToolResult } from "./tool-utils.js";
 
 export const LIST_OUTLOOK_CATEGORIES_TOOL_NAME = "list-outlook-categories";
 
-export const registerListOutlookCategoriesTool = async (server: McpServer, graphService: GraphService) => {
+export const registerListOutlookCategoriesTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    LIST_OUTLOOK_CATEGORIES_TOOL_NAME,
+    `${toolNamePrefix}${LIST_OUTLOOK_CATEGORIES_TOOL_NAME}`,
     "List all master categories defined in the user's Outlook mailbox. Master categories can be assigned to calendar events and messages for organization.",
     {},
     async () => {

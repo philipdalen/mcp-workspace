@@ -5,9 +5,9 @@ import { getErrorToolResult, textToolResult } from "./tool-utils.js";
 
 export const FLAG_OUTLOOK_MESSAGE_TOOL_NAME = "flag-outlook-message";
 
-export const registerFlagOutlookMessageTool = async (server: McpServer, graphService: GraphService) => {
+export const registerFlagOutlookMessageTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    FLAG_OUTLOOK_MESSAGE_TOOL_NAME,
+    `${toolNamePrefix}${FLAG_OUTLOOK_MESSAGE_TOOL_NAME}`,
     "Set or update the flag status of an Outlook message. You can flag a message for follow-up, mark it as complete, or clear the flag. Optionally set start and due dates for flagged items.",
     {
       messageId: z

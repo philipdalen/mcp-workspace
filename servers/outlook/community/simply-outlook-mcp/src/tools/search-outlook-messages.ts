@@ -8,9 +8,9 @@ export const SEARCH_OUTLOOK_MESSAGES_TOOL_NAME = "search-outlook-messages";
 const DEFAULT_OUTLOOK_MESSAGES_LIMIT = 25;
 const MAX_OUTLOOK_MESSAGES_LIMIT = 50;
 
-export const registerSearchOutlookMessagesTool = async (server: McpServer, graphService: GraphService) => {
+export const registerSearchOutlookMessagesTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    SEARCH_OUTLOOK_MESSAGES_TOOL_NAME,
+    `${toolNamePrefix}${SEARCH_OUTLOOK_MESSAGES_TOOL_NAME}`,
     "Search for mail messages in Outlook based on keywords.",
     {
       keywords: z.string().describe("Search keywords to find messages. Can include sender names, subject text, or message content."),

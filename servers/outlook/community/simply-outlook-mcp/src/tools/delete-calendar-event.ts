@@ -5,9 +5,9 @@ import { getErrorToolResult, textToolResult } from "./tool-utils.js";
 
 export const DELETE_CALENDAR_EVENT_TOOL_NAME = "delete-calendar-event";
 
-export const registerDeleteCalendarEventTool = async (server: McpServer, graphService: GraphService) => {
+export const registerDeleteCalendarEventTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    DELETE_CALENDAR_EVENT_TOOL_NAME,
+    `${toolNamePrefix}${DELETE_CALENDAR_EVENT_TOOL_NAME}`,
     "Delete (cancel) an existing calendar event in Outlook. This permanently removes the event from the calendar. If the event has attendees, they will receive a cancellation notification.",
     {
       id: z

@@ -5,9 +5,9 @@ import { getErrorToolResult, textToolResult, toCalendarEventResult } from "./too
 
 export const UPDATE_CALENDAR_EVENT_TOOL_NAME = "update-calendar-event";
 
-export const registerUpdateCalendarEventTool = async (server: McpServer, graphService: GraphService) => {
+export const registerUpdateCalendarEventTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    UPDATE_CALENDAR_EVENT_TOOL_NAME,
+    `${toolNamePrefix}${UPDATE_CALENDAR_EVENT_TOOL_NAME}`,
     "Update an existing calendar event in Outlook. You can modify the subject, content, start/end times, or location. At least one field must be provided to update.",
     {
       id: z

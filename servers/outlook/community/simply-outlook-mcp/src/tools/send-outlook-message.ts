@@ -5,9 +5,9 @@ import { GraphService } from "../simply-outlook/graph-service.js";
 
 export const SEND_OUTLOOK_MESSAGE_TOOL_NAME = "send-outlook-message";
 
-export const registerSendOutlookMessageTool = async (server: McpServer, graphService: GraphService) => {
+export const registerSendOutlookMessageTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
-    SEND_OUTLOOK_MESSAGE_TOOL_NAME,
+    `${toolNamePrefix}${SEND_OUTLOOK_MESSAGE_TOOL_NAME}`,
     "Send a new mail message through Outlook to specified recipients.",
     {
       subject: z.string().describe("The subject line of the email message."),
