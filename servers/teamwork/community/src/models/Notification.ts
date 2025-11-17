@@ -50,3 +50,5 @@ export interface NotificationsResponse {
 export interface UnreadCountResponse {
     unreadCount: number;
 }
+
+

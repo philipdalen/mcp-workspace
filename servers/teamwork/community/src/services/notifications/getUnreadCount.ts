@@ -20,3 +20,5 @@ export const getUnreadCount = async (): Promise<UnreadCountResponse> => {
 };
 
 export default getUnreadCount;
+
+

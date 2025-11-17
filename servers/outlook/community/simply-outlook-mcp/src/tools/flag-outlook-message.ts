@@ -58,3 +58,5 @@ export const registerFlagOutlookMessageTool = async (server: McpServer, graphSer
     }
   );
 };
+
+
