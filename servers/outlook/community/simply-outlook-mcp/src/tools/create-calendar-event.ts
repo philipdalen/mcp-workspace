@@ -39,8 +39,28 @@ export const registerCreateCalendarEventTool = async (server: McpServer, graphSe
         .describe(
           "Optional array of category display names to assign to the event (e.g., ['Important', 'Work']). The categories must already exist as master categories."
         ),
+      recurrence: z
+        .object({
+          pattern: z
+            .object({
+              type: z.enum(["daily", "weekly", "absoluteMonthly", "relativeMonthly", "absoluteYearly", "relativeYearly"]),
+              interval: z.number().int().positive().describe("The interval between occurrences"),
+              daysOfWeek: z
+                .array(z.enum(["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]))
+                .optional()
+                .describe("Days of the week for weekly recurrence (e.g., ['monday', 'wednesday'])"),
+            }),
+          range: z
+            .object({
+              type: z.enum(["endDate", "noEnd", "numbered"]),
+              endDate: z.string().optional().describe("End date in YYYY-MM-DD format (required if type is 'endDate')"),
+              numberOfOccurrences: z.number().int().positive().optional().describe("Number of occurrences (required if type is 'numbered')"),
+            }),
+        })
+        .optional()
+        .describe("Recurrence pattern for the event"),
     },
-    async ({ subject, content, startDateTime, endDateTime, location, categories }) => {
+    async ({ subject, content, startDateTime, endDateTime, location, categories, recurrence }) => {
       try {
         const startDateTimeUtc = new Date(startDateTime).toISOString();
 
@@ -60,7 +80,8 @@ export const registerCreateCalendarEventTool = async (server: McpServer, graphSe
           undefined,
           location,
           undefined,
-          categories
+          categories,
+          recurrence
         );
         return textToolResult([
           `Do not show the event ID to the user.`,

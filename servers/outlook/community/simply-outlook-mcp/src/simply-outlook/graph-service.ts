@@ -136,10 +136,60 @@ export class GraphService {
     userEmails?: string[],
     location?: string,
     isMeeting?: boolean,
-    categories?: string[]
+    categories?: string[],
+    recurrence?: {
+      pattern: {
+        type: "daily" | "weekly" | "absoluteMonthly" | "relativeMonthly" | "absoluteYearly" | "relativeYearly";
+        interval: number;
+        daysOfWeek?: ("sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday")[];
+      };
+      range: {
+        type: "endDate" | "noEnd" | "numbered";
+        endDate?: string;
+        numberOfOccurrences?: number;
+      };
+    }
   ): Promise<CalendarEventData> {
     const attendees = userEmails ? userEmails.map((email) => ({ emailAddress: { address: email }, type: "required" })) : undefined;
-    const eventRequest = {
+    
+    interface RecurrencePattern {
+      type: string;
+      interval: number;
+      daysOfWeek?: string[];
+    }
+
+    interface RecurrenceRange {
+      type: string;
+      startDate: string;
+      endDate?: string;
+      numberOfOccurrences?: number;
+    }
+
+    interface EventRequest {
+      subject: string;
+      body: {
+        contentType: string;
+        content: string;
+      };
+      location?: { displayName: string } | null;
+      isOnlineMeeting: boolean;
+      start: {
+        dateTime: string;
+        timeZone: string;
+      };
+      end: {
+        dateTime: string;
+        timeZone: string;
+      };
+      attendees?: Array<{ emailAddress: { address: string }; type: string }>;
+      categories?: string[];
+      recurrence?: {
+        pattern: RecurrencePattern;
+        range: RecurrenceRange;
+      };
+    }
+
+    const eventRequest: EventRequest = {
       subject,
       body: {
         contentType: "html",
@@ -158,6 +208,37 @@ export class GraphService {
       attendees,
       categories: categories || undefined,
     };
+
+    // Add recurrence if provided
+    if (recurrence) {
+      const recurrencePattern: RecurrencePattern = {
+        type: recurrence.pattern.type,
+        interval: recurrence.pattern.interval,
+      };
+
+      if (recurrence.pattern.daysOfWeek && recurrence.pattern.daysOfWeek.length > 0) {
+        recurrencePattern.daysOfWeek = recurrence.pattern.daysOfWeek;
+      }
+
+      // Extract date part from start date for recurrence range startDate
+      const startDateOnly = new Date(utcStartDate).toISOString().split('T')[0];
+      
+      const recurrenceRange: RecurrenceRange = {
+        type: recurrence.range.type,
+        startDate: startDateOnly,
+      };
+
+      if (recurrence.range.type === "endDate" && recurrence.range.endDate) {
+        recurrenceRange.endDate = recurrence.range.endDate;
+      } else if (recurrence.range.type === "numbered" && recurrence.range.numberOfOccurrences) {
+        recurrenceRange.numberOfOccurrences = recurrence.range.numberOfOccurrences;
+      }
+
+      eventRequest.recurrence = {
+        pattern: recurrencePattern,
+        range: recurrenceRange,
+      };
+    }
 
     const event: Event = await this.graphClient.api(`/me/events`).post(eventRequest);
     if (!this.isCalendarEventData(event)) {
