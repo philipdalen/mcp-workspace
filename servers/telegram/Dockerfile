@@ -9,8 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Ensure Python output is sent straight to terminal (useful for logs)
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies if needed (e.g., for certain Python packages)
-# RUN apt-get update && apt-get install -y --no-install-recommends some-package && rm -rf /var/lib/apt/lists/*
+# Install timezone data for Alpine
+RUN apk add --no-cache tzdata
 
 # Copy dependency definition files
 # If using Poetry:
@@ -39,6 +39,9 @@ ENV TELEGRAM_API_HASH=""
 ENV TELEGRAM_SESSION_NAME="telegram_mcp_session"
 # Or provide the session string directly
 ENV TELEGRAM_SESSION_STRING=""
+# Timezone for scheduled messages (e.g., "Europe/Amsterdam", "America/New_York")
+# If not set, will attempt to use system timezone or default to UTC
+ENV TZ="UTC"
 
 # Expose any ports if the application were a web server (not needed for stdio MCP)
 # EXPOSE 8000

@@ -53,9 +53,3 @@ export const getNotifications = async (
 };
 
 export default getNotifications;
-
-
-
-
-
-

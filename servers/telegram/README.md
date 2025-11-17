@@ -11,7 +11,7 @@
 
 Here's a demonstration of the Telegram MCP capabilities in [Claude](https://docs.anthropic.com/en/docs/agents-and-tools/mcp):
 
- **Basic usage example:**
+**Basic usage example:**
 
 ![Telegram MCP in action](screenshots/1.png)
 
@@ -29,7 +29,6 @@ As you can see, the AI can seamlessly interact with your Telegram account, retri
 
 A full-featured Telegram integration for Claude, Cursor, and any MCP-compatible client, powered by [Telethon](https://docs.telethon.dev/) and the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This project lets you interact with your Telegram account programmatically, automating everything from messaging to group management.
 
-
 ---
 
 ## 🚀 Features & Tools
@@ -37,86 +36,94 @@ A full-featured Telegram integration for Claude, Cursor, and any MCP-compatible 
 This MCP server exposes a huge suite of Telegram tools. **Every major Telegram/Telethon feature is available as a tool!**
 
 ### Chat & Group Management
-- **get_chats(page, page_size)**: Paginated list of chats
-- **list_chats(chat_type, limit)**: List chats with metadata and filtering
-- **get_chat(chat_id)**: Detailed info about a chat
-- **create_group(title, user_ids)**: Create a new group
-- **create_channel(title, about, megagroup)**: Create a channel or supergroup
-- **edit_chat_title(chat_id, title)**: Change chat/group/channel title
-- **delete_chat_photo(chat_id)**: Remove chat/group/channel photo
-- **leave_chat(chat_id)**: Leave a group or channel
-- **get_participants(chat_id)**: List all participants
-- **get_admins(chat_id)**: List all admins
-- **get_banned_users(chat_id)**: List all banned users
-- **promote_admin(chat_id, user_id)**: Promote user to admin
-- **demote_admin(chat_id, user_id)**: Demote admin to user
-- **ban_user(chat_id, user_id)**: Ban user
-- **unban_user(chat_id, user_id)**: Unban user
-- **get_invite_link(chat_id)**: Get invite link
-- **export_chat_invite(chat_id)**: Export invite link
-- **import_chat_invite(hash)**: Join chat by invite hash
-- **join_chat_by_link(link)**: Join chat by invite link
+
+-   **get_chats(page, page_size)**: Paginated list of chats
+-   **list_chats(chat_type, limit)**: List chats with metadata and filtering
+-   **get_chat(chat_id)**: Detailed info about a chat
+-   **create_group(title, user_ids)**: Create a new group
+-   **create_channel(title, about, megagroup)**: Create a channel or supergroup
+-   **edit_chat_title(chat_id, title)**: Change chat/group/channel title
+-   **delete_chat_photo(chat_id)**: Remove chat/group/channel photo
+-   **leave_chat(chat_id)**: Leave a group or channel
+-   **get_participants(chat_id)**: List all participants
+-   **get_admins(chat_id)**: List all admins
+-   **get_banned_users(chat_id)**: List all banned users
+-   **promote_admin(chat_id, user_id)**: Promote user to admin
+-   **demote_admin(chat_id, user_id)**: Demote admin to user
+-   **ban_user(chat_id, user_id)**: Ban user
+-   **unban_user(chat_id, user_id)**: Unban user
+-   **get_invite_link(chat_id)**: Get invite link
+-   **export_chat_invite(chat_id)**: Export invite link
+-   **import_chat_invite(hash)**: Join chat by invite hash
+-   **join_chat_by_link(link)**: Join chat by invite link
 
 ### Messaging
-- **get_messages(chat_id, page, page_size)**: Paginated messages
-- **list_messages(chat_id, limit, search_query, from_date, to_date)**: Filtered messages
-- **list_topics(chat_id, limit, offset_topic, search_query)**: List forum topics in supergroups
-- **send_message(chat_id, message)**: Send a message
-- **reply_to_message(chat_id, message_id, text)**: Reply to a message
-- **edit_message(chat_id, message_id, new_text)**: Edit your message
-- **delete_message(chat_id, message_id)**: Delete a message
-- **forward_message(from_chat_id, message_id, to_chat_id)**: Forward a message
-- **pin_message(chat_id, message_id)**: Pin a message
-- **unpin_message(chat_id, message_id)**: Unpin a message
-- **mark_as_read(chat_id)**: Mark all as read
-- **get_message_context(chat_id, message_id, context_size)**: Context around a message
-- **get_history(chat_id, limit)**: Full chat history
-- **get_pinned_messages(chat_id)**: List pinned messages
-- **get_last_interaction(contact_id)**: Most recent message with a contact
-- **create_poll(chat_id, question, options, multiple_choice, quiz_mode, public_votes, close_date)**: Create a poll
+
+-   **get_messages(chat_id, page, page_size)**: Paginated messages
+-   **list_messages(chat_id, limit, search_query, from_date, to_date)**: Filtered messages
+-   **list_topics(chat_id, limit, offset_topic, search_query)**: List forum topics in supergroups
+-   **send_message(chat_id, message)**: Send a message
+-   **reply_to_message(chat_id, message_id, text)**: Reply to a message
+-   **edit_message(chat_id, message_id, new_text)**: Edit your message
+-   **delete_message(chat_id, message_id)**: Delete a message
+-   **forward_message(from_chat_id, message_id, to_chat_id)**: Forward a message
+-   **pin_message(chat_id, message_id)**: Pin a message
+-   **unpin_message(chat_id, message_id)**: Unpin a message
+-   **mark_as_read(chat_id)**: Mark all as read
+-   **get_message_context(chat_id, message_id, context_size)**: Context around a message
+-   **get_history(chat_id, limit)**: Full chat history
+-   **get_pinned_messages(chat_id)**: List pinned messages
+-   **get_last_interaction(contact_id)**: Most recent message with a contact
+-   **create_poll(chat_id, question, options, multiple_choice, quiz_mode, public_votes, close_date)**: Create a poll
 
 ### Contact Management
-- **list_contacts()**: List all contacts
-- **search_contacts(query)**: Search contacts
-- **add_contact(phone, first_name, last_name)**: Add a contact
-- **delete_contact(user_id)**: Delete a contact
-- **block_user(user_id)**: Block a user
-- **unblock_user(user_id)**: Unblock a user
-- **import_contacts(contacts)**: Bulk import contacts
-- **export_contacts()**: Export all contacts as JSON
-- **get_blocked_users()**: List blocked users
-- **get_contact_ids()**: List all contact IDs
-- **get_direct_chat_by_contact(contact_query)**: Find direct chat with a contact
-- **get_contact_chats(contact_id)**: List all chats with a contact
+
+-   **list_contacts()**: List all contacts
+-   **search_contacts(query)**: Search contacts
+-   **add_contact(phone, first_name, last_name)**: Add a contact
+-   **delete_contact(user_id)**: Delete a contact
+-   **block_user(user_id)**: Block a user
+-   **unblock_user(user_id)**: Unblock a user
+-   **import_contacts(contacts)**: Bulk import contacts
+-   **export_contacts()**: Export all contacts as JSON
+-   **get_blocked_users()**: List blocked users
+-   **get_contact_ids()**: List all contact IDs
+-   **get_direct_chat_by_contact(contact_query)**: Find direct chat with a contact
+-   **get_contact_chats(contact_id)**: List all chats with a contact
 
 ### User & Profile
-- **get_me()**: Get your user info
-- **update_profile(first_name, last_name, about)**: Update your profile
-- **delete_profile_photo()**: Remove your profile photo
-- **get_user_photos(user_id, limit)**: Get a user's profile photos
-- **get_user_status(user_id)**: Get a user's online status
+
+-   **get_me()**: Get your user info
+-   **update_profile(first_name, last_name, about)**: Update your profile
+-   **delete_profile_photo()**: Remove your profile photo
+-   **get_user_photos(user_id, limit)**: Get a user's profile photos
+-   **get_user_status(user_id)**: Get a user's online status
 
 ### Media
-- **get_media_info(chat_id, message_id)**: Get info about media in a message
+
+-   **get_media_info(chat_id, message_id)**: Get info about media in a message
 
 ### Search & Discovery
-- **search_public_chats(query)**: Search public chats/channels/bots
-- **search_messages(chat_id, query, limit)**: Search messages in a chat
-- **resolve_username(username)**: Resolve a username to ID
+
+-   **search_public_chats(query)**: Search public chats/channels/bots
+-   **search_messages(chat_id, query, limit)**: Search messages in a chat
+-   **resolve_username(username)**: Resolve a username to ID
 
 ### Stickers, GIFs, Bots
-- **get_sticker_sets()**: List sticker sets
-- **get_bot_info(bot_username)**: Get info about a bot
-- **set_bot_commands(bot_username, commands)**: Set bot commands (bot accounts only)
+
+-   **get_sticker_sets()**: List sticker sets
+-   **get_bot_info(bot_username)**: Get info about a bot
+-   **set_bot_commands(bot_username, commands)**: Set bot commands (bot accounts only)
 
 ### Privacy, Settings, and Misc
-- **get_privacy_settings()**: Get privacy settings
-- **set_privacy_settings(key, allow_users, disallow_users)**: Set privacy settings
-- **mute_chat(chat_id)**: Mute notifications
-- **unmute_chat(chat_id)**: Unmute notifications
-- **archive_chat(chat_id)**: Archive a chat
-- **unarchive_chat(chat_id)**: Unarchive a chat
-- **get_recent_actions(chat_id)**: Get recent admin actions
+
+-   **get_privacy_settings()**: Get privacy settings
+-   **set_privacy_settings(key, allow_users, disallow_users)**: Set privacy settings
+-   **mute_chat(chat_id)**: Mute notifications
+-   **unmute_chat(chat_id)**: Unmute notifications
+-   **archive_chat(chat_id)**: Archive a chat
+-   **unarchive_chat(chat_id)**: Unarchive a chat
+-   **get_recent_actions(chat_id)**: Get recent admin actions
 
 ## Removed Functionality
 
@@ -127,10 +134,11 @@ Additionally, GIF-related tools (`get_gif_search`, `get_saved_gifs`, `send_gif`)
 ---
 
 ## 📋 Requirements
-- Python 3.10+
-- [Telethon](https://docs.telethon.dev/)
-- [MCP Python SDK](https://modelcontextprotocol.io/docs/)
-- [Claude Desktop](https://claude.ai/desktop) or [Cursor](https://cursor.so/) (or any MCP client)
+
+-   Python 3.10+
+-   [Telethon](https://docs.telethon.dev/)
+-   [MCP Python SDK](https://modelcontextprotocol.io/docs/)
+-   [Claude Desktop](https://claude.ai/desktop) or [Cursor](https://cursor.so/) (or any MCP client)
 
 ---
 
@@ -154,6 +162,7 @@ uv sync
 ```bash
 uv run session_string_generator.py
 ```
+
 Follow the prompts to authenticate and update your `.env` file.
 
 ### 4. Configure .env
@@ -166,6 +175,7 @@ TELEGRAM_API_HASH=your_api_hash_here
 TELEGRAM_SESSION_NAME=anon
 TELEGRAM_SESSION_STRING=your_session_string_here
 ```
+
 Get your API credentials at [my.telegram.org/apps](https://my.telegram.org/apps).
 
 ---
@@ -191,12 +201,21 @@ You have two options:
 This method uses the `docker-compose.yml` file and automatically reads your credentials from a `.env` file.
 
 1.  **Create `.env` File:** Ensure you have a `.env` file in the project root containing your `TELEGRAM_API_ID`, `TELEGRAM_API_HASH`, and `TELEGRAM_SESSION_STRING` (or `TELEGRAM_SESSION_NAME`). Use `.env.example` as a template.
+
+    **Important for scheduled messages:** Add `TZ` to your `.env` file to set the timezone for scheduled messages. For example:
+
+    ```
+    TZ=Europe/Amsterdam
+    ```
+
+    Common timezones: `Europe/London`, `America/New_York`, `Asia/Tokyo`, `Europe/Amsterdam`, etc. If not set, defaults to UTC.
+
 2.  **Run Compose:**
     ```bash
     docker compose up --build
     ```
-    *   Use `docker compose up -d` to run in detached mode (background).
-    *   Press `Ctrl+C` to stop the server.
+    -   Use `docker compose up -d` to run in detached mode (background).
+    -   Press `Ctrl+C` to stop the server.
 
 **Option B: Using `docker run`**
 
@@ -207,32 +226,36 @@ docker run -it --rm \
   -e TELEGRAM_API_ID="YOUR_API_ID" \
   -e TELEGRAM_API_HASH="YOUR_API_HASH" \
   -e TELEGRAM_SESSION_STRING="YOUR_SESSION_STRING" \
+  -e TZ="Europe/Amsterdam" \
   telegram-mcp:latest
 ```
-*   Replace placeholders with your actual credentials.
-*   Use `-e TELEGRAM_SESSION_NAME=your_session_file_name` instead of `TELEGRAM_SESSION_STRING` if you prefer file-based sessions (requires volume mounting, see `docker-compose.yml` for an example).
-*   The `-it` flags are crucial for interacting with the server.
+
+-   Replace placeholders with your actual credentials.
+-   Use `-e TELEGRAM_SESSION_NAME=your_session_file_name` instead of `TELEGRAM_SESSION_STRING` if you prefer file-based sessions (requires volume mounting, see `docker-compose.yml` for an example).
+-   **Set `TZ` environment variable** to your timezone (e.g., `Europe/Amsterdam`, `America/New_York`) for correct scheduled message times. Without this, scheduled messages will use UTC.
+-   The `-it` flags are crucial for interacting with the server.
 
 ---
 
 ## ⚙️ Configuration for Claude & Cursor
 
 ### MCP Configuration
+
 Edit your Claude desktop config (e.g. `~/Library/Application Support/Claude/claude_desktop_config.json`) or Cursor config (`~/.cursor/mcp.json`):
 
 ```json
 {
-  "mcpServers": {
-    "telegram-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/full/path/to/telegram-mcp",
-        "run",
-        "main.py"
-      ]
+    "mcpServers": {
+        "telegram-mcp": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/full/path/to/telegram-mcp",
+                "run",
+                "main.py"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -271,6 +294,7 @@ async def get_chats(page: int = 1, page_size: int = 20) -> str:
 ```
 
 Example output:
+
 ```
 Chat ID: 123456789, Title: John Doe
 Chat ID: -100987654321, Title: My Project Group
@@ -299,6 +323,7 @@ async def send_message(chat_id: int, message: str) -> str:
 ```
 
 Example output:
+
 ```
 Message sent successfully.
 ```
@@ -315,7 +340,7 @@ async def get_invite_link(chat_id: int) -> str:
     """
     try:
         entity = await client.get_entity(chat_id)
-        
+
         # Try using ExportChatInviteRequest first
         try:
             from telethon.tl import functions
@@ -329,14 +354,14 @@ async def get_invite_link(chat_id: int) -> str:
         except Exception as e1:
             # If that fails, log and try alternative approach
             logger.warning(f"ExportChatInviteRequest failed: {e1}")
-            
+
         # Alternative approach using client.export_chat_invite_link
         try:
             invite_link = await client.export_chat_invite_link(entity)
             return invite_link
         except Exception as e2:
             logger.warning(f"export_chat_invite_link failed: {e2}")
-            
+
         # Last resort: Try directly fetching chat info
         try:
             if isinstance(entity, (Chat, Channel)):
@@ -347,7 +372,7 @@ async def get_invite_link(chat_id: int) -> str:
                     return full_chat.full_chat.invite_link or "No invite link available."
         except Exception as e3:
             logger.warning(f"GetFullChatRequest failed: {e3}")
-            
+
         return "Could not retrieve invite link for this chat."
     except Exception as e:
         logger.exception(f"get_invite_link failed (chat_id={chat_id})")
@@ -355,6 +380,7 @@ async def get_invite_link(chat_id: int) -> str:
 ```
 
 Example output:
+
 ```
 https://t.me/+AbCdEfGhIjKlMnOp
 ```
@@ -375,7 +401,7 @@ async def join_chat_by_link(link: str) -> str:
                 hash_part = hash_part[1:]  # Remove the '+' if present
         else:
             hash_part = link
-            
+
         # Try checking the invite before joining
         try:
             # Try to check invite info first (will often fail if not a member)
@@ -387,7 +413,7 @@ async def join_chat_by_link(link: str) -> str:
         except Exception:
             # This often fails if not a member - just continue
             pass
-            
+
         # Join the chat using the hash
         result = await client(functions.messages.ImportChatInviteRequest(hash=hash_part))
         if result and hasattr(result, 'chats') and result.chats:
@@ -407,6 +433,7 @@ async def join_chat_by_link(link: str) -> str:
 ```
 
 Example output:
+
 ```
 Successfully joined chat: Developer Community
 ```
@@ -427,20 +454,21 @@ async def search_public_chats(query: str) -> str:
 ```
 
 Example output:
+
 ```json
 [
-  {
-    "id": 123456789,
-    "name": "TelegramBot",
-    "type": "user",
-    "username": "telegram_bot"
-  },
-  {
-    "id": 987654321,
-    "name": "Telegram News",
-    "type": "user",
-    "username": "telegram_news"
-  }
+    {
+        "id": 123456789,
+        "name": "TelegramBot",
+        "type": "user",
+        "username": "telegram_bot"
+    },
+    {
+        "id": 987654321,
+        "name": "Telegram News",
+        "type": "user",
+        "username": "telegram_news"
+    }
 ]
 ```
 
@@ -451,7 +479,7 @@ Example output:
 async def get_direct_chat_by_contact(contact_query: str) -> str:
     """
     Find a direct chat with a specific contact by name, username, or phone.
-    
+
     Args:
         contact_query: Name, username, or phone number to search for.
     """
@@ -466,8 +494,8 @@ async def get_direct_chat_by_contact(contact_query: str) -> str:
             name = f"{getattr(contact, 'first_name', '')} {getattr(contact, 'last_name', '')}".strip()
             username = getattr(contact, 'username', '')
             phone = getattr(contact, 'phone', '')
-            if (contact_query.lower() in name.lower() or 
-                (username and contact_query.lower() in username.lower()) or 
+            if (contact_query.lower() in name.lower() or
+                (username and contact_query.lower() in username.lower()) or
                 (phone and contact_query in phone)):
                 found_contacts.append(contact)
         if not found_contacts:
@@ -486,16 +514,17 @@ async def get_direct_chat_by_contact(contact_query: str) -> str:
                         chat_info += f", Unread: {dialog.unread_count}"
                     results.append(chat_info)
                     break
-        
+
         if not results:
             return f"Found contacts matching '{contact_query}', but no direct chats with them."
-        
+
         return "\n".join(results)
     except Exception as e:
         return f"Error searching for direct chat: {e}"
 ```
 
 Example output:
+
 ```
 Chat ID: 123456789, Contact: John Smith, Username: @johnsmith, Unread: 3
 ```
@@ -504,17 +533,17 @@ Chat ID: 123456789, Contact: John Smith, Username: @johnsmith, Unread: 3
 
 ## 🎮 Usage Examples
 
-- "Show my recent chats"
-- "Send 'Hello world' to chat 123456789"
-- "Add contact with phone +1234567890, name John Doe"
-- "Create a group 'Project Team' with users 111, 222, 333"
-- "Download the media from message 42 in chat 123456789"
-- "Mute notifications for chat 123456789"
-- "Promote user 111 to admin in group 123456789"
-- "Search for public channels about 'news'"
-- "Join the Telegram group with invite link https://t.me/+AbCdEfGhIjK"
-- "Send a sticker to my Saved Messages"
-- "Get all my sticker sets"
+-   "Show my recent chats"
+-   "Send 'Hello world' to chat 123456789"
+-   "Add contact with phone +1234567890, name John Doe"
+-   "Create a group 'Project Team' with users 111, 222, 333"
+-   "Download the media from message 42 in chat 123456789"
+-   "Mute notifications for chat 123456789"
+-   "Promote user 111 to admin in group 123456789"
+-   "Search for public channels about 'news'"
+-   "Join the Telegram group with invite link https://t.me/+AbCdEfGhIjK"
+-   "Send a sticker to my Saved Messages"
+-   "Get all my sticker sets"
 
 You can use these tools via natural language in Claude, Cursor, or any MCP-compatible client.
 
@@ -524,12 +553,12 @@ You can use these tools via natural language in Claude, Cursor, or any MCP-compa
 
 This implementation includes comprehensive error handling:
 
-- **Session management**: Works with both file-based and string-based sessions
-- **Error reporting**: Detailed errors logged to `mcp_errors.log`
-- **Graceful degradation**: Multiple fallback approaches for critical functions
-- **User-friendly messages**: Clear, actionable error messages instead of technical errors
-- **Account type detection**: Functions that require bot accounts detect and notify when used with user accounts
-- **Invite link processing**: Handles various link formats and already-member cases
+-   **Session management**: Works with both file-based and string-based sessions
+-   **Error reporting**: Detailed errors logged to `mcp_errors.log`
+-   **Graceful degradation**: Multiple fallback approaches for critical functions
+-   **User-friendly messages**: Clear, actionable error messages instead of technical errors
+-   **Account type detection**: Functions that require bot accounts detect and notify when used with user accounts
+-   **Invite link processing**: Handles various link formats and already-member cases
 
 The code is designed to be robust against common Telegram API issues and limitations.
 
@@ -539,13 +568,13 @@ The code is designed to be robust against common Telegram API issues and limitat
 
 1. **Fork this repo:** [chigwell/telegram-mcp](https://github.com/chigwell/telegram-mcp)
 2. **Clone your fork:**
-   ```bash
-   git clone https://github.com/<your-github-username>/telegram-mcp.git
-   ```
+    ```bash
+    git clone https://github.com/<your-github-username>/telegram-mcp.git
+    ```
 3. **Create a new branch:**
-   ```bash
-   git checkout -b my-feature
-   ```
+    ```bash
+    git checkout -b my-feature
+    ```
 4. **Make your changes, add tests/docs if needed.**
 5. **Push and open a Pull Request** to [chigwell/telegram-mcp](https://github.com/chigwell/telegram-mcp) with a clear description.
 6. **Tag @chigwell or @l1v0n1** in your PR for review.
@@ -553,23 +582,25 @@ The code is designed to be robust against common Telegram API issues and limitat
 ---
 
 ## 🔒 Security Considerations
-- **Never commit your `.env` or session string.**
-- The session string gives full access to your Telegram account—keep it safe!
-- All processing is local; no data is sent anywhere except Telegram's API.
-- Use `.env.example` as a template and keep your actual `.env` file private.
-- Test files are automatically excluded in `.gitignore`.
+
+-   **Never commit your `.env` or session string.**
+-   The session string gives full access to your Telegram account—keep it safe!
+-   All processing is local; no data is sent anywhere except Telegram's API.
+-   Use `.env.example` as a template and keep your actual `.env` file private.
+-   Test files are automatically excluded in `.gitignore`.
 
 ---
 
 ## 🛠️ Troubleshooting
-- **Check logs** in your MCP client (Claude/Cursor) and the terminal for errors.
-- **Detailed error logs** can be found in `mcp_errors.log`.
-- **Interpreter errors?** Make sure your `.venv` is created and selected.
-- **Database lock?** Use session string authentication, not file-based sessions.
-- **iCloud/Dropbox issues?** Move your project to a local path without spaces if you see odd errors.
-- **Regenerate session string** if you change your Telegram password or see auth errors.
-- **Bot-only functions** will show clear messages when used with regular user accounts.
-- **Test script failures?** Check test configuration in `.env` for valid test accounts/groups.
+
+-   **Check logs** in your MCP client (Claude/Cursor) and the terminal for errors.
+-   **Detailed error logs** can be found in `mcp_errors.log`.
+-   **Interpreter errors?** Make sure your `.venv` is created and selected.
+-   **Database lock?** Use session string authentication, not file-based sessions.
+-   **iCloud/Dropbox issues?** Move your project to a local path without spaces if you see odd errors.
+-   **Regenerate session string** if you change your Telegram password or see auth errors.
+-   **Bot-only functions** will show clear messages when used with regular user accounts.
+-   **Test script failures?** Check test configuration in `.env` for valid test accounts/groups.
 
 ---
 
@@ -580,10 +611,11 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 ---
 
 ## 🙏 Acknowledgements
-- [Telethon](https://github.com/LonamiWebs/Telethon)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Claude](https://www.anthropic.com/) and [Cursor](https://cursor.so/)
-- [chigwell/telegram-mcp](https://github.com/chigwell/telegram-mcp) (upstream)
+
+-   [Telethon](https://github.com/LonamiWebs/Telethon)
+-   [Model Context Protocol](https://modelcontextprotocol.io/)
+-   [Claude](https://www.anthropic.com/) and [Cursor](https://cursor.so/)
+-   [chigwell/telegram-mcp](https://github.com/chigwell/telegram-mcp) (upstream)
 
 ---
 

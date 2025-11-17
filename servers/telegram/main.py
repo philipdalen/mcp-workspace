@@ -6,7 +6,7 @@ import asyncio
 import sqlite3
 import logging
 import mimetypes
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import List, Dict, Optional, Union, Any
 
@@ -295,6 +295,104 @@ async def send_message(chat_id: int, message: str) -> str:
         return "Message sent successfully."
     except Exception as e:
         return log_and_format_error("send_message", e, chat_id=chat_id)
+
+
+@mcp.tool()
+async def send_scheduled_message(chat_id: int, message: str, schedule_time: str) -> str:
+    """
+    Send a scheduled message to a specific chat.
+    Args:
+        chat_id: The ID of the chat.
+        message: The message content to send.
+        schedule_time: The scheduled time in format 'YYYY-MM-DD HH:MM' or 'HH:MM' (for today).
+                      If only time is provided (HH:MM), it will schedule for today at that time,
+                      or tomorrow if that time has already passed.
+                      The time is interpreted in the local system timezone.
+    """
+    try:
+        entity = await client.get_entity(chat_id)
+        
+        # Get current local time and timezone
+        # The key is to create a datetime that represents the local time the user wants
+        # Telethon will convert it to UTC internally for Telegram's servers
+        
+        # Try to get timezone from environment variable (useful for Docker containers)
+        tz_env = os.getenv("TZ", None)
+        local_tz = None
+        
+        if tz_env and tz_env != "UTC":
+            try:
+                # Try to use zoneinfo (Python 3.9+) for named timezones
+                try:
+                    from zoneinfo import ZoneInfo
+                    local_tz = ZoneInfo(tz_env)
+                except ImportError:
+                    # Fallback to pytz if zoneinfo not available
+                    try:
+                        import pytz
+                        local_tz = pytz.timezone(tz_env)
+                    except ImportError:
+                        pass
+            except Exception:
+                pass
+        
+        # If no timezone from env or it failed, try to detect system timezone
+        if local_tz is None:
+            try:
+                import time as time_module
+                is_dst = time_module.daylight and time.localtime().tm_isdst
+                offset_seconds = -time_module.altzone if is_dst else -time_module.timezone
+                local_tz = timezone(timedelta(seconds=offset_seconds))
+            except Exception:
+                # Final fallback: use UTC
+                local_tz = timezone.utc
+        
+        # Get current local time in the specified timezone
+        # Use datetime.now(local_tz) for proper timezone-aware datetime
+        local_now = datetime.now(local_tz)
+        
+        # Parse the schedule time
+        if len(schedule_time) == 5 and ':' in schedule_time:  # Format: HH:MM
+            hour, minute = map(int, schedule_time.split(':'))
+            # Create datetime in local timezone for today
+            # Start with today's date in local timezone
+            schedule_dt = local_now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            # If the time has already passed today, schedule for tomorrow
+            if schedule_dt <= local_now:
+                schedule_dt += timedelta(days=1)
+        else:  # Format: YYYY-MM-DD HH:MM
+            # Parse as naive datetime first, then make timezone-aware
+            schedule_dt = datetime.strptime(schedule_time, "%Y-%m-%d %H:%M")
+            schedule_dt = schedule_dt.replace(tzinfo=local_tz)
+        
+        # Ensure the datetime is timezone-aware
+        if schedule_dt.tzinfo is None:
+            schedule_dt = schedule_dt.replace(tzinfo=local_tz)
+        
+        # Send the scheduled message
+        # Telethon expects timezone-aware datetime and handles conversion internally
+        await client.send_message(entity, message, schedule=schedule_dt)
+        
+        # Return confirmation with both local time and UTC for clarity
+        # Format the local time
+        try:
+            local_time_str = schedule_dt.strftime('%Y-%m-%d %H:%M')
+            tz_name = str(schedule_dt.tzinfo) if schedule_dt.tzinfo else "local"
+        except:
+            local_time_str = schedule_dt.strftime('%Y-%m-%d %H:%M')
+            tz_name = "local"
+        
+        # Convert to UTC for display
+        utc_dt = schedule_dt.astimezone(timezone.utc)
+        utc_time_str = utc_dt.strftime('%Y-%m-%d %H:%M UTC')
+        
+        # Also show the timezone offset for debugging
+        offset_hours = schedule_dt.utcoffset().total_seconds() / 3600
+        offset_str = f"UTC{offset_hours:+.0f}" if offset_hours != 0 else "UTC"
+        
+        return f"Message scheduled successfully for {local_time_str} {offset_str} (local time, which is {utc_time_str})."
+    except Exception as e:
+        return log_and_format_error("send_scheduled_message", e, chat_id=chat_id, schedule_time=schedule_time)
 
 
 @mcp.tool()
