@@ -786,11 +786,16 @@ async def get_chat(chat_id: int) -> str:
 
         # Get last activity if it's a dialog
         try:
-            # Using get_dialogs might be slow if there are many dialogs
-            # Alternative: Get entity again via get_dialogs if needed for unread count
-            dialog = await client.get_dialogs(limit=1, offset_id=0, offset_peer=entity)
+            # Fetch all dialogs and find the one matching this entity
+            # This ensures we get the unread_count correctly
+            dialogs = await client.get_dialogs()
+            dialog = None
+            for d in dialogs:
+                if d.entity.id == entity.id:
+                    dialog = d
+                    break
+            
             if dialog:
-                dialog = dialog[0]
                 result.append(f"Unread Messages: {dialog.unread_count}")
                 if dialog.message:
                     last_msg = dialog.message
