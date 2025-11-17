@@ -60,12 +60,18 @@ See the comprehensive setup guide: [/docs/OUTLOOK_MCP_SETUP.md](../../docs/OUTLO
            "/Users/philip.dalen/repos/mcp/servers/outlook/community/simply-outlook-mcp/dist/index.js"
          ],
          "env": {
-           "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
+           "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID",
+           "AUTH_RECORD_FILE": "/path/to/custom/auth/file"
          }
        }
      }
    }
    ```
+
+   **Optional Environment Variables:**
+   - `AUTH_RECORD_FILE`: Custom path for the authentication record file. If not specified, defaults to:
+     - **Windows**: `%LOCALAPPDATA%\.simply-outlook-mcp`
+     - **macOS/Linux**: `~/.simply-outlook-mcp`
 
 4. **Restart Cursor** to load the new server
 
@@ -80,7 +86,8 @@ You can also use npx directly without cloning:
       "command": "npx",
       "args": ["-y", "simply-outlook-mcp"],
       "env": {
-        "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
+        "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID",
+        "AUTH_RECORD_FILE": "/path/to/custom/auth/file"
       }
     }
   }
@@ -146,6 +153,13 @@ Authentication tokens are stored securely on your local machine:
 - **macOS**: Keychain
 - **Windows**: Windows Credential Manager
 - **Linux**: Encrypted file in `~/.msal-cache`
+
+The authentication record (user account info) is stored in a file, which by default is located at:
+
+- **Windows**: `%LOCALAPPDATA%\.simply-outlook-mcp`
+- **macOS/Linux**: `~/.simply-outlook-mcp`
+
+You can specify a custom location by setting the `AUTH_RECORD_FILE` environment variable in your `mcp.json` configuration.
 
 ## Troubleshooting
 

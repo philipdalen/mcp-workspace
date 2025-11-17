@@ -5,7 +5,7 @@ import EventEmitter, { once } from "events";
 
 useIdentityPlugin(cachePersistencePlugin);
 
-const AUTH_RECORD_FILE = ".simply-outlook-mcp";
+const AUTH_RECORD_FILE = process.env.AUTH_RECORD_FILE;
 
 export const authenticate = async (clientId: string, scopes: string[], tenantId?: string, isForce?: boolean): Promise<void> => {
   const deviceCodeEvent = new EventEmitter();
@@ -65,7 +65,7 @@ const getUserDataFolder = () => {
 };
 
 const getAuthRecordFile = () => {
-  return `${getUserDataFolder()}/${AUTH_RECORD_FILE}`;
+  return AUTH_RECORD_FILE || `${getUserDataFolder()}/.simply-outlook-mcp`;
 };
 
 const getAuthRecord = (): AuthenticationRecord | undefined => {
