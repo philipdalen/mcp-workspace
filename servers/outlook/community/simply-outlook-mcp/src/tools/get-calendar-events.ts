@@ -12,7 +12,7 @@ const DEFAULT_CALENDAR_RANGE_DAYS = 7;
 export const registerGetCalendarEventsTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
     `${toolNamePrefix}${GET_CALENDAR_EVENTS_TOOL_NAME}`,
-    "Retrieve a list of calendar events from Outlook within a specified date range. Returns both personal events and meetings with attendees.",
+    "Retrieve a list of calendar events from Outlook within a specified date range. Returns events from your personal calendar as well as calendars shared with you. Returns both personal events and meetings with attendees.",
     {
       startDateTime: z
         .string()

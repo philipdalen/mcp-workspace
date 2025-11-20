@@ -18,6 +18,7 @@ import { registerGetOutlookMessageContentTool, GET_OUTLOOK_MESSAGE_CONTENT_TOOL_
 import { registerSendOutlookMessageTool, SEND_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/send-outlook-message.js";
 import { registerReplyOutlookMessageTool, REPLY_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/reply-outlook-message.js";
 import { registerListOutlookFoldersTool, LIST_OUTLOOK_FOLDERS_TOOL_NAME } from "./tools/list-outlook-folders.js";
+import { registerListCalendarsTool, LIST_CALENDARS_TOOL_NAME } from "./tools/list-calendars.js";
 import { registerMoveOutlookMessageTool, MOVE_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/move-outlook-message.js";
 import { registerListOutlookCategoriesTool, LIST_OUTLOOK_CATEGORIES_TOOL_NAME } from "./tools/list-outlook-categories.js";
 import { registerCreateOutlookCategoryTool, CREATE_OUTLOOK_CATEGORY_TOOL_NAME } from "./tools/create-outlook-category.js";
@@ -41,6 +42,7 @@ const TOOL_DEFS: { name: string; tool: ToolRegistration }[] = [
   { name: SEND_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerSendOutlookMessageTool },
   { name: REPLY_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerReplyOutlookMessageTool },
   { name: LIST_OUTLOOK_FOLDERS_TOOL_NAME, tool: registerListOutlookFoldersTool },
+  { name: LIST_CALENDARS_TOOL_NAME, tool: registerListCalendarsTool },
   { name: MOVE_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerMoveOutlookMessageTool },
   { name: LIST_OUTLOOK_CATEGORIES_TOOL_NAME, tool: registerListOutlookCategoriesTool },
   { name: CREATE_OUTLOOK_CATEGORY_TOOL_NAME, tool: registerCreateOutlookCategoryTool },

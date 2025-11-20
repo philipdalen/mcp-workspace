@@ -1,6 +1,6 @@
 import { TokenCredential } from "@azure/identity";
 import { Client, PageCollection } from "@microsoft/microsoft-graph-client";
-import { Event, Message, OutlookCategory } from "@microsoft/microsoft-graph-types";
+import { Event, Message, OutlookCategory, Calendar } from "@microsoft/microsoft-graph-types";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
 import { JSDOM } from "jsdom";
 import DOMPurify, { WindowLike } from "dompurify";
@@ -84,48 +84,98 @@ export class GraphService {
     return !!token;
   }
 
-  public async getCalendarEvents(startDateTimeRange?: DateTimeRange, limit: number = 10, skip?: number): Promise<CalendarEventData[]> {
-    const filters: string[] = [];
-    const { startDateTime, endDateTime } = startDateTimeRange || {};
-    let apiPath: string;
-    if (startDateTime && endDateTime) {
-      // all events
-      apiPath = `/me/calendar/calendarView?startDateTime=${startDateTime}&endDateTime=${endDateTime}`;
-    } else {
-      if (startDateTime) {
-        filters.push(`start/dateTime ge '${startDateTime}'`);
-      }
-      if (endDateTime) {
-        filters.push(`start/dateTime lt '${endDateTime}'`);
-      }
-      // no event instances
-      apiPath = `/me/calendar/events`;
-    }
-
-    const filterStr = filters.join(" and ");
-    const query = this.graphClient
-      .api(apiPath)
-      .select(CALENDAR_EVENT_PROPS)
-      .top(limit)
-      .skip(skip || 0);
-    filterStr && query.filter(filterStr);
-    const collection: PageCollection = await query.get();
+  public async getCalendars(): Promise<Calendar[]> {
+    const collection: PageCollection = await this.graphClient
+      .api("/me/calendars")
+      .select(["id", "name", "owner", "canEdit", "canShare", "canViewPrivateItems"])
+      .get();
+    
     if (!collection.value) {
-      throw new Error("Failed to get events.");
+      throw new Error("Failed to get calendars.");
     }
 
-    const events = collection.value
-      .filter((event) => this.isCalendarEventData(event))
-      .map((event) => {
-        if (event.body && event.body.content && event.body.contentType === "html") {
-          event.body = {
-            contentType: event.body.contentType,
-            content: this.parseHtmlToMarkdown(event.body.content),
-          };
+    return collection.value;
+  }
+
+  public async getCalendarEvents(startDateTimeRange?: DateTimeRange, limit: number = 10, skip?: number): Promise<CalendarEventData[]> {
+    const { startDateTime, endDateTime } = startDateTimeRange || {};
+    
+    // Get all calendars (including shared ones)
+    const calendars = await this.getCalendars();
+    
+    // Fetch events from all calendars in parallel
+    const eventPromises = calendars.map(async (calendar) => {
+      try {
+        const filters: string[] = [];
+        let apiPath: string;
+        
+        if (startDateTime && endDateTime) {
+          // Use calendarView for date range queries
+          apiPath = `/me/calendars/${calendar.id}/calendarView?startDateTime=${startDateTime}&endDateTime=${endDateTime}`;
+        } else {
+          if (startDateTime) {
+            filters.push(`start/dateTime ge '${startDateTime}'`);
+          }
+          if (endDateTime) {
+            filters.push(`start/dateTime lt '${endDateTime}'`);
+          }
+          // Use events endpoint for filtered queries
+          apiPath = `/me/calendars/${calendar.id}/events`;
         }
-        return event;
-      });
-    return events;
+
+        const filterStr = filters.join(" and ");
+        const query = this.graphClient
+          .api(apiPath)
+          .select(CALENDAR_EVENT_PROPS);
+        
+        // For calendarView, we can't use top/skip, so we'll fetch all and filter later
+        if (!(startDateTime && endDateTime)) {
+          query.top(1000); // Fetch a large number to get all events, we'll limit later
+          filterStr && query.filter(filterStr);
+        }
+
+        const collection: PageCollection = await query.get();
+        
+        if (!collection.value) {
+          return [];
+        }
+
+        return collection.value
+          .filter((event) => this.isCalendarEventData(event))
+          .map((event) => {
+            if (event.body && event.body.content && event.body.contentType === "html") {
+              event.body = {
+                contentType: event.body.contentType,
+                content: this.parseHtmlToMarkdown(event.body.content),
+              };
+            }
+            return event;
+          });
+      } catch (error) {
+        // Log error but continue with other calendars
+        this.logger.warning(`Failed to get events from calendar ${calendar.name || calendar.id}: ${(error as Error).message}`);
+        return [];
+      }
+    });
+
+    // Wait for all calendar queries to complete
+    const allEventsArrays = await Promise.all(eventPromises);
+    
+    // Flatten and combine all events
+    const allEvents = allEventsArrays.flat();
+    
+    // Sort events by start date/time
+    allEvents.sort((a, b) => {
+      const aStart = a.start?.dateTime ? new Date(a.start.dateTime).getTime() : 0;
+      const bStart = b.start?.dateTime ? new Date(b.start.dateTime).getTime() : 0;
+      return aStart - bStart;
+    });
+
+    // Apply skip and limit
+    const skipped = skip || 0;
+    const limited = allEvents.slice(skipped, skipped + limit);
+    
+    return limited;
   }
 
   public async createCalendarEvent(
