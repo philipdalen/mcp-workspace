@@ -93,6 +93,28 @@ import {
     handleCreateComment,
 } from "./comments/createComment.js";
 
+// Messages
+import {
+    getMessagesDefinition as getMessages,
+    handleGetMessages,
+} from "./messages/getMessages.js";
+import {
+    getMessageByIdDefinition as getMessageById,
+    handleGetMessageById,
+} from "./messages/getMessageById.js";
+import {
+    createMessageDefinition as createMessage,
+    handleCreateMessage,
+} from "./messages/createMessage.js";
+import {
+    updateMessageDefinition as updateMessage,
+    handleUpdateMessage,
+} from "./messages/updateMessage.js";
+import {
+    deleteMessageDefinition as deleteMessage,
+    handleDeleteMessage,
+} from "./messages/deleteMessage.js";
+
 // People
 import {
     getPeopleDefinition as getPeople,
@@ -246,10 +268,7 @@ import {
     listTagsDefinition as listTags,
     handleListTags,
 } from "./tags/listTags.js";
-import {
-    getTagDefinition as getTag,
-    handleGetTag,
-} from "./tags/getTag.js";
+import { getTagDefinition as getTag, handleGetTag } from "./tags/getTag.js";
 import {
     createTagDefinition as createTag,
     handleCreateTag,
@@ -298,6 +317,11 @@ const toolPairs: ToolPair[] = [
     { definition: deleteTaskList, handler: handleDeleteTaskList },
     { definition: getTaskList, handler: handleGetTaskList },
     { definition: createComment, handler: handleCreateComment },
+    { definition: getMessages, handler: handleGetMessages },
+    { definition: getMessageById, handler: handleGetMessageById },
+    { definition: createMessage, handler: handleCreateMessage },
+    { definition: updateMessage, handler: handleUpdateMessage },
+    { definition: deleteMessage, handler: handleDeleteMessage },
     { definition: getPeople, handler: handleGetPeople },
     { definition: getPersonById, handler: handleGetPersonById },
     { definition: getProjectPeople, handler: handleGetProjectPeople },
@@ -345,7 +369,10 @@ const toolPairs: ToolPair[] = [
     { definition: listNotebooks, handler: handleListNotebooks },
     { definition: getUnreadCount, handler: handleGetUnreadCount },
     { definition: getNotifications, handler: handleGetNotifications },
-    { definition: markNotificationAsRead, handler: handleMarkNotificationAsRead },
+    {
+        definition: markNotificationAsRead,
+        handler: handleMarkNotificationAsRead,
+    },
     { definition: uploadFile, handler: handleUploadFile },
     { definition: listTags, handler: handleListTags },
     { definition: getTag, handler: handleGetTag },
@@ -388,6 +415,11 @@ export { handleUpdateTaskList } from "./tasks/updateTaskList.js";
 export { handleDeleteTaskList } from "./tasks/deleteTaskList.js";
 export { handleGetTaskList } from "./tasks/getTaskList.js";
 export { handleCreateComment } from "./comments/createComment.js";
+export { handleGetMessages } from "./messages/getMessages.js";
+export { handleGetMessageById } from "./messages/getMessageById.js";
+export { handleCreateMessage } from "./messages/createMessage.js";
+export { handleUpdateMessage } from "./messages/updateMessage.js";
+export { handleDeleteMessage } from "./messages/deleteMessage.js";
 export { handleGetPeople } from "./people/getPeople.js";
 export { handleGetPersonById } from "./people/getPersonById.js";
 export { handleGetProjectPeople } from "./people/getProjectPeople.js";

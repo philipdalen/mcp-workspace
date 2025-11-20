@@ -25,6 +25,13 @@ import getTaskList from "./tasks/getTaskList.js";
 // Comment-related exports
 import createComment from "./comments/createComment.js";
 
+// Message-related exports
+import getMessages from "./messages/getMessages.js";
+import getMessageById from "./messages/getMessageById.js";
+import createMessage from "./messages/createMessage.js";
+import updateMessage from "./messages/updateMessage.js";
+import deleteMessage from "./messages/deleteMessage.js";
+
 // People-related exports
 import getPeople, { PeopleQueryParams } from "./people/getPeople.js";
 import getPersonById from "./people/getPersonById.js";
@@ -70,7 +77,9 @@ import listNotebooks from "./notebooks/listNotebooks.js";
 
 // Notification-related exports
 import getUnreadCount from "./notifications/getUnreadCount.js";
-import getNotifications, { GetNotificationsParams } from "./notifications/getNotifications.js";
+import getNotifications, {
+    GetNotificationsParams,
+} from "./notifications/getNotifications.js";
 import markNotificationAsRead from "./notifications/markNotificationAsRead.js";
 
 // File-related exports
@@ -100,6 +109,13 @@ export {
     getTaskList,
 };
 export { createComment };
+export {
+    getMessages,
+    getMessageById,
+    createMessage,
+    updateMessage,
+    deleteMessage,
+};
 export {
     getPeople,
     PeopleQueryParams,
@@ -145,13 +161,7 @@ export {
     markNotificationAsRead,
 };
 export { uploadFile };
-export {
-    listTags,
-    getTag,
-    createTag,
-    updateTag,
-    deleteTag,
-};
+export { listTags, getTag, createTag, updateTag, deleteTag };
 
 // Default export with all services
 export default {
@@ -177,6 +187,13 @@ export default {
 
     // Comments
     createComment,
+
+    // Messages
+    getMessages,
+    getMessageById,
+    createMessage,
+    updateMessage,
+    deleteMessage,
 
     // People
     getPeople,
