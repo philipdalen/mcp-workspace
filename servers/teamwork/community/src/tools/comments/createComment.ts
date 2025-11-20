@@ -27,8 +27,20 @@ export const createCommentDefinition = {
         description: "The content of the comment"
       },
       notify: {
-        type: "string",
-        description: "Who to notify ('all' to notify all project users, 'true' to notify followers, specific user IDs, or empty for no notification)",
+        oneOf: [
+          {
+            type: "string",
+            description: "Who to notify: 'all' (notify all project users), 'true' (notify followers), comma-separated user IDs (e.g., '123,456,789'), or empty string '' (no notification)"
+          },
+          {
+            type: "array",
+            description: "Array of user IDs to notify (e.g., [123, 456, 789]). Will be converted to comma-separated string.",
+            items: {
+              type: "integer"
+            }
+          }
+        ],
+        description: "Who to notify when creating the comment. Options: 'all' (all project users), 'true' (followers), array of user IDs, comma-separated user IDs string, or empty string '' (no notification)",
         default: ""
       },
       isPrivate: {
@@ -75,7 +87,14 @@ export async function handleCreateComment(input: any) {
     commentData.body = input.body;
     
     // Set optional fields if provided
-    if (input.notify !== undefined) commentData.notify = input.notify;
+    if (input.notify !== undefined) {
+      // Handle notify parameter: convert array to comma-separated string if needed
+      if (Array.isArray(input.notify)) {
+        commentData.notify = input.notify.join(',');
+      } else {
+        commentData.notify = input.notify;
+      }
+    }
     if (input.isPrivate !== undefined) commentData['isprivate'] = input.isPrivate;
     if (input.pendingFileAttachments) commentData.pendingFileAttachments = input.pendingFileAttachments;
     if (input.contentType === 'html') commentData['content-type'] = 'html';
