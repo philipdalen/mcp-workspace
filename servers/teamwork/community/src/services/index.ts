@@ -16,6 +16,7 @@ import createTask from "./tasks/createTask.js";
 import createSubTask from "./tasks/createSubTask.js";
 import updateTask from "./tasks/updateTask.js";
 import deleteTask from "./tasks/deleteTask.js";
+import { completeTask, uncompleteTask } from "./tasks/completeTask.js";
 import getTaskComments from "./tasks/getTaskComments.js";
 import createTaskList from "./tasks/createTaskList.js";
 import updateTaskList from "./tasks/updateTaskList.js";
@@ -103,6 +104,8 @@ export {
     createSubTask,
     updateTask,
     deleteTask,
+    completeTask,
+    uncompleteTask,
     createTaskList,
     updateTaskList,
     deleteTaskList,
@@ -179,6 +182,8 @@ export default {
     createSubTask,
     updateTask,
     deleteTask,
+    completeTask,
+    uncompleteTask,
     getTaskComments,
     createTaskList,
     updateTaskList,

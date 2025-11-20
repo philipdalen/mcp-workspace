@@ -11,12 +11,20 @@ COPY tsconfig.json ./
 COPY prepend-shebang.cjs ./
 
 # Install ALL dependencies (including dev dependencies for building)
-RUN npm ci --ignore-scripts
+# Use cache mount for npm cache to speed up subsequent builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts
 
 # Copy all source files
 COPY src/ ./src/
 
 # Build the application
+# Use NODE_OPTIONS to increase memory limit for TypeScript compilation
+# This helps with large projects and can speed up compilation
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Run TypeScript compilation
+# Note: Incremental compilation is enabled in tsconfig.json
+# This will be faster on subsequent builds if source files haven't changed
 RUN npm run build
 
 # Production stage

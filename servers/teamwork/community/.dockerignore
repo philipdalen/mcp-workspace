@@ -6,6 +6,7 @@ yarn-error.log*
 
 # Build output (will be generated fresh)
 build/
+*.tsbuildinfo
 
 # Logs
 logs/

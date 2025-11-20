@@ -55,6 +55,14 @@ import {
     handleDeleteTask,
 } from "./tasks/deleteTask.js";
 import {
+    completeTaskDefinition as completeTask,
+    handleCompleteTask,
+} from "./tasks/completeTask.js";
+import {
+    uncompleteTaskDefinition as uncompleteTask,
+    handleUncompleteTask,
+} from "./tasks/completeTask.js";
+import {
     getTasksMetricsCompleteDefinition as getTasksMetricsComplete,
     handleGetTasksMetricsComplete,
 } from "./tasks/getTasksMetricsComplete.js";
@@ -305,6 +313,8 @@ const toolPairs: ToolPair[] = [
     { definition: createSubTask, handler: handleCreateSubTask },
     { definition: updateTask, handler: handleUpdateTask },
     { definition: deleteTask, handler: handleDeleteTask },
+    { definition: completeTask, handler: handleCompleteTask },
+    { definition: uncompleteTask, handler: handleUncompleteTask },
     {
         definition: getTasksMetricsComplete,
         handler: handleGetTasksMetricsComplete,
@@ -406,6 +416,8 @@ export { handleCreateTask } from "./tasks/createTask.js";
 export { handleCreateSubTask } from "./tasks/createSubTask.js";
 export { handleUpdateTask } from "./tasks/updateTask.js";
 export { handleDeleteTask } from "./tasks/deleteTask.js";
+export { handleCompleteTask } from "./tasks/completeTask.js";
+export { handleUncompleteTask } from "./tasks/completeTask.js";
 export { handleGetTasksMetricsComplete } from "./tasks/getTasksMetricsComplete.js";
 export { handleGetTasksMetricsLate } from "./tasks/getTasksMetricsLate.js";
 export { handleGetTaskSubtasks } from "./tasks/getTaskSubtasks.js";
