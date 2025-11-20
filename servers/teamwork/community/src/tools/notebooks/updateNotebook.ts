@@ -51,6 +51,62 @@ export const updateNotebookDefinition = {
                     type: "integer",
                 },
             },
+            commentFollowers: {
+                type: "object",
+                description:
+                    "UserGroups for comment followers. Users, companies, and teams that will be notified when comments are added to this notebook.",
+                properties: {
+                    userIds: {
+                        type: "array",
+                        items: {
+                            type: "integer",
+                        },
+                        description: "Array of user IDs to notify on comments.",
+                    },
+                    companyIds: {
+                        type: "array",
+                        items: {
+                            type: "integer",
+                        },
+                        description: "Array of company IDs to notify on comments.",
+                    },
+                    teamIds: {
+                        type: "array",
+                        items: {
+                            type: "integer",
+                        },
+                        description: "Array of team IDs to notify on comments.",
+                    },
+                },
+            },
+            changeFollowers: {
+                type: "object",
+                description:
+                    "UserGroups for change followers. Users, companies, and teams that will be notified when the notebook is updated.",
+                properties: {
+                    userIds: {
+                        type: "array",
+                        items: {
+                            type: "integer",
+                        },
+                        description: "Array of user IDs to notify on changes.",
+                    },
+                    companyIds: {
+                        type: "array",
+                        items: {
+                            type: "integer",
+                        },
+                        description: "Array of company IDs to notify on changes.",
+                    },
+                    teamIds: {
+                        type: "array",
+                        items: {
+                            type: "integer",
+                        },
+                        description: "Array of team IDs to notify on changes.",
+                    },
+                },
+            },
         },
         required: ["id"],
     },
