@@ -26,7 +26,7 @@ import { registerDeleteOutlookCategoryTool, DELETE_OUTLOOK_CATEGORY_TOOL_NAME } 
 import { registerAssignCategoriesToMessageTool, ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME } from "./tools/assign-categories-to-message.js";
 import { registerFlagOutlookMessageTool, FLAG_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/flag-outlook-message.js";
 
-export const SIMPLY_OUTLOOK_MCP_SCOPES = ["Calendars.ReadWrite", "Mail.ReadWrite", "User.Read"];
+export const SIMPLY_OUTLOOK_MCP_SCOPES = ["Calendars.ReadWrite", "Mail.ReadWrite", "Mail.Send", "Mail.Send.Shared", "User.Read"];
 
 type ToolRegistration = (mcpServer: McpServer, graphService: GraphService, toolNamePrefix: string) => Promise<void>;
 
