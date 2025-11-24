@@ -31,6 +31,8 @@ from telethon.tl.types import (
     InputPeerUser,
     InputPeerChat,
     InputPeerChannel,
+    MessageEntityUrl,
+    MessageEntityTextUrl,
 )
 import telethon.errors.rpcerrorlist
 
@@ -165,6 +167,27 @@ def log_and_format_error(
     return f"An error occurred (code: {error_code}). Check mcp_errors.log for details."
 
 
+def extract_hyperlinks(message) -> List[str]:
+    """Helper function to extract hyperlinks from message entities."""
+    hyperlinks = []
+    if not message.entities:
+        return hyperlinks
+    
+    message_text = message.message or ""
+    for entity in message.entities:
+        if isinstance(entity, MessageEntityUrl):
+            # Extract URL from the text at the entity's position
+            url = message_text[entity.offset : entity.offset + entity.length]
+            if url:
+                hyperlinks.append(url)
+        elif isinstance(entity, MessageEntityTextUrl):
+            # TextUrl has the actual URL in the url attribute
+            if hasattr(entity, "url") and entity.url:
+                hyperlinks.append(entity.url)
+    
+    return hyperlinks
+
+
 def format_entity(entity) -> Dict[str, Any]:
     """Helper function to format entity information consistently."""
     result = {"id": entity.id}
@@ -202,6 +225,11 @@ def format_message(message) -> Dict[str, Any]:
     if message.media:
         result["has_media"] = True
         result["media_type"] = type(message.media).__name__
+
+    # Extract hyperlinks from message entities
+    hyperlinks = extract_hyperlinks(message)
+    if hyperlinks:
+        result["hyperlinks"] = hyperlinks
 
     return result
 
@@ -271,8 +299,15 @@ async def get_messages(chat_id: int, page: int = 1, page_size: int = 20) -> str:
             reply_info = ""
             if msg.reply_to and msg.reply_to.reply_to_msg_id:
                 reply_info = f" | reply to {msg.reply_to.reply_to_msg_id}"
+            
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+            
             lines.append(
-                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info} | Message: {msg.message}"
+                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info}{hyperlink_info} | Message: {msg.message}"
             )
         return "\n".join(lines)
     except Exception as e:
@@ -576,8 +611,14 @@ async def list_messages(
             if msg.reply_to and msg.reply_to.reply_to_msg_id:
                 reply_info = f" | reply to {msg.reply_to.reply_to_msg_id}"
 
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+
             lines.append(
-                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info} | Message: {message_text}"
+                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info}{hyperlink_info} | Message: {message_text}"
             )
 
         return "\n".join(lines)
@@ -954,7 +995,14 @@ async def get_last_interaction(contact_id: int) -> str:
         for msg in messages:
             sender = "You" if msg.out else contact_name
             message_text = msg.message or "[Media/No text]"
-            results.append(f"Date: {msg.date}, From: {sender}, Message: {message_text}")
+            
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+            
+            results.append(f"Date: {msg.date}, From: {sender}{hyperlink_info}, Message: {message_text}")
 
         return "\n".join(results)
     except Exception as e:
@@ -1011,8 +1059,14 @@ async def get_message_context(chat_id: int, message_id: int, context_size: int =
                         f" | reply to {msg.reply_to.reply_to_msg_id} (original message not found)"
                     )
 
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+            
             results.append(
-                f"ID: {msg.id} | {sender_name} | {msg.date}{highlight}{reply_content}\n{msg.message or '[Media/No text]'}\n"
+                f"ID: {msg.id} | {sender_name} | {msg.date}{highlight}{hyperlink_info}{reply_content}\n{msg.message or '[Media/No text]'}\n"
             )
         return "\n".join(results)
     except Exception as e:
@@ -2309,8 +2363,15 @@ async def search_messages(chat_id: int, query: str, limit: int = 20) -> str:
             reply_info = ""
             if msg.reply_to and msg.reply_to.reply_to_msg_id:
                 reply_info = f" | reply to {msg.reply_to.reply_to_msg_id}"
+            
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+            
             lines.append(
-                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info} | Message: {msg.message}"
+                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info}{hyperlink_info} | Message: {msg.message}"
             )
         return "\n".join(lines)
     except Exception as e:
@@ -2644,8 +2705,15 @@ async def get_history(chat_id: int, limit: int = 100) -> str:
             reply_info = ""
             if msg.reply_to and msg.reply_to.reply_to_msg_id:
                 reply_info = f" | reply to {msg.reply_to.reply_to_msg_id}"
+            
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+            
             lines.append(
-                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info} | Message: {msg.message}"
+                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info}{hyperlink_info} | Message: {msg.message}"
             )
         return "\n".join(lines)
     except Exception as e:
@@ -2728,8 +2796,15 @@ async def get_pinned_messages(chat_id: int) -> str:
             reply_info = ""
             if msg.reply_to and msg.reply_to.reply_to_msg_id:
                 reply_info = f" | reply to {msg.reply_to.reply_to_msg_id}"
+            
+            # Extract hyperlinks
+            hyperlinks = extract_hyperlinks(msg)
+            hyperlink_info = ""
+            if hyperlinks:
+                hyperlink_info = f" | Hyperlinks: {', '.join(hyperlinks)}"
+            
             lines.append(
-                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info} | Message: {msg.message or '[Media/No text]'}"
+                f"ID: {msg.id} | {sender_name} | Date: {msg.date}{reply_info}{hyperlink_info} | Message: {msg.message or '[Media/No text]'}"
             )
 
         return "\n".join(lines)
