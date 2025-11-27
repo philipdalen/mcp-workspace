@@ -100,7 +100,9 @@ Update your MCP configuration file at `~/.cursor/mcp.json`:
                 "/Users/philip.dalen/repos/mcp/servers/outlook/community/simply-outlook-mcp/dist/index.js"
             ],
             "env": {
-                "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID"
+                "SIMPLY_OUTLOOK_MCP_CLIENT_ID": "YOUR_CLIENT_ID",
+                "AUTH_RECORD_FILE": "Path to auth file (this is a optional param, if you want to setup multiple addresses)",
+                "TOOL_NAME_PREFIX": "This is needed when you setup multiple addresses (can be anything, just need to be unique)"
             }
         }
     }

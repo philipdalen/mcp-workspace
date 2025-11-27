@@ -198,7 +198,8 @@ export class GraphService {
         endDate?: string;
         numberOfOccurrences?: number;
       };
-    }
+    },
+    calendarId?: string
   ): Promise<CalendarEventData> {
     const attendees = userEmails ? userEmails.map((email) => ({ emailAddress: { address: email }, type: "required" })) : undefined;
     
@@ -290,7 +291,9 @@ export class GraphService {
       };
     }
 
-    const event: Event = await this.graphClient.api(`/me/events`).post(eventRequest);
+    // Use specific calendar endpoint if calendarId is provided, otherwise use default calendar
+    const apiPath = calendarId ? `/me/calendars/${calendarId}/events` : `/me/events`;
+    const event: Event = await this.graphClient.api(apiPath).post(eventRequest);
     if (!this.isCalendarEventData(event)) {
       throw new Error("Create event failed.");
     }

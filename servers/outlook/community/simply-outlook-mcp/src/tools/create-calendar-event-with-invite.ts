@@ -10,7 +10,7 @@ const DEFAULT_EVENT_DURATION_MINUTES = 30;
 export const registerCreateCalendarEventWithInviteTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
     `${toolNamePrefix}${CREATE_CALENDAR_EVENT_WITH_INVITE_TOOL_NAME}`,
-    "Create a calendar event in Outlook and send invitations to specified attendees. Use this tool when you need to invite other people to the event.",
+    "Create a calendar event in Outlook and send invitations to specified attendees. Use this tool when you need to invite other people to the event. You can specify a calendarId to create the event in a specific calendar (including shared calendars).",
     {
       userEmails: z
         .string()
@@ -51,8 +51,12 @@ export const registerCreateCalendarEventWithInviteTool = async (server: McpServe
         .describe(
           "Optional array of category display names to assign to the event (e.g., ['Important', 'Work']). The categories must already exist as master categories."
         ),
+      calendarId: z
+        .string()
+        .optional()
+        .describe("Optional calendar ID to create the event in. If not provided, the event will be created in the user's default calendar. Use list-calendars to get available calendar IDs."),
     },
-    async ({ subject, content, startDateTime, endDateTime, location, userEmails, isMeeting, categories }) => {
+    async ({ subject, content, startDateTime, endDateTime, location, userEmails, isMeeting, categories, calendarId }) => {
       try {
         const startDateTimeUtc = new Date(startDateTime).toISOString();
 
@@ -72,7 +76,9 @@ export const registerCreateCalendarEventWithInviteTool = async (server: McpServe
           userEmails,
           location,
           isMeeting,
-          categories
+          categories,
+          undefined,
+          calendarId
         );
         return textToolResult([
           `Do not show the event ID to the user.`,

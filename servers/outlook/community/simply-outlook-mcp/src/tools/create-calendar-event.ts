@@ -10,7 +10,7 @@ const DEFAULT_EVENT_DURATION_MINUTES = 30;
 export const registerCreateCalendarEventTool = async (server: McpServer, graphService: GraphService, toolNamePrefix: string) => {
   server.tool(
     `${toolNamePrefix}${CREATE_CALENDAR_EVENT_TOOL_NAME}`,
-    "Create a personal calendar event in Outlook without sending invitations to other attendees. This creates a private event only on the user's calendar.",
+    "Create a personal calendar event in Outlook without sending invitations to other attendees. This creates a private event only on the user's calendar. You can specify a calendarId to create the event in a specific calendar (including shared calendars).",
     {
       subject: z.string().describe("The title/subject of the calendar event"),
       startDateTime: z
@@ -59,8 +59,12 @@ export const registerCreateCalendarEventTool = async (server: McpServer, graphSe
         })
         .optional()
         .describe("Recurrence pattern for the event"),
+      calendarId: z
+        .string()
+        .optional()
+        .describe("Optional calendar ID to create the event in. If not provided, the event will be created in the user's default calendar. Use list-calendars to get available calendar IDs."),
     },
-    async ({ subject, content, startDateTime, endDateTime, location, categories, recurrence }) => {
+    async ({ subject, content, startDateTime, endDateTime, location, categories, recurrence, calendarId }) => {
       try {
         const startDateTimeUtc = new Date(startDateTime).toISOString();
 
@@ -81,7 +85,8 @@ export const registerCreateCalendarEventTool = async (server: McpServer, graphSe
           location,
           undefined,
           categories,
-          recurrence
+          recurrence,
+          calendarId
         );
         return textToolResult([
           `Do not show the event ID to the user.`,
