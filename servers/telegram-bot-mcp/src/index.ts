@@ -21,6 +21,7 @@ import { getChat } from "./tools/getChat.js";
 import { forwardMessage } from "./tools/forwardMessage.js";
 import { deleteMessage } from "./tools/deleteMessage.js";
 import { getUpdates } from "./tools/getUpdates.js";
+import { downloadFile } from "./tools/downloadFile.js";
 
 // Create MCP server
 const server = new Server({
@@ -73,6 +74,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: getUpdates.name,
         description: getUpdates.description,
         inputSchema: getUpdates.parameters
+      },
+      {
+        name: downloadFile.name,
+        description: downloadFile.description,
+        inputSchema: downloadFile.parameters
       }
     ]
   };
@@ -99,6 +105,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return await deleteMessage.run(args as any);
     case "get_updates":
       return await getUpdates.run(args as any);
+    case "download_file":
+      return await downloadFile.run(args as any);
     default:
       throw new Error(`Unknown tool: ${request.params.name}`);
   }

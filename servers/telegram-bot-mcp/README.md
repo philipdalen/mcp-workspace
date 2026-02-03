@@ -143,6 +143,7 @@ npm run sse
 | [`delete_message`](#delete_message) | Remove messages | Content moderation |
 | [`get_chat`](#get_chat) | Retrieve chat information | Analytics, administration |
 | [`get_updates`](#get_updates) | Get incoming updates | Receiving messages, callbacks |
+| [`download_file`](#download_file) | Download media files | Image/audio interpretation |
 
 </div>
 
@@ -289,10 +290,44 @@ npm run sse
 
 - **Update ID** - Unique identifier for each update
 - **Message details** - Sender, chat ID, text, media type
+- **Media file_ids** - For photos, documents, videos, voice messages, and audio (use with `download_file`)
 - **Reply context** - Original message details when replying
 - **Callback queries** - Button click data
 - **Edited messages** - Updates for edited content
 - **Channel posts** - Updates from channels
+
+</details>
+
+### 📥 `download_file`
+> 🖼️ **Download media files from Telegram for AI interpretation**
+
+<details>
+<summary>📋 <strong>Parameters</strong></summary>
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `token` | `string` | ❌ | Telegram bot token (optional if env var set) |
+| `fileId` | `string` | ✅ | File ID from a Telegram message (obtained from `get_updates`) |
+
+</details>
+
+<details>
+<summary>💡 <strong>Response behavior</strong></summary>
+
+- **Images** (JPG, PNG, GIF, WebP) - Returned as viewable image content that Claude can interpret
+- **Audio** (OGG, MP3, M4A) - Returned with metadata and base64 data for transcription
+- **Other files** - Returned with metadata and base64 data
+
+</details>
+
+<details>
+<summary>🔄 <strong>Example workflow</strong></summary>
+
+```
+1. Call get_updates → See "Photo (file_id: AgACAgIAAxk...)"
+2. Call download_file with fileId → Claude sees and interprets the image
+3. Claude responds based on image content
+```
 
 </details>
 
@@ -314,7 +349,8 @@ npm run sse
 │       ├── 📄 getChat.ts        # ℹ️ Chat information
 │       ├── 📄 forwardMessage.ts # ↗️ Message forwarding
 │       ├── 📄 deleteMessage.ts  # 🗑️ Message deletion
-│       └── 📄 getUpdates.ts     # 📬 Incoming updates
+│       ├── 📄 getUpdates.ts     # 📬 Incoming updates
+│       └── 📄 downloadFile.ts   # 📥 Media file download
 ├── 📂 examples/
 │   ├── 📄 claude-config.json    # ⚙️ Claude configuration
 │   └── 📄 usage-examples.md     # 💡 Usage examples

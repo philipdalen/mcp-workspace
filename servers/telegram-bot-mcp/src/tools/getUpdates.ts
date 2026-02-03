@@ -84,14 +84,32 @@ export const getUpdates = {
             summary += `**Replying to message ID:** ${reply.message_id}\n`;
             summary += `**Original sender:** ${reply.from?.first_name || 'Unknown'} ${reply.from?.last_name || ''} (@${reply.from?.username || 'no username'})\n`;
             if (reply.text) summary += `**Original text:** ${reply.text}\n`;
-            if (reply.photo) summary += `**Original contained:** Photo\n`;
-            if (reply.document) summary += `**Original contained:** Document\n`;
-            if (reply.video) summary += `**Original contained:** Video\n`;
+            if (reply.photo) {
+              const largestPhoto = reply.photo[reply.photo.length - 1];
+              summary += `**Original contained:** Photo (file_id: ${largestPhoto.file_id})\n`;
+            }
+            if (reply.document) summary += `**Original contained:** Document (file_id: ${reply.document.file_id})\n`;
+            if (reply.video) summary += `**Original contained:** Video (file_id: ${reply.video.file_id})\n`;
+            if (reply.voice) summary += `**Original contained:** Voice message (file_id: ${reply.voice.file_id})\n`;
+            if (reply.audio) summary += `**Original contained:** Audio (file_id: ${reply.audio.file_id})\n`;
           }
           if (msg.text) summary += `**Text:** ${msg.text}\n`;
-          if (msg.photo) summary += `**Contains:** Photo\n`;
-          if (msg.document) summary += `**Contains:** Document\n`;
-          if (msg.video) summary += `**Contains:** Video\n`;
+          if (msg.photo) {
+            const largestPhoto = msg.photo[msg.photo.length - 1];
+            summary += `**Contains:** Photo (file_id: ${largestPhoto.file_id}, ${largestPhoto.width}x${largestPhoto.height})\n`;
+          }
+          if (msg.document) {
+            summary += `**Contains:** Document (file_id: ${msg.document.file_id}, name: ${msg.document.file_name || 'unknown'})\n`;
+          }
+          if (msg.video) {
+            summary += `**Contains:** Video (file_id: ${msg.video.file_id}, ${msg.video.width}x${msg.video.height}, ${msg.video.duration}s)\n`;
+          }
+          if (msg.voice) {
+            summary += `**Contains:** Voice message (file_id: ${msg.voice.file_id}, ${msg.voice.duration}s)\n`;
+          }
+          if (msg.audio) {
+            summary += `**Contains:** Audio (file_id: ${msg.audio.file_id}, ${msg.audio.duration}s)\n`;
+          }
           summary += `**Date:** ${new Date(msg.date * 1000).toISOString()}`;
         } else if (update.callback_query) {
           const cb = update.callback_query;
