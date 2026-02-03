@@ -79,6 +79,15 @@ export const getUpdates = {
           summary += `**From:** ${msg.from?.first_name || 'Unknown'} ${msg.from?.last_name || ''} (@${msg.from?.username || 'no username'})\n`;
           summary += `**Chat ID:** ${msg.chat.id}\n`;
           summary += `**Chat Type:** ${msg.chat.type}\n`;
+          if (msg.reply_to_message) {
+            const reply = msg.reply_to_message;
+            summary += `**Replying to message ID:** ${reply.message_id}\n`;
+            summary += `**Original sender:** ${reply.from?.first_name || 'Unknown'} ${reply.from?.last_name || ''} (@${reply.from?.username || 'no username'})\n`;
+            if (reply.text) summary += `**Original text:** ${reply.text}\n`;
+            if (reply.photo) summary += `**Original contained:** Photo\n`;
+            if (reply.document) summary += `**Original contained:** Document\n`;
+            if (reply.video) summary += `**Original contained:** Video\n`;
+          }
           if (msg.text) summary += `**Text:** ${msg.text}\n`;
           if (msg.photo) summary += `**Contains:** Photo\n`;
           if (msg.document) summary += `**Contains:** Document\n`;
