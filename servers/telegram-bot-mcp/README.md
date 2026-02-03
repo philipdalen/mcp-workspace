@@ -142,6 +142,7 @@ npm run sse
 | [`forward_message`](#forward_message) | Forward messages between chats | Content distribution |
 | [`delete_message`](#delete_message) | Remove messages | Content moderation |
 | [`get_chat`](#get_chat) | Retrieve chat information | Analytics, administration |
+| [`get_updates`](#get_updates) | Get incoming updates | Receiving messages, callbacks |
 
 </div>
 
@@ -267,6 +268,34 @@ npm run sse
 
 </details>
 
+### 📬 `get_updates`
+> 📥 **Get incoming updates (messages, callbacks, etc.) using long polling**
+
+<details>
+<summary>📋 <strong>Parameters</strong></summary>
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `token` | `string` | ❌ | Telegram bot token (optional if env var set) |
+| `offset` | `number` | ❌ | First update ID to return (use last update_id + 1) |
+| `limit` | `number` | ❌ | Number of updates to retrieve (1-100, default 100) |
+| `timeout` | `number` | ❌ | Long polling timeout in seconds (0 = short polling) |
+| `allowedUpdates` | `string[]` | ❌ | Update types to receive (e.g., `["message", "callback_query"]`) |
+
+</details>
+
+<details>
+<summary>💡 <strong>Response includes</strong></summary>
+
+- **Update ID** - Unique identifier for each update
+- **Message details** - Sender, chat ID, text, media type
+- **Reply context** - Original message details when replying
+- **Callback queries** - Button click data
+- **Edited messages** - Updates for edited content
+- **Channel posts** - Updates from channels
+
+</details>
+
 ---
 
 ## 🔧 Development
@@ -284,7 +313,8 @@ npm run sse
 │       ├── 📄 sendVideo.ts      # 🎥 Video sharing
 │       ├── 📄 getChat.ts        # ℹ️ Chat information
 │       ├── 📄 forwardMessage.ts # ↗️ Message forwarding
-│       └── 📄 deleteMessage.ts  # 🗑️ Message deletion
+│       ├── 📄 deleteMessage.ts  # 🗑️ Message deletion
+│       └── 📄 getUpdates.ts     # 📬 Incoming updates
 ├── 📂 examples/
 │   ├── 📄 claude-config.json    # ⚙️ Claude configuration
 │   └── 📄 usage-examples.md     # 💡 Usage examples
