@@ -114,8 +114,13 @@ export const getUpdates = {
         } else if (update.callback_query) {
           const cb = update.callback_query;
           summary += `**Type:** Callback Query\n`;
+          summary += `**Callback Query ID:** ${cb.id}\n`;
           summary += `**From:** ${cb.from?.first_name || 'Unknown'} (@${cb.from?.username || 'no username'})\n`;
-          summary += `**Data:** ${cb.data || 'none'}`;
+          summary += `**Data:** ${cb.data || 'none'}\n`;
+          if (cb.message?.message_id) summary += `**Message ID:** ${cb.message.message_id}\n`;
+          if (cb.message?.chat?.id) summary += `**Chat ID:** ${cb.message.chat.id}\n`;
+          if (cb.message?.text) summary += `**Message Text:** ${cb.message.text}\n`;
+          if (cb.inline_message_id) summary += `**Inline Message ID:** ${cb.inline_message_id}`;
         } else if (update.edited_message) {
           summary += `**Type:** Edited Message\n`;
           summary += `**Chat ID:** ${update.edited_message.chat.id}`;

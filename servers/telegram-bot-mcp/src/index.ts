@@ -22,6 +22,9 @@ import { forwardMessage } from "./tools/forwardMessage.js";
 import { deleteMessage } from "./tools/deleteMessage.js";
 import { getUpdates } from "./tools/getUpdates.js";
 import { downloadFile } from "./tools/downloadFile.js";
+import { answerCallbackQuery } from "./tools/answerCallbackQuery.js";
+import { editMessageText } from "./tools/editMessageText.js";
+import { editMessageReplyMarkup } from "./tools/editMessageReplyMarkup.js";
 
 // Create MCP server
 const server = new Server({
@@ -79,6 +82,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: downloadFile.name,
         description: downloadFile.description,
         inputSchema: downloadFile.parameters
+      },
+      {
+        name: answerCallbackQuery.name,
+        description: answerCallbackQuery.description,
+        inputSchema: answerCallbackQuery.parameters
+      },
+      {
+        name: editMessageText.name,
+        description: editMessageText.description,
+        inputSchema: editMessageText.parameters
+      },
+      {
+        name: editMessageReplyMarkup.name,
+        description: editMessageReplyMarkup.description,
+        inputSchema: editMessageReplyMarkup.parameters
       }
     ]
   };
@@ -107,6 +125,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return await getUpdates.run(args as any);
     case "download_file":
       return await downloadFile.run(args as any);
+    case "answer_callback_query":
+      return await answerCallbackQuery.run(args as any);
+    case "edit_message_text":
+      return await editMessageText.run(args as any);
+    case "edit_message_reply_markup":
+      return await editMessageReplyMarkup.run(args as any);
     default:
       throw new Error(`Unknown tool: ${request.params.name}`);
   }

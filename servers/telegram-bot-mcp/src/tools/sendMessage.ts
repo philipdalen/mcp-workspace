@@ -9,7 +9,8 @@ const SendMessageSchema = z.object({
   parseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).optional().describe("Parse mode for formatting"),
   disableWebPagePreview: z.boolean().optional().describe("Disable web page preview"),
   disableNotification: z.boolean().optional().describe("Send message silently"),
-  replyToMessageId: z.number().optional().describe("Reply to specific message ID")
+  replyToMessageId: z.number().optional().describe("Reply to specific message ID"),
+  replyMarkup: z.any().optional().describe("Reply markup: InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, or ForceReply")
 });
 
 export const sendMessage = {
@@ -46,6 +47,10 @@ export const sendMessage = {
       replyToMessageId: {
         type: "number",
         description: "Reply to specific message ID"
+      },
+      replyMarkup: {
+        type: "object",
+        description: "Reply markup. Supports: InlineKeyboardMarkup ({inline_keyboard: [[{text, callback_data?, url?}]]}), ReplyKeyboardMarkup ({keyboard: [[{text}]], resize_keyboard?, one_time_keyboard?, is_persistent?}), ReplyKeyboardRemove ({remove_keyboard: true}), ForceReply ({force_reply: true})"
       }
     },
     required: ["chatId", "text"]
@@ -66,7 +71,8 @@ export const sendMessage = {
       if (validatedArgs.disableWebPagePreview) options.disable_web_page_preview = validatedArgs.disableWebPagePreview;
       if (validatedArgs.disableNotification) options.disable_notification = validatedArgs.disableNotification;
       if (validatedArgs.replyToMessageId) options.reply_to_message_id = validatedArgs.replyToMessageId;
-      
+      if (validatedArgs.replyMarkup) options.reply_markup = validatedArgs.replyMarkup;
+
       // Send message
       const result = await bot.sendMessage(validatedArgs.chatId, validatedArgs.text, options);
       

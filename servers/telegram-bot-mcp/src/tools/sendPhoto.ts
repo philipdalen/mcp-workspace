@@ -9,7 +9,8 @@ const SendPhotoSchema = z.object({
   caption: z.string().optional().describe("Photo caption"),
   parseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).optional().describe("Parse mode for caption"),
   disableNotification: z.boolean().optional().describe("Send photo silently"),
-  replyToMessageId: z.number().optional().describe("Reply to specific message ID")
+  replyToMessageId: z.number().optional().describe("Reply to specific message ID"),
+  replyMarkup: z.any().optional().describe("Reply markup: InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, or ForceReply")
 });
 
 export const sendPhoto = {
@@ -46,6 +47,10 @@ export const sendPhoto = {
       replyToMessageId: {
         type: "number",
         description: "Reply to specific message ID"
+      },
+      replyMarkup: {
+        type: "object",
+        description: "Reply markup. Supports: InlineKeyboardMarkup ({inline_keyboard: [[{text, callback_data?, url?}]]}), ReplyKeyboardMarkup ({keyboard: [[{text}]], resize_keyboard?, one_time_keyboard?, is_persistent?}), ReplyKeyboardRemove ({remove_keyboard: true}), ForceReply ({force_reply: true})"
       }
     },
     required: ["chatId", "photo"]
@@ -66,6 +71,7 @@ export const sendPhoto = {
       if (validatedArgs.parseMode) options.parse_mode = validatedArgs.parseMode;
       if (validatedArgs.disableNotification) options.disable_notification = validatedArgs.disableNotification;
       if (validatedArgs.replyToMessageId) options.reply_to_message_id = validatedArgs.replyToMessageId;
+      if (validatedArgs.replyMarkup) options.reply_markup = validatedArgs.replyMarkup;
 
       // Send photo
       const result = await bot.sendPhoto(validatedArgs.chatId, validatedArgs.photo, options);
