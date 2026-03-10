@@ -55,7 +55,7 @@ export const sendDocument = {
       },
       replyMarkup: {
         type: "object",
-        description: "Reply markup. Supports: InlineKeyboardMarkup ({inline_keyboard: [[{text, callback_data?, url?}]]}), ReplyKeyboardMarkup ({keyboard: [[{text}]], resize_keyboard?, one_time_keyboard?, is_persistent?}), ReplyKeyboardRemove ({remove_keyboard: true}), ForceReply ({force_reply: true})"
+        description: "Reply markup. Supports: InlineKeyboardMarkup ({inline_keyboard: [[{text, callback_data?, url?, style?, icon_custom_emoji_id?}]]}), ReplyKeyboardMarkup ({keyboard: [[{text, style?, icon_custom_emoji_id?}]], resize_keyboard?, one_time_keyboard?, is_persistent?}), ReplyKeyboardRemove ({remove_keyboard: true}), ForceReply ({force_reply: true}). Button style can be \"danger\" (red), \"primary\" (blue), or \"success\" (green)."
       }
     },
     required: ["chatId", "document"]

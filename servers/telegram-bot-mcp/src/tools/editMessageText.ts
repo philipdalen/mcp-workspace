@@ -45,7 +45,7 @@ export const editMessageText = {
       },
       replyMarkup: {
         type: "object",
-        description: "New inline keyboard markup. Use {inline_keyboard: [[{text, callback_data}]]} to set buttons, or {inline_keyboard: []} to remove them."
+        description: "New inline keyboard markup. Use {inline_keyboard: [[{text, callback_data, style?, icon_custom_emoji_id?}]]} to set buttons, or {inline_keyboard: []} to remove them. Button style can be \"danger\" (red), \"primary\" (blue), or \"success\" (green)."
       }
     },
     required: ["chatId", "messageId", "text"]

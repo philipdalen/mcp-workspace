@@ -29,7 +29,7 @@ export const editMessageReplyMarkup = {
       },
       replyMarkup: {
         type: "object",
-        description: "New inline keyboard markup. Use {inline_keyboard: [[{text, callback_data}]]} to set buttons, or omit / pass {inline_keyboard: []} to remove all buttons."
+        description: "New inline keyboard markup. Use {inline_keyboard: [[{text, callback_data, style?, icon_custom_emoji_id?}]]} to set buttons, or omit / pass {inline_keyboard: []} to remove all buttons. Button style can be \"danger\" (red), \"primary\" (blue), or \"success\" (green)."
       }
     },
     required: ["chatId", "messageId"]
