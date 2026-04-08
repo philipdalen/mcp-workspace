@@ -10,6 +10,7 @@ const SendMessageSchema = z.object({
   disableWebPagePreview: z.boolean().optional().describe("Disable web page preview"),
   disableNotification: z.boolean().optional().describe("Send message silently"),
   replyToMessageId: z.number().optional().describe("Reply to specific message ID"),
+  messageThreadId: z.number().optional().describe("Topic id for private chats with topics enabled"),
   replyMarkup: z.any().optional().describe("Reply markup: InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, or ForceReply")
 });
 
@@ -48,6 +49,10 @@ export const sendMessage = {
         type: "number",
         description: "Reply to specific message ID"
       },
+      messageThreadId: {
+        type: "number",
+        description: "Topic id for private chats with topics enabled"
+      },
       replyMarkup: {
         type: "object",
         description: "Reply markup. Supports: InlineKeyboardMarkup ({inline_keyboard: [[{text, callback_data?, url?, style?, icon_custom_emoji_id?}]]}), ReplyKeyboardMarkup ({keyboard: [[{text, style?, icon_custom_emoji_id?}]], resize_keyboard?, one_time_keyboard?, is_persistent?}), ReplyKeyboardRemove ({remove_keyboard: true}), ForceReply ({force_reply: true}). Button style can be \"danger\" (red), \"primary\" (blue), or \"success\" (green)."
@@ -71,6 +76,7 @@ export const sendMessage = {
       if (validatedArgs.disableWebPagePreview) options.disable_web_page_preview = validatedArgs.disableWebPagePreview;
       if (validatedArgs.disableNotification) options.disable_notification = validatedArgs.disableNotification;
       if (validatedArgs.replyToMessageId) options.reply_to_message_id = validatedArgs.replyToMessageId;
+      if (validatedArgs.messageThreadId) options.message_thread_id = validatedArgs.messageThreadId;
       if (validatedArgs.replyMarkup) options.reply_markup = validatedArgs.replyMarkup;
 
       // Send message
