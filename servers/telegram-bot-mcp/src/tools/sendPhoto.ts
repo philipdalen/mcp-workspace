@@ -10,6 +10,7 @@ const SendPhotoSchema = z.object({
   parseMode: z.enum(['HTML', 'Markdown', 'MarkdownV2']).optional().describe("Parse mode for caption"),
   disableNotification: z.boolean().optional().describe("Send photo silently"),
   replyToMessageId: z.number().optional().describe("Reply to specific message ID"),
+  messageThreadId: z.number().optional().describe("Topic id for private chats with topics enabled"),
   replyMarkup: z.any().optional().describe("Reply markup: InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, or ForceReply")
 });
 
@@ -48,6 +49,10 @@ export const sendPhoto = {
         type: "number",
         description: "Reply to specific message ID"
       },
+      messageThreadId: {
+        type: "number",
+        description: "Topic id for private chats with topics enabled"
+      },
       replyMarkup: {
         type: "object",
         description: "Reply markup. Supports: InlineKeyboardMarkup ({inline_keyboard: [[{text, callback_data?, url?, style?, icon_custom_emoji_id?}]]}), ReplyKeyboardMarkup ({keyboard: [[{text, style?, icon_custom_emoji_id?}]], resize_keyboard?, one_time_keyboard?, is_persistent?}), ReplyKeyboardRemove ({remove_keyboard: true}), ForceReply ({force_reply: true}). Button style can be \"danger\" (red), \"primary\" (blue), or \"success\" (green)."
@@ -71,6 +76,7 @@ export const sendPhoto = {
       if (validatedArgs.parseMode) options.parse_mode = validatedArgs.parseMode;
       if (validatedArgs.disableNotification) options.disable_notification = validatedArgs.disableNotification;
       if (validatedArgs.replyToMessageId) options.reply_to_message_id = validatedArgs.replyToMessageId;
+      if (validatedArgs.messageThreadId) options.message_thread_id = validatedArgs.messageThreadId;
       if (validatedArgs.replyMarkup) options.reply_markup = validatedArgs.replyMarkup;
 
       // Send photo
