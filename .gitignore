@@ -67,6 +67,9 @@ vendor/
 *.session
 *.session-journal
 
+# Compiled binaries
+servers/whatsapp/community/whatsapp-mcp/whatsapp-bridge/whatsapp-client
+
 # Temporary files
 *.tmp
 temp/
