@@ -18,8 +18,15 @@ export const registerReplyOutlookMessageTool = async (server: McpServer, graphSe
       content: z
         .string()
         .describe("The reply content/body of the email message. Supports Markdown formatting which will be converted to HTML."),
+      attachments: z
+        .string()
+        .array()
+        .optional()
+        .describe(
+          "Optional array of absolute local file paths to attach to the reply. '~' is expanded to the user's home directory. Files up to 150MB each are supported (files larger than 3MB are uploaded via a Graph upload session)."
+        ),
     },
-    async ({ messageId, content }) => {
+    async ({ messageId, content, attachments: attachmentPaths }) => {
       try {
         if (!messageId) {
           throw new Error("Message ID is required to reply to a message.");
@@ -29,11 +36,12 @@ export const registerReplyOutlookMessageTool = async (server: McpServer, graphSe
           throw new Error("Reply content cannot be empty.");
         }
 
-        await graphService.replyOutlookMessage(messageId, content);
+        await graphService.replyOutlookMessage(messageId, content, attachmentPaths);
 
+        const attachmentNote = attachmentPaths?.length ? ` with ${attachmentPaths.length} attachment(s)` : "";
         return textToolResult([
           `Do not show the message ID to the user.`,
-          `Successfully sent reply to Outlook message with ID: ${messageId}`,
+          `Successfully sent reply to Outlook message${attachmentNote} with ID: ${messageId}`,
         ]);
       } catch (error) {
         return getErrorToolResult(error, "Failed to reply to Outlook message.");

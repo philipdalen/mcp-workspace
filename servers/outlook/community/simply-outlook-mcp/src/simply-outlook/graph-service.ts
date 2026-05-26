@@ -1,6 +1,9 @@
+import { promises as fs } from "fs";
+import * as os from "os";
+import * as path from "path";
 import { TokenCredential } from "@azure/identity";
 import { Client, PageCollection } from "@microsoft/microsoft-graph-client";
-import { Event, Message, OutlookCategory, Calendar } from "@microsoft/microsoft-graph-types";
+import { Event, FileAttachment, Message, OutlookCategory, Calendar } from "@microsoft/microsoft-graph-types";
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js";
 import { JSDOM } from "jsdom";
 import DOMPurify, { WindowLike } from "dompurify";
@@ -55,6 +58,53 @@ const DEFAULT_MAIL_FOLDERS_LIMIT = 100;
 
 const DELETED_FOLDER_NAME = "deleteditems";
 const JUNK_FOLDER_NAME = "junkemail";
+
+const FILE_ATTACHMENT_ODATA_TYPE = "#microsoft.graph.fileAttachment";
+// Graph sendMail caps the whole request near 4 MB. Base64 inflates by ~4/3, and the JSON envelope (body HTML, recipients,
+// metadata) adds further overhead — so cap raw inline bytes at 2 MB to leave headroom. Anything larger falls back to the
+// draft + upload-session path.
+const MAX_INLINE_PER_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_INLINE_TOTAL_BYTES = 2 * 1024 * 1024;
+// Per-file ceiling enforced by Graph upload sessions.
+const MAX_ATTACHMENT_BYTES = 150 * 1024 * 1024;
+const UPLOAD_CHUNK_SIZE = 4 * 1024 * 1024;
+
+const MIME_BY_EXT: Record<string, string> = {
+  ".pdf": "application/pdf",
+  ".doc": "application/msword",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".xls": "application/vnd.ms-excel",
+  ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ".ppt": "application/vnd.ms-powerpoint",
+  ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  ".txt": "text/plain",
+  ".csv": "text/csv",
+  ".json": "application/json",
+  ".xml": "application/xml",
+  ".html": "text/html",
+  ".htm": "text/html",
+  ".md": "text/markdown",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".zip": "application/zip",
+  ".gz": "application/gzip",
+  ".tar": "application/x-tar",
+  ".mp3": "audio/mpeg",
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+  ".wav": "audio/wav",
+};
+
+interface LoadedAttachment {
+  name: string;
+  contentType: string;
+  size: number;
+  data: Buffer;
+}
 
 export class GraphService {
   private graphClient: Client;
@@ -539,20 +589,50 @@ export class GraphService {
     return mailData;
   }
 
-  public async sendOutlookMessage(subject: string, content: string, recipientEmails: string[]): Promise<void> {
+  public async sendOutlookMessage(
+    subject: string,
+    content: string,
+    recipientEmails: string[],
+    attachmentPaths?: string[]
+  ): Promise<void> {
     const toRecipients = recipientEmails.map((email) => ({ emailAddress: { address: email } }));
-    const msgRequest: Message = {
-      subject,
-      body: {
-        contentType: "html",
-        content: this.parseMarkdownToHtml(content),
-      },
-      toRecipients,
+    const body = {
+      contentType: "html" as const,
+      content: this.parseMarkdownToHtml(content),
     };
-    await this.graphClient.api("/me/sendMail").post({ message: msgRequest });
+
+    const attachments = attachmentPaths?.length ? await this.loadAttachmentsFromPaths(attachmentPaths) : [];
+
+    if (attachments.length === 0) {
+      const msgRequest: Message = { subject, body, toRecipients };
+      await this.graphClient.api("/me/sendMail").post({ message: msgRequest });
+      return;
+    }
+
+    if (this.canInlineAttachments(attachments)) {
+      const msgRequest: Message = {
+        subject,
+        body,
+        toRecipients,
+        attachments: this.toInlineAttachments(attachments),
+      };
+      await this.graphClient.api("/me/sendMail").post({ message: msgRequest });
+      return;
+    }
+
+    const draft: Message = await this.graphClient.api("/me/messages").post({
+      subject,
+      body,
+      toRecipients,
+    });
+    if (!draft.id) {
+      throw new Error("Failed to create draft message for attachments.");
+    }
+
+    await this.uploadAttachmentsAndSendDraft(draft.id, attachments);
   }
 
-  public async replyOutlookMessage(replyMessageId: string, content: string): Promise<void> {
+  public async replyOutlookMessage(replyMessageId: string, content: string, attachmentPaths?: string[]): Promise<void> {
     const originalMessage = await this.getOutlookMessageById(replyMessageId);
 
     const originalSender = originalMessage.from?.emailAddress?.name || originalMessage.from?.emailAddress?.address || "Unknown Sender";
@@ -564,13 +644,164 @@ export class GraphService {
       originalDate ? new Date(originalDate).toLocaleString() : "Unknown"
     }  \n**Subject:** ${originalSubject}  \n\n\n${originalContent}`;
 
-    const msgRequest: Message = {
-      body: {
-        contentType: "html",
-        content: this.parseMarkdownToHtml(replyContent),
-      },
+    const body = {
+      contentType: "html" as const,
+      content: this.parseMarkdownToHtml(replyContent),
     };
-    await this.graphClient.api(`/me/messages/${replyMessageId}/reply`).post({ message: msgRequest });
+
+    const attachments = attachmentPaths?.length ? await this.loadAttachmentsFromPaths(attachmentPaths) : [];
+
+    if (attachments.length === 0) {
+      const msgRequest: Message = { body };
+      await this.graphClient.api(`/me/messages/${replyMessageId}/reply`).post({ message: msgRequest });
+      return;
+    }
+
+    if (this.canInlineAttachments(attachments)) {
+      const msgRequest: Message = {
+        body,
+        attachments: this.toInlineAttachments(attachments),
+      };
+      await this.graphClient.api(`/me/messages/${replyMessageId}/reply`).post({ message: msgRequest });
+      return;
+    }
+
+    const draft: Message = await this.graphClient.api(`/me/messages/${replyMessageId}/createReply`).post({});
+    if (!draft.id) {
+      throw new Error("Failed to create reply draft for attachments.");
+    }
+
+    // createReply seeds the draft with an auto-generated quoted body; our replyContent already includes the quote,
+    // so overwrite the body before uploading attachments and sending.
+    await this.graphClient.api(`/me/messages/${draft.id}`).patch({ body });
+    await this.uploadAttachmentsAndSendDraft(draft.id, attachments);
+  }
+
+  private async uploadAttachmentsAndSendDraft(draftId: string, attachments: LoadedAttachment[]): Promise<void> {
+    try {
+      for (const att of attachments) {
+        await this.attachToDraft(draftId, att);
+      }
+      await this.graphClient.api(`/me/messages/${draftId}/send`).post({});
+    } catch (error) {
+      try {
+        await this.graphClient.api(`/me/messages/${draftId}`).delete();
+      } catch (cleanupError) {
+        this.logger.warning(`Failed to delete draft ${draftId} after attachment error: ${(cleanupError as Error).message}`);
+      }
+      throw error;
+    }
+  }
+
+  private async loadAttachmentsFromPaths(paths: string[]): Promise<LoadedAttachment[]> {
+    const loaded: LoadedAttachment[] = [];
+    for (const p of paths) {
+      const abs = this.resolveAttachmentPath(p);
+      let stat;
+      try {
+        stat = await fs.stat(abs);
+      } catch (error) {
+        throw new Error(`Cannot read attachment '${p}': ${(error as Error).message}`);
+      }
+      if (!stat.isFile()) {
+        throw new Error(`Attachment '${p}' is not a file.`);
+      }
+      if (stat.size === 0) {
+        throw new Error(`Attachment '${p}' is empty.`);
+      }
+      if (stat.size > MAX_ATTACHMENT_BYTES) {
+        throw new Error(`Attachment '${p}' (${stat.size} bytes) exceeds the ${MAX_ATTACHMENT_BYTES}-byte limit.`);
+      }
+      const data = await fs.readFile(abs);
+      const name = path.basename(abs);
+      loaded.push({
+        name,
+        contentType: this.mimeForFileName(name),
+        size: stat.size,
+        data,
+      });
+    }
+    return loaded;
+  }
+
+  private resolveAttachmentPath(p: string): string {
+    if (p === "~") {
+      return os.homedir();
+    }
+    if (p.startsWith("~/")) {
+      return path.join(os.homedir(), p.slice(2));
+    }
+    if (!path.isAbsolute(p)) {
+      // Relative paths would resolve against the MCP server's cwd, which is unpredictable for the caller. Fail loudly.
+      throw new Error(`Attachment path '${p}' must be absolute (or start with '~/'). Pass a full path like '/Users/you/file.pdf'.`);
+    }
+    return p;
+  }
+
+  private mimeForFileName(name: string): string {
+    const ext = path.extname(name).toLowerCase();
+    return MIME_BY_EXT[ext] || "application/octet-stream";
+  }
+
+  private canInlineAttachments(attachments: LoadedAttachment[]): boolean {
+    if (attachments.some((a) => a.size > MAX_INLINE_PER_FILE_BYTES)) {
+      return false;
+    }
+    const total = attachments.reduce((sum, a) => sum + a.size, 0);
+    return total <= MAX_INLINE_TOTAL_BYTES;
+  }
+
+  private buildFileAttachment(att: LoadedAttachment): FileAttachment {
+    return {
+      "@odata.type": FILE_ATTACHMENT_ODATA_TYPE,
+      name: att.name,
+      contentType: att.contentType,
+      contentBytes: att.data.toString("base64"),
+    } as FileAttachment;
+  }
+
+  private toInlineAttachments(attachments: LoadedAttachment[]): FileAttachment[] {
+    return attachments.map((a) => this.buildFileAttachment(a));
+  }
+
+  private async attachToDraft(messageId: string, att: LoadedAttachment): Promise<void> {
+    if (att.size <= MAX_INLINE_PER_FILE_BYTES) {
+      await this.graphClient.api(`/me/messages/${messageId}/attachments`).post(this.buildFileAttachment(att));
+      return;
+    }
+
+    const session: { uploadUrl?: string } = await this.graphClient
+      .api(`/me/messages/${messageId}/attachments/createUploadSession`)
+      .post({
+        AttachmentItem: {
+          attachmentType: "file",
+          name: att.name,
+          size: att.size,
+          contentType: att.contentType,
+        },
+      });
+
+    if (!session?.uploadUrl) {
+      throw new Error(`Failed to create upload session for attachment '${att.name}'.`);
+    }
+
+    for (let offset = 0; offset < att.size; offset += UPLOAD_CHUNK_SIZE) {
+      const end = Math.min(offset + UPLOAD_CHUNK_SIZE, att.size) - 1;
+      const chunk = att.data.subarray(offset, end + 1);
+      // Node fetch accepts Buffer at runtime, but DOM's BodyInit type excludes Uint8Array<ArrayBufferLike>. Cast through unknown.
+      const response = await fetch(session.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Length": String(chunk.byteLength),
+          "Content-Range": `bytes ${offset}-${end}/${att.size}`,
+        },
+        body: chunk as unknown as BodyInit,
+      });
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        throw new Error(`Upload chunk failed for '${att.name}' (status ${response.status}): ${detail}`);
+      }
+    }
   }
 
   public async moveOutlookMessage(messageId: string, destinationFolderId: string): Promise<void> {
