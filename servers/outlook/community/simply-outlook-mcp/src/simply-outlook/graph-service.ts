@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import { promises as fs } from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -104,6 +105,19 @@ interface LoadedAttachment {
   contentType: string;
   size: number;
   data: Buffer;
+  inline?: boolean;
+  cid?: string;
+}
+
+export type AttachmentInput = string | { path: string; inline?: boolean; cid?: string };
+
+// URL capture excludes whitespace + ')' so CommonMark title syntax (![alt](url "title")) doesn't pollute the path.
+const MARKDOWN_IMAGE_RE = /!\[([^\]]*)\]\(\s*([^\s)]+)(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/g;
+const REMOTE_IMAGE_SCHEME_RE = /^(https?:|cid:|data:|mailto:)/i;
+
+interface LoadedSignature {
+  markdown: string;
+  inlineImages: LoadedAttachment[];
 }
 
 export class GraphService {
@@ -593,15 +607,16 @@ export class GraphService {
     subject: string,
     content: string,
     recipientEmails: string[],
-    attachmentPaths?: string[]
+    attachmentInputs?: AttachmentInput[],
+    signaturePath?: string
   ): Promise<void> {
     const toRecipients = recipientEmails.map((email) => ({ emailAddress: { address: email } }));
+
+    const { composedContent, attachments } = await this.composeBodyAndAttachments(content, attachmentInputs, signaturePath);
     const body = {
       contentType: "html" as const,
-      content: this.parseMarkdownToHtml(content),
+      content: this.parseMarkdownToHtml(composedContent),
     };
-
-    const attachments = attachmentPaths?.length ? await this.loadAttachmentsFromPaths(attachmentPaths) : [];
 
     if (attachments.length === 0) {
       const msgRequest: Message = { subject, body, toRecipients };
@@ -632,7 +647,12 @@ export class GraphService {
     await this.uploadAttachmentsAndSendDraft(draft.id, attachments);
   }
 
-  public async replyOutlookMessage(replyMessageId: string, content: string, attachmentPaths?: string[]): Promise<void> {
+  public async replyOutlookMessage(
+    replyMessageId: string,
+    content: string,
+    attachmentInputs?: AttachmentInput[],
+    signaturePath?: string
+  ): Promise<void> {
     const originalMessage = await this.getOutlookMessageById(replyMessageId);
 
     const originalSender = originalMessage.from?.emailAddress?.name || originalMessage.from?.emailAddress?.address || "Unknown Sender";
@@ -640,7 +660,9 @@ export class GraphService {
     const originalSubject = originalMessage.subject || "(No Subject)";
     const originalContent = originalMessage.body?.content || "";
 
-    const replyContent = `${content}\n\n\n\n---\n\n**From:** ${originalSender}  \n**Date:** ${
+    const { composedContent, attachments } = await this.composeBodyAndAttachments(content, attachmentInputs, signaturePath);
+
+    const replyContent = `${composedContent}\n\n\n\n---\n\n**From:** ${originalSender}  \n**Date:** ${
       originalDate ? new Date(originalDate).toLocaleString() : "Unknown"
     }  \n**Subject:** ${originalSubject}  \n\n\n${originalContent}`;
 
@@ -648,8 +670,6 @@ export class GraphService {
       contentType: "html" as const,
       content: this.parseMarkdownToHtml(replyContent),
     };
-
-    const attachments = attachmentPaths?.length ? await this.loadAttachmentsFromPaths(attachmentPaths) : [];
 
     if (attachments.length === 0) {
       const msgRequest: Message = { body };
@@ -677,6 +697,18 @@ export class GraphService {
     await this.uploadAttachmentsAndSendDraft(draft.id, attachments);
   }
 
+  private async composeBodyAndAttachments(
+    content: string,
+    attachmentInputs: AttachmentInput[] | undefined,
+    signaturePath: string | undefined
+  ): Promise<{ composedContent: string; attachments: LoadedAttachment[] }> {
+    const signature = await this.loadSignature(signaturePath);
+    const composedContent = signature ? `${content}\n\n${signature.markdown}` : content;
+    const userAttachments = attachmentInputs?.length ? await this.loadAttachments(attachmentInputs) : [];
+    const attachments = signature ? [...userAttachments, ...signature.inlineImages] : userAttachments;
+    return { composedContent, attachments };
+  }
+
   private async uploadAttachmentsAndSendDraft(draftId: string, attachments: LoadedAttachment[]): Promise<void> {
     try {
       for (const att of attachments) {
@@ -693,24 +725,35 @@ export class GraphService {
     }
   }
 
-  private async loadAttachmentsFromPaths(paths: string[]): Promise<LoadedAttachment[]> {
+  private async loadAttachments(inputs: AttachmentInput[]): Promise<LoadedAttachment[]> {
     const loaded: LoadedAttachment[] = [];
-    for (const p of paths) {
-      const abs = this.resolveAttachmentPath(p);
+    for (const input of inputs) {
+      const spec = typeof input === "string" ? { path: input } : input;
+      if (spec.inline && !spec.cid) {
+        throw new Error(
+          `Inline attachment '${spec.path}' requires a 'cid' to reference it in the body (e.g. ![](cid:your-cid)).`
+        );
+      }
+      if (spec.cid && !spec.inline) {
+        throw new Error(
+          `Attachment '${spec.path}' has a 'cid' but inline is not set. Pass inline: true to embed it in the body, or drop the cid to attach it as a regular file.`
+        );
+      }
+      const abs = this.resolveAttachmentPath(spec.path);
       let stat;
       try {
         stat = await fs.stat(abs);
       } catch (error) {
-        throw new Error(`Cannot read attachment '${p}': ${(error as Error).message}`);
+        throw new Error(`Cannot read attachment '${spec.path}': ${(error as Error).message}`);
       }
       if (!stat.isFile()) {
-        throw new Error(`Attachment '${p}' is not a file.`);
+        throw new Error(`Attachment '${spec.path}' is not a file.`);
       }
       if (stat.size === 0) {
-        throw new Error(`Attachment '${p}' is empty.`);
+        throw new Error(`Attachment '${spec.path}' is empty.`);
       }
       if (stat.size > MAX_ATTACHMENT_BYTES) {
-        throw new Error(`Attachment '${p}' (${stat.size} bytes) exceeds the ${MAX_ATTACHMENT_BYTES}-byte limit.`);
+        throw new Error(`Attachment '${spec.path}' (${stat.size} bytes) exceeds the ${MAX_ATTACHMENT_BYTES}-byte limit.`);
       }
       const data = await fs.readFile(abs);
       const name = path.basename(abs);
@@ -719,9 +762,79 @@ export class GraphService {
         contentType: this.mimeForFileName(name),
         size: stat.size,
         data,
+        inline: spec.inline,
+        cid: spec.cid,
       });
     }
     return loaded;
+  }
+
+  private async loadSignature(sigPath: string | undefined): Promise<LoadedSignature | undefined> {
+    if (!sigPath) {
+      return undefined;
+    }
+
+    const resolved = this.resolveAttachmentPath(sigPath);
+    let raw: string;
+    try {
+      raw = (await fs.readFile(resolved)).toString("utf8");
+    } catch (error) {
+      throw new Error(`Could not read signature file at '${sigPath}': ${(error as Error).message}.`);
+    }
+
+    const sigDir = path.dirname(resolved);
+    const cidByFile = new Map<string, string>();
+    const filesToLoad: { absolutePath: string; cid: string }[] = [];
+    // Per-message nonce keeps CIDs unique across emails so clients don't conflate attachments.
+    const nonce = crypto.randomBytes(4).toString("hex");
+    let counter = 0;
+
+    const markdown = raw.replace(MARKDOWN_IMAGE_RE, (_match, alt: string, url: string) => {
+      const trimmed = url.trim();
+      if (REMOTE_IMAGE_SCHEME_RE.test(trimmed)) {
+        return `![${alt}](${trimmed})`;
+      }
+      const absolutePath = path.isAbsolute(trimmed) ? trimmed : path.join(sigDir, trimmed);
+      let cid = cidByFile.get(absolutePath);
+      if (!cid) {
+        counter++;
+        cid = `sig-img-${nonce}-${counter}`;
+        cidByFile.set(absolutePath, cid);
+        filesToLoad.push({ absolutePath, cid });
+      }
+      return `![${alt}](cid:${cid})`;
+    });
+
+    const inlineImages: LoadedAttachment[] = [];
+    for (const file of filesToLoad) {
+      let imgStat;
+      try {
+        imgStat = await fs.stat(file.absolutePath);
+      } catch (error) {
+        throw new Error(`Signature image '${file.absolutePath}' could not be read: ${(error as Error).message}`);
+      }
+      if (!imgStat.isFile()) {
+        throw new Error(`Signature image '${file.absolutePath}' is not a file.`);
+      }
+      if (imgStat.size === 0) {
+        throw new Error(`Signature image '${file.absolutePath}' is empty.`);
+      }
+      if (imgStat.size > MAX_ATTACHMENT_BYTES) {
+        throw new Error(`Signature image '${file.absolutePath}' exceeds the ${MAX_ATTACHMENT_BYTES}-byte limit.`);
+      }
+      const data = await fs.readFile(file.absolutePath);
+      const name = path.basename(file.absolutePath);
+      inlineImages.push({
+        name,
+        contentType: this.mimeForFileName(name),
+        size: imgStat.size,
+        data,
+        inline: true,
+        cid: file.cid,
+      });
+    }
+
+    return { markdown, inlineImages };
   }
 
   private resolveAttachmentPath(p: string): string {
@@ -752,12 +865,19 @@ export class GraphService {
   }
 
   private buildFileAttachment(att: LoadedAttachment): FileAttachment {
-    return {
+    const payload: Record<string, unknown> = {
       "@odata.type": FILE_ATTACHMENT_ODATA_TYPE,
       name: att.name,
       contentType: att.contentType,
       contentBytes: att.data.toString("base64"),
-    } as FileAttachment;
+    };
+    if (att.inline) {
+      payload.isInline = true;
+      if (att.cid) {
+        payload.contentId = att.cid;
+      }
+    }
+    return payload as FileAttachment;
   }
 
   private toInlineAttachments(attachments: LoadedAttachment[]): FileAttachment[] {
@@ -770,16 +890,21 @@ export class GraphService {
       return;
     }
 
+    const attachmentItem: Record<string, unknown> = {
+      attachmentType: "file",
+      name: att.name,
+      size: att.size,
+      contentType: att.contentType,
+    };
+    if (att.inline) {
+      attachmentItem.isInline = true;
+      if (att.cid) {
+        attachmentItem.contentId = att.cid;
+      }
+    }
     const session: { uploadUrl?: string } = await this.graphClient
       .api(`/me/messages/${messageId}/attachments/createUploadSession`)
-      .post({
-        AttachmentItem: {
-          attachmentType: "file",
-          name: att.name,
-          size: att.size,
-          contentType: att.contentType,
-        },
-      });
+      .post({ AttachmentItem: attachmentItem });
 
     if (!session?.uploadUrl) {
       throw new Error(`Failed to create upload session for attachment '${att.name}'.`);
