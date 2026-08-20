@@ -11,7 +11,7 @@ import DOMPurify, { WindowLike } from "dompurify";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { Marked } from "marked";
 import { ILogger } from "../common/logger.types.js";
-import { CalendarEventData, DateTimeRange, MailFolderData, MailMessageData } from "./graph-service.types.js";
+import { CalendarEventData, DateTimeRange, DownloadedAttachment, MailAttachmentData, MailFolderData, MailMessageData } from "./graph-service.types.js";
 
 const CALENDAR_EVENT_PROPS = [
   "id",
@@ -54,6 +54,11 @@ const MAIL_MESSAGE_PROPS = [
 
 const MAIL_PREVIEW_MESSAGE_PROPS = MAIL_MESSAGE_PROPS.concat(["bodyPreview"]);
 const MAIL_BODY_MESSAGE_PROPS = MAIL_MESSAGE_PROPS.concat(["body"]);
+
+const MAIL_ATTACHMENT_PROPS = ["id", "name", "contentType", "size", "isInline"];
+// Per-file ceiling for attachments fetched inline as base64 JSON. Graph itself will serve larger files, but pulling
+// them through this $value-less path (contentBytes in the JSON body) gets expensive well before Graph's own cap.
+const MAX_DOWNLOAD_ATTACHMENT_BYTES = 50 * 1024 * 1024;
 
 const DEFAULT_MAIL_FOLDERS_LIMIT = 100;
 
@@ -603,6 +608,53 @@ export class GraphService {
     return mailData;
   }
 
+  public async listMessageAttachments(messageId: string): Promise<MailAttachmentData[]> {
+    const collection: PageCollection = await this.graphClient
+      .api(`/me/messages/${messageId}/attachments`)
+      .select(MAIL_ATTACHMENT_PROPS)
+      .get();
+
+    if (!collection.value) {
+      throw new Error("Failed to get message attachments.");
+    }
+
+    return collection.value.map((attachment: FileAttachment) => ({
+      id: attachment.id || "",
+      name: attachment.name || "attachment",
+      contentType: attachment.contentType || "application/octet-stream",
+      size: attachment.size || 0,
+      isInline: !!attachment.isInline,
+    }));
+  }
+
+  public async downloadMessageAttachment(messageId: string, attachmentId: string, destinationPath: string): Promise<DownloadedAttachment> {
+    const attachment: FileAttachment & { "@odata.type"?: string } = await this.graphClient
+      .api(`/me/messages/${messageId}/attachments/${attachmentId}`)
+      .get();
+
+    if (!attachment || attachment["@odata.type"] !== FILE_ATTACHMENT_ODATA_TYPE || !attachment.contentBytes) {
+      throw new Error(`Attachment '${attachmentId}' is not a downloadable file attachment (it may be an item/reference attachment).`);
+    }
+
+    if (attachment.size && attachment.size > MAX_DOWNLOAD_ATTACHMENT_BYTES) {
+      throw new Error(`Attachment '${attachment.name}' (${attachment.size} bytes) exceeds the ${MAX_DOWNLOAD_ATTACHMENT_BYTES}-byte download limit.`);
+    }
+
+    const data = Buffer.from(attachment.contentBytes, "base64");
+    const name = attachment.name || "attachment";
+    const resolved = await this.resolveDestinationPath(destinationPath, name);
+
+    await fs.mkdir(path.dirname(resolved), { recursive: true });
+    await fs.writeFile(resolved, data);
+
+    return {
+      path: resolved,
+      name,
+      contentType: attachment.contentType || "application/octet-stream",
+      size: data.length,
+    };
+  }
+
   public async sendOutlookMessage(
     subject: string,
     content: string,
@@ -849,6 +901,33 @@ export class GraphService {
       throw new Error(`Attachment path '${p}' must be absolute (or start with '~/'). Pass a full path like '/Users/you/file.pdf'.`);
     }
     return p;
+  }
+
+  private async resolveDestinationPath(destinationPath: string, fallbackName: string): Promise<string> {
+    let resolved = destinationPath;
+    if (resolved === "~") {
+      resolved = os.homedir();
+    } else if (resolved.startsWith("~/")) {
+      resolved = path.join(os.homedir(), resolved.slice(2));
+    } else if (!path.isAbsolute(resolved)) {
+      throw new Error(`Destination path '${destinationPath}' must be absolute (or start with '~/'). Pass a full path or directory.`);
+    }
+
+    // Treat a trailing separator, or an existing directory, as "save the attachment inside this folder using its own name".
+    if (resolved.endsWith(path.sep) || resolved.endsWith("/")) {
+      return path.join(resolved, fallbackName);
+    }
+
+    try {
+      const stat = await fs.stat(resolved);
+      if (stat.isDirectory()) {
+        return path.join(resolved, fallbackName);
+      }
+    } catch {
+      // Doesn't exist yet — treat as the literal destination file path; the caller creates parent dirs as needed.
+    }
+
+    return resolved;
   }
 
   private mimeForFileName(name: string): string {

@@ -63,3 +63,18 @@ export type MailFolderData = {
   displayName: string;
   wellKnownName?: string;
 };
+
+export type MailAttachmentData = {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  isInline: boolean;
+};
+
+export type DownloadedAttachment = {
+  path: string;
+  name: string;
+  contentType: string;
+  size: number;
+};

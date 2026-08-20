@@ -25,6 +25,14 @@ import { registerCreateOutlookCategoryTool, CREATE_OUTLOOK_CATEGORY_TOOL_NAME } 
 import { registerDeleteOutlookCategoryTool, DELETE_OUTLOOK_CATEGORY_TOOL_NAME } from "./tools/delete-outlook-category.js";
 import { registerAssignCategoriesToMessageTool, ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME } from "./tools/assign-categories-to-message.js";
 import { registerFlagOutlookMessageTool, FLAG_OUTLOOK_MESSAGE_TOOL_NAME } from "./tools/flag-outlook-message.js";
+import {
+  registerListOutlookMessageAttachmentsTool,
+  LIST_OUTLOOK_MESSAGE_ATTACHMENTS_TOOL_NAME,
+} from "./tools/list-outlook-message-attachments.js";
+import {
+  registerDownloadOutlookMessageAttachmentTool,
+  DOWNLOAD_OUTLOOK_MESSAGE_ATTACHMENT_TOOL_NAME,
+} from "./tools/download-outlook-message-attachment.js";
 
 export const SIMPLY_OUTLOOK_MCP_SCOPES = ["Calendars.ReadWrite", "Mail.ReadWrite", "Mail.Send", "Mail.Send.Shared", "User.Read"];
 
@@ -49,6 +57,8 @@ const TOOL_DEFS: { name: string; tool: ToolRegistration }[] = [
   { name: DELETE_OUTLOOK_CATEGORY_TOOL_NAME, tool: registerDeleteOutlookCategoryTool },
   { name: ASSIGN_CATEGORIES_TO_MESSAGE_TOOL_NAME, tool: registerAssignCategoriesToMessageTool },
   { name: FLAG_OUTLOOK_MESSAGE_TOOL_NAME, tool: registerFlagOutlookMessageTool },
+  { name: LIST_OUTLOOK_MESSAGE_ATTACHMENTS_TOOL_NAME, tool: registerListOutlookMessageAttachmentsTool },
+  { name: DOWNLOAD_OUTLOOK_MESSAGE_ATTACHMENT_TOOL_NAME, tool: registerDownloadOutlookMessageAttachmentTool },
 ];
 
 export const createMcpServer = async (credential: TokenCredential): Promise<McpServer> => {

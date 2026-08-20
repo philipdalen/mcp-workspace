@@ -58,12 +58,27 @@ SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING")
 
 mcp = FastMCP("telegram")
 
+# Reconnect tuning: retry forever instead of giving up after the default 5 attempts.
+# This is what stops the client parking itself permanently in the "disconnected"
+# state after the Mac sleeps or the network blips (the root cause of the
+# "Cannot send requests while disconnected" errors that required a Claude restart).
+_CONN_KW = dict(
+    connection_retries=None,  # None = retry indefinitely
+    retry_delay=2,
+    auto_reconnect=True,
+    request_retries=5,
+)
+
 if SESSION_STRING:
     # Use the string session if available
-    client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    client = TelegramClient(
+        StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH, **_CONN_KW
+    )
 else:
     # Use file-based session
-    client = TelegramClient(TELEGRAM_SESSION_NAME, TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    client = TelegramClient(
+        TELEGRAM_SESSION_NAME, TELEGRAM_API_ID, TELEGRAM_API_HASH, **_CONN_KW
+    )
 
 # Setup robust logging with both file and console output
 logger = logging.getLogger("telegram_mcp")
@@ -2889,6 +2904,25 @@ async def create_poll(
 if __name__ == "__main__":
     nest_asyncio.apply()
 
+    async def connection_watchdog(interval: int = 10) -> None:
+        """Periodically ensure the Telethon connection is alive and reconnect if not.
+
+        Belt-and-suspenders on top of auto_reconnect: if the client ever fully
+        parks itself in the disconnected state (e.g. nest_asyncio starving the
+        background reconnect task, or all retries exhausted during a long sleep),
+        this forces a reconnect using the saved session within `interval` seconds —
+        so the server self-heals instead of needing a Claude restart.
+        """
+        while True:
+            try:
+                if not client.is_connected():
+                    print("Watchdog: connection down, reconnecting...", file=sys.stderr)
+                    await client.connect()
+                    print("Watchdog: reconnected.", file=sys.stderr)
+            except Exception as wd_err:
+                print(f"Watchdog reconnect failed: {wd_err}", file=sys.stderr)
+            await asyncio.sleep(interval)
+
     async def main() -> None:
         try:
             # Start the Telethon client non-interactively
@@ -2896,6 +2930,8 @@ if __name__ == "__main__":
             await client.start()
 
             print("Telegram client started. Running MCP server...", file=sys.stderr)
+            # Keep the connection self-healing in the background.
+            asyncio.create_task(connection_watchdog())
             # Use the asynchronous entrypoint instead of mcp.run()
             await mcp.run_stdio_async()
         except Exception as e:
