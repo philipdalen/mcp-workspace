@@ -1,9 +1,7 @@
 // End-to-end tests for download_file: spawns the built server over stdio with Telegram mocked.
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, statSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -43,7 +41,7 @@ const textOf = (result) => result.content.filter((c) => c.type === 'text').map((
 const localPathOf = (result) => /\*\*Local path:\*\* (.+)/.exec(textOf(result))?.[1];
 const tmpEntries = () => readdirSync(serverTmp);
 
-test('PDF is saved to a private local file that a separate process can read', async () => {
+test('PDF is saved to a private local file readable outside the server process', async () => {
   const result = await download('pdf');
   assert.equal(result.isError, undefined, textOf(result));
 
@@ -60,28 +58,19 @@ test('PDF is saved to a private local file that a separate process can read', as
   assert.equal(statSync(path.dirname(localPath)).mode & 0o777, 0o700);
   assert.equal(statSync(localPath).mode & 0o777, 0o600);
 
-  // A different process (standing in for the MCP client on the same host) reads the PDF.
-  const reader = spawnSync(process.execPath, ['-e', `
-    const fs = require('fs'), crypto = require('crypto');
-    const pdf = fs.readFileSync(process.argv[1]);
-    const text = pdf.toString('latin1');
-    const startxref = Number(/startxref\\n(\\d+)\\n%%EOF\\n$/.exec(text)[1]);
-    if (!text.startsWith('%PDF-') || !text.startsWith('xref', startxref)) process.exit(2);
-    process.stdout.write(crypto.createHash('sha256').update(pdf).digest('hex'));
-  `, localPath], { encoding: 'utf8' });
-  assert.equal(reader.status, 0, reader.stderr);
-  assert.equal(reader.stdout, createHash('sha256').update(PDF_BYTES).digest('hex'));
+  // This test process is separate from the stdio server process, like the MCP client on the same host.
+  assert.ok(readFileSync(localPath).equals(PDF_BYTES), 'local file holds the downloaded PDF bytes');
 });
 
 test('images are still returned inline and are not written to disk', async () => {
-  const before = tmpEntries().length;
+  const entriesBefore = tmpEntries().length;
   const result = await download('image');
   assert.equal(result.isError, undefined, textOf(result));
   const image = result.content.find((c) => c.type === 'image');
   assert.equal(image.mimeType, 'image/jpeg');
   assert.equal(image.data, PNG_BYTES.toString('base64'));
   assert.match(textOf(result), /^Downloaded image \(1 bytes, photos\/file_12\.jpg\)$/);
-  assert.equal(tmpEntries().length, before);
+  assert.equal(tmpEntries().length, entriesBefore);
 });
 
 test('remote path traversal cannot escape the private download directory', async () => {
@@ -93,11 +82,11 @@ test('remote path traversal cannot escape the private download directory', async
 });
 
 test('HTTP failure reports an error and leaves no file behind', async () => {
-  const before = tmpEntries().length;
+  const entriesBefore = tmpEntries().length;
   const result = await download('missing');
   assert.equal(result.isError, true);
   assert.match(textOf(result), /404 Not Found/);
-  assert.equal(tmpEntries().length, before);
+  assert.equal(tmpEntries().length, entriesBefore);
 });
 
 test('unknown file_id reports the Telegram error', async () => {
@@ -107,11 +96,11 @@ test('unknown file_id reports the Telegram error', async () => {
 });
 
 test('stalled download is aborted by the timeout', async () => {
-  const before = tmpEntries().length;
+  const entriesBefore = tmpEntries().length;
   const result = await download('slow');
   assert.equal(result.isError, true);
   assert.match(textOf(result), /timeout|aborted/i);
-  assert.equal(tmpEntries().length, before);
+  assert.equal(tmpEntries().length, entriesBefore);
 });
 
 test('bot token is redacted from error messages', async () => {
