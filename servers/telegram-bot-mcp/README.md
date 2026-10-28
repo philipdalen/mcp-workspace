@@ -316,7 +316,7 @@ npm run sse
 
 - **Images** (JPG, PNG, GIF, WebP) - Returned as viewable image content that Claude can interpret
 - **Other files** (PDFs, documents, voice/audio, ...) - Saved to a private download cache and returned as an absolute **local path** plus size, MIME type and an **Available until** time. The path is on the host running this MCP server: a client on the same host (e.g. a local stdio Claude Code session) can open it directly with its Read tool; a client on another machine cannot.
-- **Limits** - Files over 20 MB are rejected (Telegram's bot download limit). The `getFile` request and the file download each time out after 60 s.
+- **Limits** - Files over 20 MiB are rejected (Telegram's bot download limit). The `getFile` request and the file download each time out after 60 s.
 
 </details>
 
@@ -324,10 +324,10 @@ npm run sse
 <summary>🗑️ <strong>Download lifetime and cleanup</strong></summary>
 
 - **Location:** `$TMPDIR/telegram-mcp-downloads-<uid>/slot-0` … `slot-9` (directories 0700, files 0600). The server refuses to use the cache if it is a symlink, owned by another user, or accessible to others. Server processes for several bots run by the same user share it.
-- **Capacity (firm):** 10 slots, one saved file per slot, each at most 20 MB, so saved downloads never exceed **10 files / 200 MB**, including when several downloads run at once in one or several server processes. A slot is claimed with an atomic `rename` that only succeeds on an empty slot. When all 10 slots hold unexpired downloads, a new download is **rejected** with an error saying when a slot frees up; unexpired files are never evicted early. Besides the downloads, each slot holds an empty reservation marker.
+- **Capacity (firm):** 10 slots, one saved file per slot, each at most 20 MiB, so saved downloads never exceed **10 files / 200 MiB**, including when several downloads run at once in one or several server processes. Because each file holds its slot for 24 hours, this also means **at most 10 non-image downloads per rolling 24 hours, shared by all bots of this user** (images don't use slots). A slot is claimed with an atomic `rename` that only succeeds on an empty slot. When all 10 slots hold unexpired downloads, a new download is **rejected** with an error saying when a slot frees up; unexpired files are never evicted early. Besides the downloads, each slot holds an empty reservation marker.
 - **Retention:** every saved file is kept for **24 hours** from when it was written (the result's *Available until* time), then deleted by the next cleanup. Cleanup runs at server startup, before every download, and every hour while the server is idle (the timer does not keep the process alive). While a server is running and the host is awake, a file is gone at most 25 hours after download.
 - **After a crash or while no server is running**, nothing is deleted. Expired entries are removed at the next server startup (or by another bot's server sharing the cache). A slot whose save crashed before or during the write stays occupied by its marker/partial file until that expires 24 hours later. The server does not rely on OS temp cleanup.
-- **Concurrent cleanup:** every file is deleted individually, by its unique name, only once its own age is over 24 hours, and slot directories are never removed, so several servers sweeping at once never delete a fresh file or free a slot that is in use.
+- **Concurrent cleanup:** every file is deleted individually, by its unique name, only once its own age is over 24 hours, and slot directories are never removed, so several servers sweeping at once never delete a fresh file or free a slot that is in use, provided each save finishes writing within 24 hours of claiming its slot and the system clock does not jump forward by 24 hours or more.
 - Only files inside the slot directories and expired `stage-*` directories (left by a crash while claiming a slot) are deleted; nothing else in the temp directory is scanned.
 
 </details>

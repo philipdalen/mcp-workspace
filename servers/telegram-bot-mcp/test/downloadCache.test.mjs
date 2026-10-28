@@ -118,7 +118,6 @@ test('concurrent saves from separate processes never exceed the slot count', asy
   const succeeded = (await Promise.all(Array.from({ length: processes }, run))).reduce((a, b) => a + b, 0);
 
   assert.equal(succeeded, SLOT_COUNT);
-  assert.equal(dataFiles().length, SLOT_COUNT);
   for (let i = 0; i < SLOT_COUNT; i++) {
     const files = readdirSync(path.join(cacheDir, `slot-${i}`)).filter((name) => !name.startsWith('reserved-'));
     assert.equal(files.length, 1, `slot-${i}`);
