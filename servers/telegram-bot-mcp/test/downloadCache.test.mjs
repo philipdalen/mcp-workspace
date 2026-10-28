@@ -1,7 +1,9 @@
 // Lifecycle tests for the download cache: expiry, capacity, directory safety and the idle sweep.
 import { afterEach, beforeEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, symlinkSync, truncateSync, utimesSync, writeFileSync } from 'node:fs';
+import crypto from 'node:crypto';
+import { syncBuiltinESMExports } from 'node:module';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, truncateSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -73,6 +75,16 @@ test('a full cache rejects new downloads instead of deleting unexpired files', a
   for (let i = 1; i < MAX_CACHE_FILES; i++) cacheFile(`f${i}`);
   await assert.rejects(saveDownload('documents/one-too-many.pdf', Buffer.alloc(1)), /limit 100 files/);
   assert.equal(readdirSync(cacheDir).length, MAX_CACHE_FILES);
+});
+
+test('a name collision fails the new save without deleting the existing file', async (t) => {
+  t.mock.method(crypto, 'randomBytes', () => Buffer.from('00000000', 'hex'));
+  syncBuiltinESMExports();
+  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+
+  const first = await saveDownload('documents/same.pdf', Buffer.from('first'));
+  await assert.rejects(saveDownload('documents/same.pdf', Buffer.from('second')), { code: 'EEXIST' });
+  assert.equal(readFileSync(first.localPath, 'utf8'), 'first');
 });
 
 test('refuses a cache directory that is shared or a symlink', async () => {
