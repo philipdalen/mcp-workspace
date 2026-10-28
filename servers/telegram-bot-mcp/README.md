@@ -143,7 +143,7 @@ npm run sse
 | [`delete_message`](#delete_message) | Remove messages | Content moderation |
 | [`get_chat`](#get_chat) | Retrieve chat information | Analytics, administration |
 | [`get_updates`](#get_updates) | Get incoming updates | Receiving messages, callbacks |
-| [`download_file`](#download_file) | Download media files | Image interpretation, reading PDFs/documents |
+| [`download_file`](#download_file) | Download media files | Image interpretation, PDF/document/audio retrieval |
 
 </div>
 
