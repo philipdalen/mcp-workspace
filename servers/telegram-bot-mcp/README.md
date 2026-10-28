@@ -143,7 +143,7 @@ npm run sse
 | [`delete_message`](#delete_message) | Remove messages | Content moderation |
 | [`get_chat`](#get_chat) | Retrieve chat information | Analytics, administration |
 | [`get_updates`](#get_updates) | Get incoming updates | Receiving messages, callbacks |
-| [`download_file`](#download_file) | Download media files | Image/audio interpretation |
+| [`download_file`](#download_file) | Download media files | Image interpretation, reading PDFs/documents |
 
 </div>
 
@@ -315,8 +315,7 @@ npm run sse
 <summary>💡 <strong>Response behavior</strong></summary>
 
 - **Images** (JPG, PNG, GIF, WebP) - Returned as viewable image content that Claude can interpret
-- **Audio** (OGG, MP3, M4A) - Returned with metadata and base64 data for transcription
-- **Other files** - Returned with metadata and base64 data
+- **Other files** (PDFs, documents, voice/audio, ...) - Saved to a private temp file (`$TMPDIR/telegram-mcp-*/`, mode 0700/0600) and returned as an absolute **local path** plus size and MIME type. The path is on the host running this MCP server: a client on the same host (e.g. a local stdio Claude Code session) can open it directly with its Read tool; a client on another machine cannot. Files are not deleted automatically.
 
 </details>
 
