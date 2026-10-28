@@ -1,16 +1,24 @@
 import { randomBytes } from 'node:crypto';
-import { lstat, mkdir, readdir, unlink, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, readdir, rename, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-// Lifecycle of downloaded non-image files. Files live in one private per-user directory,
-// are kept for DOWNLOAD_RETENTION_MS from when they were written, and are deleted by
-// the first prune after that: at server startup, before every save, and on an hourly timer.
+// Lifecycle of downloaded non-image files.
+//
+// The cache has SLOT_COUNT fixed slot directories (slot-0 ... slot-9), each holding at most one
+// download of at most MAX_DOWNLOAD_BYTES, so file data never exceeds SLOT_COUNT * MAX_DOWNLOAD_BYTES.
+// A slot is free when its directory is empty or missing. To claim one, a saver builds a private
+// stage-<id> directory containing a reservation marker and rename()s it onto slot-N; rename only
+// replaces a missing or empty directory, so exactly one saver wins each free slot, across threads
+// and processes. Slot directories are never deleted by cleanup: entries are deleted individually,
+// by their unique names, once their own mtime is DOWNLOAD_RETENTION_MS old, and a slot becomes free
+// again when it is empty. A fresh entry can therefore never be deleted by a concurrent or stale sweep.
 export const DOWNLOAD_RETENTION_MS = 24 * 60 * 60 * 1000;
 export const SWEEP_INTERVAL_MS = 60 * 60 * 1000;
 export const MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024; // Telegram Bot API getFile limit
-export const MAX_CACHE_BYTES = 200 * 1024 * 1024;
-export const MAX_CACHE_FILES = 100;
+export const SLOT_COUNT = 10;
+
+const slotNames = Array.from({ length: SLOT_COUNT }, (_, i) => `slot-${i}`);
 
 export function downloadCacheDir(): string {
   return path.join(tmpdir(), `telegram-mcp-downloads-${process.getuid?.() ?? 'user'}`);
@@ -25,69 +33,109 @@ async function assertPrivateDir(dir: string): Promise<void> {
   }
 }
 
-// Deletes expired regular files (including leftovers from crashed writes) and reports what remains.
-// Subdirectories and symlinks are never touched.
-export async function pruneDownloadCache(): Promise<{ bytes: number; files: number; oldestMs?: number }> {
+const isExpired = (mtimeMs: number) => Date.now() - mtimeMs >= DOWNLOAD_RETENTION_MS;
+const ignoreCodes = (...codes: string[]) => (error: NodeJS.ErrnoException) => {
+  if (!codes.includes(error.code ?? '')) throw error;
+};
+
+// Deletes expired files directly inside `dir`; returns the oldest remaining file mtime.
+async function deleteExpiredFiles(dir: string): Promise<number | undefined> {
+  const entries = await readdir(dir, { withFileTypes: true }).catch((error) => {
+    ignoreCodes('ENOENT')(error);
+    return [];
+  });
+  let oldestMs: number | undefined;
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const filePath = path.join(dir, entry.name);
+    const stats = await lstat(filePath).catch(ignoreCodes('ENOENT'));
+    if (!stats) continue;
+    if (isExpired(stats.mtimeMs)) await unlink(filePath).catch(ignoreCodes('ENOENT'));
+    else oldestMs = Math.min(oldestMs ?? stats.mtimeMs, stats.mtimeMs);
+  }
+  return oldestMs;
+}
+
+// Deletes expired files in the slots and removes expired stage directories left by crashes.
+// Returns the oldest unexpired file time, used to tell callers when a slot frees up.
+export async function pruneDownloadCache(): Promise<{ oldestMs?: number }> {
   const dir = downloadCacheDir();
   try {
     await assertPrivateDir(dir);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { bytes: 0, files: 0 };
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return {};
     throw error;
   }
 
-  const usage: { bytes: number; files: number; oldestMs?: number } = { bytes: 0, files: 0 };
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (!entry.isFile()) continue;
-    const filePath = path.join(dir, entry.name);
-    try {
-      const stats = await lstat(filePath);
-      if (Date.now() - stats.mtimeMs >= DOWNLOAD_RETENTION_MS) {
-        await unlink(filePath);
-        continue;
-      }
-      usage.bytes += stats.size;
-      usage.files += 1;
-      usage.oldestMs = Math.min(usage.oldestMs ?? stats.mtimeMs, stats.mtimeMs);
-    } catch (error) {
-      // Another server process sharing the cache may have removed it first.
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-    }
+  let oldestMs: number | undefined;
+  for (const slot of slotNames) {
+    const slotOldest = await deleteExpiredFiles(path.join(dir, slot));
+    if (slotOldest !== undefined) oldestMs = Math.min(oldestMs ?? slotOldest, slotOldest);
   }
-  return usage;
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || !entry.name.startsWith('stage-')) continue;
+    const stageDir = path.join(dir, entry.name);
+    const stats = await lstat(stageDir).catch(ignoreCodes('ENOENT'));
+    if (!stats || !isExpired(stats.mtimeMs)) continue;
+    await deleteExpiredFiles(stageDir);
+    await rmdir(stageDir).catch(ignoreCodes('ENOENT', 'ENOTEMPTY', 'EEXIST'));
+  }
+  return { oldestMs };
 }
 
 // Telegram's file_path is a remote path (e.g. "documents/file_398.pdf"), never a local one.
-// Keep only a sanitized basename so it cannot escape the cache directory.
+// Keep only a sanitized basename so it cannot escape its slot directory.
 function localFileName(telegramFilePath: string): string {
-  const name = path.basename(telegramFilePath).replace(/[^\w.-]/g, '_').replace(/^\.+/, '').slice(0, 100);
-  return `${randomBytes(4).toString('hex')}-${name || 'telegram-file'}`;
+  return path.basename(telegramFilePath).replace(/[^\w.-]/g, '_').replace(/^\.+/, '').slice(0, 100) || 'telegram-file';
 }
 
-// Saves a download for the consumer to read. When the cache is full, the new download is
-// rejected rather than deleting files that were already handed out and are still unexpired.
+// Claims a free slot and saves the download in it. When every slot holds an unexpired download,
+// the new download is rejected; files already handed out are never evicted.
 export async function saveDownload(telegramFilePath: string, data: Buffer): Promise<{ localPath: string; expiresAt: Date }> {
+  if (data.length > MAX_DOWNLOAD_BYTES) {
+    throw new Error(`File exceeds the ${MAX_DOWNLOAD_BYTES} byte download limit`);
+  }
   const dir = downloadCacheDir();
   await mkdir(dir, { mode: 0o700, recursive: true });
-  const usage = await pruneDownloadCache();
+  const { oldestMs } = await pruneDownloadCache();
 
-  if (usage.files + 1 > MAX_CACHE_FILES || usage.bytes + data.length > MAX_CACHE_BYTES) {
-    const freesAt = new Date((usage.oldestMs ?? Date.now()) + DOWNLOAD_RETENTION_MS).toISOString();
+  const id = randomBytes(8).toString('hex');
+  const stageDir = path.join(dir, `stage-${id}`);
+  const marker = `reserved-${id}`;
+  await mkdir(stageDir, { mode: 0o700 });
+  await writeFile(path.join(stageDir, marker), '', { mode: 0o600, flag: 'wx' });
+
+  let slotDir: string | undefined;
+  for (const slot of slotNames) {
+    try {
+      await rename(stageDir, path.join(dir, slot));
+      slotDir = path.join(dir, slot);
+      break;
+    } catch (error) {
+      ignoreCodes('ENOTEMPTY', 'EEXIST')(error as NodeJS.ErrnoException);
+    }
+  }
+  if (!slotDir) {
+    await unlink(path.join(stageDir, marker));
+    await rmdir(stageDir);
+    const freesAt = new Date((oldestMs ?? Date.now()) + DOWNLOAD_RETENTION_MS).toISOString();
     throw new Error(
-      `Download cache is full (${usage.files} files, ${usage.bytes} of ${MAX_CACHE_BYTES} bytes; limit ${MAX_CACHE_FILES} files). ` +
-      `Existing downloads are kept until they expire; space frees up from ${freesAt}.`
+      `Download cache is full (all ${SLOT_COUNT} slots hold unexpired downloads). ` +
+      `Existing downloads are kept until they expire; a slot frees up from ${freesAt}.`
     );
   }
 
-  const localPath = path.join(dir, localFileName(telegramFilePath));
+  const localPath = path.join(slotDir, `${id}-${localFileName(telegramFilePath)}`);
   try {
     await writeFile(localPath, data, { mode: 0o600, flag: 'wx' });
   } catch (error) {
-    // EEXIST means the name belongs to an earlier download that must not be touched.
-    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') await unlink(localPath).catch(() => {});
+    // Release our own slot: both names are unique to this save.
+    await unlink(localPath).catch(() => {});
+    await unlink(path.join(slotDir, marker)).catch(() => {});
     throw error;
   }
-  return { localPath, expiresAt: new Date(Date.now() + DOWNLOAD_RETENTION_MS) };
+  const { mtimeMs } = await lstat(localPath);
+  return { localPath, expiresAt: new Date(mtimeMs + DOWNLOAD_RETENTION_MS) };
 }
 
 // Startup recovery (files left by previous runs or crashes) plus an idle sweep that never
