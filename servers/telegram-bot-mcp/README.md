@@ -315,7 +315,19 @@ npm run sse
 <summary>💡 <strong>Response behavior</strong></summary>
 
 - **Images** (JPG, PNG, GIF, WebP) - Returned as viewable image content that Claude can interpret
-- **Other files** (PDFs, documents, voice/audio, ...) - Saved to a private temp file (`$TMPDIR/telegram-mcp-*/`, mode 0700/0600) and returned as an absolute **local path** plus size and MIME type. The path is on the host running this MCP server: a client on the same host (e.g. a local stdio Claude Code session) can open it directly with its Read tool; a client on another machine cannot. Files are not deleted automatically.
+- **Other files** (PDFs, documents, voice/audio, ...) - Saved to a private download cache and returned as an absolute **local path** plus size, MIME type and an **Available until** time. The path is on the host running this MCP server: a client on the same host (e.g. a local stdio Claude Code session) can open it directly with its Read tool; a client on another machine cannot.
+- **Limits** - Files over 20 MB are rejected (Telegram's bot download limit). The `getFile` request and the file download each time out after 60 s.
+
+</details>
+
+<details>
+<summary>🗑️ <strong>Download lifetime and cleanup</strong></summary>
+
+- **Location:** `$TMPDIR/telegram-mcp-downloads-<uid>/` (directory 0700, files 0600). The server refuses to use it if it is a symlink, owned by another user, or accessible to others. Server processes for several bots run by the same user share it.
+- **Retention:** every saved file is kept for **24 hours** from download, then deleted by the next cleanup. Cleanup runs at server startup, before every download, and every hour while the server is idle (the timer does not keep the process alive). While a server is running, a file is gone at most 25 hours after download.
+- **After a crash or while no server is running**, nothing is deleted; expired files (including any partially written file) are removed at the next server startup. Don't rely on OS temp cleanup.
+- **Capacity:** at most 100 files and 200 MB. When a new download would exceed that, it is **rejected** with an error saying when space frees up; unexpired files are never evicted early. The check is not locked, so downloads saved at the same moment (in one or several server processes) can each overshoot the byte cap by at most one 20 MB file.
+- Only regular files directly inside this directory are counted or deleted; nothing else in the temp directory is scanned.
 
 </details>
 
