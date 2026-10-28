@@ -35,7 +35,7 @@ async function readBoundedBody(response: Response): Promise<Buffer> {
 
 export const downloadFile = {
   name: "download_file",
-  description: `Download a file from Telegram by its file_id. Images are returned as viewable content. Other files (PDFs, documents, voice/audio, etc.) are saved to a private temp file on the host running this MCP server and the absolute local path is returned; open that path with your file-reading tool (e.g. Read for PDFs) when you run on the same host. Saved files are deleted ${DOWNLOAD_RETENTION_MS / 3_600_000} hours after download; files over ${MAX_DOWNLOAD_BYTES / 1024 / 1024} MB are rejected.`,
+  description: `Download a file from Telegram by its file_id. Images are returned as viewable content. Other files (PDFs, documents, voice/audio, etc.) are saved to a private download cache on the host running this MCP server and the absolute local path is returned; open that path with your file-reading tool (e.g. Read for PDFs) when you run on the same host. Saved files are deleted ${DOWNLOAD_RETENTION_MS / 3_600_000} hours after download; files over ${MAX_DOWNLOAD_BYTES / 1024 / 1024} MB are rejected.`,
   parameters: {
     type: "object",
     properties: {

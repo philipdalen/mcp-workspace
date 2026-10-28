@@ -83,7 +83,8 @@ export async function saveDownload(telegramFilePath: string, data: Buffer): Prom
   try {
     await writeFile(localPath, data, { mode: 0o600, flag: 'wx' });
   } catch (error) {
-    await unlink(localPath).catch(() => {});
+    // EEXIST means the name belongs to an earlier download that must not be touched.
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') await unlink(localPath).catch(() => {});
     throw error;
   }
   return { localPath, expiresAt: new Date(Date.now() + DOWNLOAD_RETENTION_MS) };
