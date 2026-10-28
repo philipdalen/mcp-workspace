@@ -25,7 +25,8 @@ before(async () => {
   // Simulate a file left behind by a previous server run that crashed or was killed.
   cacheDir = path.join(serverTmp, `telegram-mcp-downloads-${process.getuid()}`);
   mkdirSync(cacheDir, { mode: 0o700 });
-  staleLeftover = path.join(cacheDir, 'deadbeef-file_old.pdf');
+  mkdirSync(path.join(cacheDir, 'slot-0'));
+  staleLeftover = path.join(cacheDir, 'slot-0', 'deadbeef-file_old.pdf');
   writeFileSync(staleLeftover, 'stale');
   const expired = new Date(Date.now() - 25 * 60 * 60 * 1000);
   utimesSync(staleLeftover, expired, expired);
@@ -48,7 +49,7 @@ after(async () => {
 const download = (fileId) => client.callTool({ name: 'download_file', arguments: { fileId } }, undefined, { timeout: 5000 });
 const textOf = (result) => result.content.filter((c) => c.type === 'text').map((c) => c.text).join('\n');
 const localPathOf = (result) => /\*\*Local path:\*\* (.+)/.exec(textOf(result))?.[1];
-const cacheEntries = () => readdirSync(cacheDir);
+const cacheEntries = () => readdirSync(cacheDir, { recursive: true });
 
 // Runs first: no download has happened yet, so only startup cleanup can remove the leftover.
 test('startup removes expired files left by a previous run', async () => {
@@ -70,8 +71,9 @@ test('PDF is saved to a private local file readable outside the server process',
 
   const localPath = localPathOf(result);
   assert.ok(localPath && path.isAbsolute(localPath), `absolute path expected, got ${localPath}`);
-  assert.match(path.basename(localPath), /^[0-9a-f]{8}-file_398\.pdf$/);
-  assert.equal(path.dirname(localPath), cacheDir, 'stored in the private cache under the server host temp dir');
+  assert.match(path.basename(localPath), /^[0-9a-f]{16}-file_398\.pdf$/);
+  assert.match(path.basename(path.dirname(localPath)), /^slot-\d$/);
+  assert.equal(path.dirname(path.dirname(localPath)), cacheDir, 'stored in a cache slot under the server host temp dir');
   assert.equal(statSync(cacheDir).mode & 0o777, 0o700);
   assert.equal(statSync(localPath).mode & 0o777, 0o600);
 
@@ -94,7 +96,7 @@ test('remote path traversal cannot escape the private download directory', async
   for (const [fileId, expectedName] of [['traversal', '-evil_name_rm_-rf.pdf'], ['dotfile', '-telegram-file']]) {
     const localPath = localPathOf(await download(fileId));
     assert.ok(path.basename(localPath).endsWith(expectedName), localPath);
-    assert.equal(path.dirname(localPath), cacheDir);
+    assert.equal(path.dirname(path.dirname(localPath)), cacheDir);
   }
 });
 

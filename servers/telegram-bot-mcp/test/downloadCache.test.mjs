@@ -1,17 +1,19 @@
-// Lifecycle tests for the download cache: expiry, capacity, directory safety and the idle sweep.
+// Lifecycle tests for the download cache: expiry, slot capacity (also across processes),
+// directory safety and the idle sweep.
 import { afterEach, beforeEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
-import crypto from 'node:crypto';
-import { syncBuiltinESMExports } from 'node:module';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, truncateSync, utimesSync, writeFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { pathToFileURL } from 'node:url';
 import {
-  DOWNLOAD_RETENTION_MS, MAX_CACHE_BYTES, MAX_CACHE_FILES, SWEEP_INTERVAL_MS,
+  DOWNLOAD_RETENTION_MS, MAX_DOWNLOAD_BYTES, SLOT_COUNT, SWEEP_INTERVAL_MS,
   downloadCacheDir, pruneDownloadCache, saveDownload, startDownloadCacheMaintenance,
 } from '../build/downloadCache.js';
 
+const cacheModuleUrl = new URL('../build/downloadCache.js', import.meta.url).href;
 const realTmp = tmpdir();
 let root, cacheDir;
 
@@ -28,63 +30,99 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-function cacheFile(name, { ageMs = 0, size } = {}) {
-  const file = path.join(cacheDir, name);
-  writeFileSync(file, 'x');
-  if (size !== undefined) truncateSync(file, size); // sparse: no real disk usage
+const age = (target, ageMs) => {
   const mtime = new Date(Date.now() - ageMs);
-  utimesSync(file, mtime, mtime);
-  return file;
+  utimesSync(target, mtime, mtime);
+  return target;
+};
+
+function cacheFile(relativePath, ageMs = 0) {
+  const file = path.join(cacheDir, relativePath);
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, 'x');
+  return age(file, ageMs);
 }
+
+const dataFiles = () => readdirSync(cacheDir)
+  .filter((name) => name.startsWith('slot-'))
+  .flatMap((slot) => readdirSync(path.join(cacheDir, slot)).filter((name) => !name.startsWith('reserved-')));
 
 async function waitUntil(condition) {
   for (let i = 0; i < 200 && !condition(); i++) await sleep(5);
   assert.ok(condition(), 'condition not reached');
 }
 
-test('expired files are deleted; fresh files, subdirectories and symlinks are kept', async () => {
-  const fresh = cacheFile('fresh.pdf', { ageMs: DOWNLOAD_RETENTION_MS - 60_000 });
-  const expired = cacheFile('expired.pdf', { ageMs: DOWNLOAD_RETENTION_MS });
-  const subdir = path.join(cacheDir, 'subdir');
-  mkdirSync(subdir);
+test('cleanup deletes only expired cache entries, each by its own age', async () => {
+  // Crash mid-write: reservation marker and partial file, both expired.
+  const crashed = [cacheFile('slot-0/reserved-a', DOWNLOAD_RETENTION_MS), cacheFile('slot-0/a-partial.pdf', DOWNLOAD_RETENTION_MS)];
+  const expiredMarker = cacheFile('slot-1/reserved-b', DOWNLOAD_RETENTION_MS);
+  const freshDownload = cacheFile('slot-1/b-file.pdf', DOWNLOAD_RETENTION_MS - 60_000);
+  // Crash before a slot was claimed, and a save that is claiming one right now.
+  const staleStage = path.join(cacheDir, 'stage-old');
+  cacheFile('stage-old/reserved-c', DOWNLOAD_RETENTION_MS);
+  age(staleStage, DOWNLOAD_RETENTION_MS);
+  const activeStage = path.join(cacheDir, 'stage-new');
+  mkdirSync(activeStage);
+  // Not ours to delete.
+  const unrelated = cacheFile('other.txt', 2 * DOWNLOAD_RETENTION_MS);
   const outside = path.join(root, 'outside.txt');
   writeFileSync(outside, 'not ours');
-  symlinkSync(outside, path.join(cacheDir, 'link'));
-  const old = new Date(Date.now() - 2 * DOWNLOAD_RETENTION_MS);
-  utimesSync(outside, old, old);
+  age(outside, 2 * DOWNLOAD_RETENTION_MS);
+  mkdirSync(path.join(cacheDir, 'slot-2'));
+  symlinkSync(outside, path.join(cacheDir, 'slot-2', 'link'));
 
-  const usage = await pruneDownloadCache();
+  await pruneDownloadCache();
 
-  assert.equal(existsSync(expired), false);
-  assert.ok(existsSync(fresh) && existsSync(subdir) && existsSync(outside));
-  assert.equal(usage.files, 1);
+  for (const gone of [...crashed, expiredMarker, staleStage]) assert.equal(existsSync(gone), false, gone);
+  for (const kept of [freshDownload, activeStage, unrelated, outside]) assert.ok(existsSync(kept), kept);
+  assert.ok(existsSync(path.join(cacheDir, 'slot-0')), 'slot directories are kept; empty means free');
 });
 
-test('a full cache rejects new downloads instead of deleting unexpired files', async () => {
-  const big = cacheFile('big.pdf', { size: MAX_CACHE_BYTES - 5 });
-  await assert.rejects(saveDownload('documents/new.pdf', Buffer.alloc(10)), /Download cache is full/);
-  assert.ok(existsSync(big));
-  assert.deepEqual(readdirSync(cacheDir), ['big.pdf']);
+test('saves are limited to one file per slot and a full cache rejects without evicting', async () => {
+  await assert.rejects(saveDownload('documents/huge.pdf', Buffer.alloc(MAX_DOWNLOAD_BYTES + 1)), /exceeds the 20971520 byte/);
+  assert.deepEqual(readdirSync(cacheDir), [], 'an oversized file reserves nothing');
 
-  // Once the old file has expired it is pruned, making room for the new one.
-  const expired = new Date(Date.now() - DOWNLOAD_RETENTION_MS);
-  utimesSync(big, expired, expired);
-  const { localPath } = await saveDownload('documents/new.pdf', Buffer.alloc(10));
-  assert.deepEqual(readdirSync(cacheDir), [path.basename(localPath)]);
+  const saved = [];
+  for (let i = 0; i < SLOT_COUNT; i++) saved.push(await saveDownload(`documents/f${i}.pdf`, Buffer.from(`file ${i}`)));
+  assert.equal(new Set(saved.map((s) => path.dirname(s.localPath))).size, SLOT_COUNT, 'one slot per file');
 
-  for (let i = 1; i < MAX_CACHE_FILES; i++) cacheFile(`f${i}`);
-  await assert.rejects(saveDownload('documents/one-too-many.pdf', Buffer.alloc(1)), /limit 100 files/);
-  assert.equal(readdirSync(cacheDir).length, MAX_CACHE_FILES);
+  await assert.rejects(saveDownload('documents/extra.pdf', Buffer.from('extra')), /all 10 slots hold unexpired downloads/);
+  saved.forEach((s, i) => assert.equal(readFileSync(s.localPath, 'utf8'), `file ${i}`));
+  assert.ok(!readdirSync(cacheDir).some((name) => name.startsWith('stage-')), 'rejected save cleans up');
+
+  // Once one download expires its slot is reused.
+  const slot3 = path.dirname(saved[3].localPath);
+  for (const name of readdirSync(slot3)) age(path.join(slot3, name), DOWNLOAD_RETENTION_MS);
+  const reused = await saveDownload('documents/new.pdf', Buffer.from('new'));
+  assert.equal(path.dirname(reused.localPath), slot3);
+  assert.equal(dataFiles().length, SLOT_COUNT);
 });
 
-test('a name collision fails the new save without deleting the existing file', async (t) => {
-  t.mock.method(crypto, 'randomBytes', () => Buffer.from('00000000', 'hex'));
-  syncBuiltinESMExports();
-  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+test('concurrent saves from separate processes never exceed the slot count', async () => {
+  const processes = 6, savesEach = 4; // 24 simultaneous attempts for 10 slots
+  const startAt = Date.now() + 1000;
+  const script = `
+    const { saveDownload } = await import(${JSON.stringify(cacheModuleUrl)});
+    while (Date.now() < ${startAt}) {}
+    const results = await Promise.allSettled(Array.from({ length: ${savesEach} }, (_, i) =>
+      saveDownload('documents/race-' + process.pid + '-' + i + '.pdf', Buffer.alloc(1024))));
+    process.stdout.write(String(results.filter((r) => r.status === 'fulfilled').length));`;
+  const run = () => new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ['--input-type=module', '-e', script], { env: { ...process.env, TMPDIR: root } });
+    let out = '';
+    child.stdout.on('data', (chunk) => { out += chunk; });
+    child.on('error', reject);
+    child.on('close', (code) => (code === 0 ? resolve(Number(out)) : reject(new Error(`child exited ${code}`))));
+  });
 
-  const first = await saveDownload('documents/same.pdf', Buffer.from('first'));
-  await assert.rejects(saveDownload('documents/same.pdf', Buffer.from('second')), { code: 'EEXIST' });
-  assert.equal(readFileSync(first.localPath, 'utf8'), 'first');
+  const succeeded = (await Promise.all(Array.from({ length: processes }, run))).reduce((a, b) => a + b, 0);
+
+  assert.equal(succeeded, SLOT_COUNT);
+  assert.equal(dataFiles().length, SLOT_COUNT);
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    const files = readdirSync(path.join(cacheDir, `slot-${i}`)).filter((name) => !name.startsWith('reserved-'));
+    assert.equal(files.length, 1, `slot-${i}`);
+  }
 });
 
 test('refuses a cache directory that is shared or a symlink', async () => {
@@ -107,7 +145,7 @@ test('idle sweep deletes files once they expire, without keeping the process ali
   assert.equal(keepsProcessAlive, false);
 
   mock.timers.enable({ apis: ['setInterval', 'Date'], now: Date.now() });
-  const file = cacheFile('download.pdf', { ageMs: DOWNLOAD_RETENTION_MS - SWEEP_INTERVAL_MS / 2 });
+  const file = cacheFile('slot-0/x-download.pdf', DOWNLOAD_RETENTION_MS - SWEEP_INTERVAL_MS / 2);
   const timer = startDownloadCacheMaintenance();
   await pruneDownloadCache(); // let the startup sweep settle: file is not yet expired
   assert.ok(existsSync(file));
