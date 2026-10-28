@@ -25,6 +25,7 @@ import { downloadFile } from "./tools/downloadFile.js";
 import { answerCallbackQuery } from "./tools/answerCallbackQuery.js";
 import { editMessageText } from "./tools/editMessageText.js";
 import { editMessageReplyMarkup } from "./tools/editMessageReplyMarkup.js";
+import { startDownloadCacheMaintenance } from "./downloadCache.js";
 
 // Create MCP server
 const server = new Server({
@@ -140,6 +141,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  startDownloadCacheMaintenance();
   console.error("Telegram MCP server running on stdio");
 }
 

@@ -44,4 +44,5 @@ export const FILES = {
   leaky: 'documents/file_leaky.pdf',
   traversal: 'documents/../../../../evil name;rm -rf.pdf',
   dotfile: 'documents/..',
+  huge: 'documents/file_huge.pdf',
 };

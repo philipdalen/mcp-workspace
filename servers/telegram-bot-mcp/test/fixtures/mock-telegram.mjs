@@ -1,8 +1,10 @@
 // Preloaded into the MCP server process (node --import) to replace all Telegram network access.
 import TelegramBot from 'node-telegram-bot-api';
+import { MAX_DOWNLOAD_BYTES } from '../../build/downloadCache.js';
 import { FAKE_TOKEN, FILES, PDF_BYTES, PNG_BYTES } from './telegram-fixtures.mjs';
 
 TelegramBot.prototype.getFile = async function (fileId) {
+  if (!this.options.request?.timeout) throw new Error('getFile must be called with a request timeout');
   const filePath = FILES[fileId];
   if (!filePath) throw new Error('ETELEGRAM: 400 Bad Request: invalid file_id');
   return { file_id: fileId, file_unique_id: `u-${fileId}`, file_size: 1, file_path: filePath };
@@ -21,6 +23,7 @@ globalThis.fetch = async (url, init = {}) => {
 
   if (filePath === FILES.image) return new Response(PNG_BYTES);
   if (filePath === FILES.missing) return new Response('not found', { status: 404, statusText: 'Not Found' });
+  if (filePath === FILES.huge) return new Response(Buffer.alloc(MAX_DOWNLOAD_BYTES + 1));
   if (filePath === FILES.leaky) throw new Error(`connect ECONNRESET while fetching ${url}`);
   if (filePath === FILES.slow) {
     return new Promise((_, reject) => {
